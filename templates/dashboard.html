@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>TurtleBot3 Dashboard | Phoenix Control</title>
+        <style>
+            body {
+                opacity: 0;
+                transition: all 0.3s ease-in-out;
+            }
+        </style>
+        <link
+            as="style"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+            onload="this.onload=null;this.rel='stylesheet'"
+            rel="stylesheet"
+        />
+        <link
+            as="style"
+            href="{{ url_for('static', path='/lib/SwiperJs/swiper-bundle.min.css') }}"
+            onload="this.onload=null;this.rel='stylesheet'"
+            rel="stylesheet"
+        />
+        <link
+            href="{{ url_for('static', path='/css/wpo-minify-header-contact-form-71759816380.min.css') }}"
+            id="wpo_min-header-0-css"
+            media="all"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            as="style"
+            href="{{ url_for('static', path='/css/style.css') }}?v=7"
+            onload="this.onload=null;this.rel='stylesheet'"
+            rel="stylesheet"
+        />
+        <link
+            href="{{ url_for('static', path='/css/local-fonts.css') }}"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', path='/css/dashboard.css') }}?v=13"
+        />
+        <noscript>
+            <link
+                href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+                rel="stylesheet"
+            />
+            <link
+                href="{{ url_for('static', path='/lib/SwiperJs/swiper-bundle.min.css') }}"
+                rel="stylesheet"
+            />
+            <link
+                href="{{ url_for('static', path='/css/style.css') }}?v=4"
+                rel="stylesheet"
+            />
+        </noscript>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                "use strict";
+                var body = document.querySelector("body");
+                body.style.opacity = 1;
+            });
+        </script>
+    </head>
+    <body class="dashboard-page" style="opacity: 1">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="container">
+                <div class="brand">
+                    <a
+                        class="hoverable-sm brand-logo logo-white"
+                        href="{{ request.base_url }}"
+                    >
+                        <canvas
+                            height="96"
+                            style="
+                                width: 100%;
+                                height: 100%;
+                                transform-origin: 0px 0px 0px;
+                                content-visibility: visible;
+                            "
+                            width="96"
+                        ></canvas>
+                    </a>
+                </div>
+                <div class="navigation">
+                    <div class="navigation-header">
+                        <div class="navigation-brand">
+                            <a
+                                class="anchor brand-logo logo-white"
+                                href="{{ request.base_url }}"
+                            >
+                                <canvas
+                                    height="0"
+                                    style="
+                                        width: 100%;
+                                        height: 100%;
+                                        transform-origin: 0px 0px 0px;
+                                        content-visibility: visible;
+                                    "
+                                    width="0"
+                                ></canvas>
+                            </a>
+                        </div>
+                        <button class="btn-menu-trigger" type="button">
+                            <i class="fa-regular fa-fw fa-x"></i>
+                        </button>
+                    </div>
+                    <ul class="navigation-menu">
+                        <li>
+                            <a
+                                class="menu-item anchor hoverable-sm"
+                                href="{{ request.base_url }}"
+                            >
+                                <span
+                                    style="
+                                        translate: none;
+                                        rotate: none;
+                                        scale: none;
+                                        transform: translate(0px, 0%);
+                                    "
+                                >
+                                    스튜디오
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                class="menu-item anchor hoverable-sm active"
+                                href="{{ url_for('read_dashboard') }}"
+                            >
+                                <span
+                                    style="
+                                        translate: none;
+                                        rotate: none;
+                                        scale: none;
+                                        transform: translate(0px, 0%);
+                                    "
+                                >
+                                    대시보드
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                class="menu-item anchor hoverable-sm"
+                                href="{{ url_for('read_history') }}"
+                            >
+                                <span
+                                    style="
+                                        translate: none;
+                                        rotate: none;
+                                        scale: none;
+                                        transform: translate(0px, 0%);
+                                    "
+                                >
+                                    작업물
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                class="menu-item anchor hoverable-sm"
+                                href="{{ url_for('read_contact') }}"
+                            >
+                                <span
+                                    style="
+                                        translate: none;
+                                        rotate: none;
+                                        scale: none;
+                                        transform: translate(0px, 0%);
+                                    "
+                                >
+                                    문의하기
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <button class="btn-menu-trigger" type="button">
+                    <i class="fa-regular fa-fw fa-bars"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- ENERGY FLOW Section (Left) -->
+            <section class="card energy-flow">
+                <div class="card-header">
+                    <h2>SLAM MAP</h2>
+                </div>
+                <div class="energy-content">
+                    <div class="slam-map-container">
+                        <img
+                            id="slamMap"
+                            class="slam-map-img"
+                            src="/map/stream"
+                            alt="SLAM Map"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        />
+                        <div class="map-waiting" style="display: none">
+                            <div class="waiting-spinner"></div>
+                            <p>SLAM 맵 대기 중...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="battery-info">
+                    <div class="battery-time">
+                        <span class="time-value">12</span>
+                        <span class="time-label">HR</span>
+                        <span class="battery-label">BATTERY LIFE</span>
+                    </div>
+                    <div class="load-indicator">
+                        <span class="load-label">MEDIUM LOAD</span>
+                        <div class="load-bar"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Robot Card Section (Right Top) -->
+            <section class="card robot-card">
+                <div class="robot-header">
+                    <h2 class="robot-title">TURTLEBOT-3</h2>
+                </div>
+                <div class="camera-label">
+                    TURTLEBOT3 CAMERA 320×240 @ 30FPS
+                </div>
+                <div class="camera-view">
+                    <img
+                        id="cameraStream"
+                        src="/camera/stream"
+                        alt="TurtleBot3 Camera"
+                    />
+                </div>
+                <div class="power-control">
+                    <span class="power-label">POWER</span>
+                    <button
+                        class="power-btn active"
+                        onclick="togglePower(this)"
+                    >
+                        <i class="fas fa-power-off"></i>
+                    </button>
+                    <span class="power-status">
+                        ON
+                        <span class="status-off">OFF</span>
+                    </span>
+                </div>
+            </section>
+
+            <!-- Details Section -->
+            <section class="card details-card">
+                <h3 class="card-title">DETAILS</h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Mode</span>
+                        <span class="detail-value">
+                            <i class="fas fa-bolt"></i>
+                            {{ status.mode }}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Time</span>
+                        <span class="detail-value">
+                            <i class="far fa-clock"></i>
+                            16H 11M
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Frequency</span>
+                        <span class="detail-value">
+                            <i class="fas fa-circle-notch"></i>
+                            50 HZ
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Temp</span>
+                        <span class="detail-value">
+                            <i class="fas fa-temperature-high"></i>
+                            30°C
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Ampere</span>
+                        <span class="detail-value">
+                            <i class="fas fa-charging-station"></i>
+                            600A
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Current</span>
+                        <span class="detail-value">
+                            <i class="fas fa-cog"></i>
+                            10A
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cable Section -->
+            <section class="card cable-card">
+                <div class="cable-visual">
+                    <div class="cable-connector">
+                        <div class="connector-part"></div>
+                        <div class="cable-wire"></div>
+                        <div class="connector-part"></div>
+                    </div>
+                    <div class="time-indicator">
+                        <span class="time-remain">0 15</span>
+                        <span class="time-unit">1w</span>
+                    </div>
+                </div>
+                <div class="cable-control">
+                    <span class="cable-mode">FLASH MODE</span>
+                    <span class="cable-name">CABEL</span>
+                    <div class="toggle-switch">
+                        <span class="toggle-label">ON</span>
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Voltage Display Section -->
+            <section class="card voltage-card">
+                <div class="voltage-display">
+                    <div class="voltage-meter">
+                        <div class="meter-bars">
+                            <div class="bar active"></div>
+                            <div class="bar active"></div>
+                            <div class="bar active"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                        </div>
+                        <div class="voltage-value">{{ status.voltage }}</div>
+                        <div class="voltage-label">
+                            VOLT
+                            <br />
+                            DISPLAY
+                        </div>
+                    </div>
+                </div>
+                <div class="voltage-info">
+                    <div class="info-item">
+                        <span class="info-label">AC</span>
+                        <span class="info-value">23.8V</span>
+                    </div>
+                    <div class="info-divider">/</div>
+                    <div class="info-item">
+                        <span class="info-label">DC</span>
+                        <span class="info-value">14V</span>
+                    </div>
+                    <button class="details-btn">
+                        <span>Details</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Charging Mode Section -->
+            <section class="card charging-card">
+                <h3 class="card-title">CHARGING MODE</h3>
+                <div class="charging-display">
+                    <div class="charging-circle">
+                        <svg class="progress-ring" width="200" height="200">
+                            <circle
+                                class="progress-ring-bg"
+                                cx="100"
+                                cy="100"
+                                r="85"
+                            ></circle>
+                            <circle
+                                class="progress-ring-fill"
+                                cx="100"
+                                cy="100"
+                                r="85"
+                                style="stroke-dasharray: 534; stroke-dashoffset: {{ 534 - (534 * status.battery / 100) }};"
+                            ></circle>
+                        </svg>
+                        <div class="charging-percent">
+                            <i class="fas fa-battery-three-quarters"></i>
+                            <span class="percent-value">
+                                {{ status.battery }}%
+                            </span>
+                        </div>
+                    </div>
+                    <div class="charging-range">
+                        <span class="range-min">0%</span>
+                        <span class="range-max">100%</span>
+                    </div>
+                </div>
+                <div class="charging-info">
+                    <div class="info-row">
+                        <span class="info-label">Power</span>
+                        <span class="info-value">5A / 220V</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Input</span>
+                        <span class="info-value">200 KWH</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- ********|| 자바스크립트 시작 ||******** -->
+        <script
+            defer="defer"
+            src="{{ url_for('static', path='/lib/Lottie/lottie.min.js') }}"
+            type="text/javascript"
+        ></script>
+        <script
+            defer="defer"
+            src="{{ url_for('static', path='/lib/GSAP_v3.12.4/gsap.min.js') }}"
+            type="text/javascript"
+        ></script>
+        <script
+            defer="defer"
+            src="{{ url_for('static', path='/lib/GSAP_v3.12.4/ScrollTrigger.min.js') }}"
+            type="text/javascript"
+        ></script>
+        <script
+            defer="defer"
+            src="{{ url_for('static', path='/lib/GSAP_v3.12.4/ScrollToPlugin.min.js') }}"
+            type="text/javascript"
+        ></script>
+        <script
+            defer="defer"
+            src="{{ url_for('static', path='/lib/SwiperJs/swiper-bundle.min.js') }}"
+            type="text/javascript"
+        ></script>
+        <script
+            src="{{ url_for('static', path='/lib/SmoothScroll/SmoothScroll.min.js') }}"
+            type="text/javascript"
+        ></script>
+        <script
+            src="{{ url_for('static', path='/js/script.js') }}?v=2"
+            type="text/javascript"
+        ></script>
+        <script src="{{ url_for('static', path='/js/dashboard.js') }}"></script>
+        <script>
+            function togglePower(btn) {
+                btn.classList.toggle("active");
+                const statusEl = btn.nextElementSibling;
+                if (btn.classList.contains("active")) {
+                    statusEl.innerHTML =
+                        'ON <span class="status-off">OFF</span>';
+                } else {
+                    statusEl.innerHTML =
+                        '<span class="status-off">ON</span> OFF';
+                }
+            }
+        </script>
+        <!-- ********|| 자바스크립트 끝 ||******** -->
+    </body>
+</html>

@@ -1,0 +1,578 @@
+<html lang="ko">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <meta content="#2B2F31" name="theme-color"/>
+  <meta content="Reino Studio" property="og:site_name"/>
+  <meta content="리오에서 제작되어 전 세계에서 사랑받습니다." name="description"/>
+  <meta content="Reino Studio" property="og:title"/>
+  <meta content="{{ request.base_url }}" property="og:url"/>
+  <meta content="우리는 기술과 예술을 융합하여 새로운 가능성을 여는 혁신적인 디자인을 만듭니다. 기획부터 개발까지, 시각적 정체성에서 인터랙티브 설치물에 이르는 모든 것을 다룹니다." property="og:description"/>
+  <meta content="{{ url_for('static', path='/images/image.png') }}" property="og:image"/>
+  <meta content="article" property="og:type"/>
+  <meta content="{{ url_for('static', path='/images/image.png') }}" name="sso_image"/>
+  <meta content="" property="og:image:width"/>
+  <meta content="" property="og:image:height"/>
+  <meta content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" name="robots"/>
+  <style>
+   img:is([sizes="auto" i], [sizes^="auto," i]) { contain-intrinsic-size: 3000px 1500px }
+  </style>
+  <!-- 이 사이트는 Yoast SEO 플러그인 v26.1.1로 최적화되었습니다 - https://yoast.com/wordpress/plugins/seo/ -->
+  <title>
+   홈 | Reino Studio
+  </title>
+  <meta content="홈 Reino Studio |" name="description"/>
+  <link href="{{ request.base_url }}" rel="canonical"/>
+  <meta content="ko_KR" property="og:locale"/>
+  <meta content="website" property="og:type"/>
+  <meta content="홈 | Reino Studio" property="og:title"/>
+  <meta content="홈 Reino Studio |" property="og:description"/>
+  <meta content="{{ request.base_url }}" property="og:url"/>
+  <meta content="Reino Studio" property="og:site_name"/>
+  <meta content="2025-10-29T17:12:55+00:00" property="article:modified_time"/>
+  <meta content="summary_large_image" name="twitter:card"/>
+  <script class="yoast-schema-graph" type="application/ld+json">
+   {"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"{{ request.base_url }}","url":"{{ request.base_url }}","name":"홈 | Reino Studio","isPartOf":{"@id":"{{ request.base_url }}#website"},"about":{"@id":"{{ request.base_url }}#organization"},"datePublished":"2024-01-17T12:14:35+00:00","dateModified":"2025-10-29T17:12:55+00:00","description":"홈 Reino Studio |","breadcrumb":{"@id":"{{ request.base_url }}#breadcrumb"},"inLanguage":"ko-KR","potentialAction":[{"@type":"ReadAction","target":["{{ request.base_url }}"]}]},{"@type":"BreadcrumbList","@id":"{{ request.base_url }}#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"홈"}]},{"@type":"WebSite","@id":"{{ request.base_url }}#website","url":"{{ request.base_url }}","name":"Reino Studio","description":"리오에서 제작되어 전 세계에서 사랑받습니다.","publisher":{"@id":"{{ request.base_url }}#organization"},"potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"{{ request.base_url }}?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"ko-KR"},{"@type":"Organization","@id":"{{ request.base_url }}#organization","name":"Reino Studio","url":"{{ request.base_url }}","logo":{"@type":"ImageObject","inLanguage":"ko-KR","@id":"{{ request.base_url }}#/schema/logo/image/","url":"{{ url_for('static', path='/images/reino-black.jpg') }}","contentUrl":"{{ url_for('static', path='/images/reino-black.jpg') }}","width":300,"height":200,"caption":"Reino Studio"},"image":{"@id":"{{ request.base_url }}#/schema/logo/image/"}}]}
+  </script>
+  <!-- / Yoast SEO 플러그인. -->
+  <!-- 오류: WP-Optimize Minify가 캐시를 저장할 수 없습니다 - wp-content/cache/wpo-minify/1762179517/assets/wpo-minify-header-style-name1707475373.min.css -->
+  <!-- 위 경로가 올바른지 확인하고 서버에 쓰기 권한이 있는지 확인하세요! -->
+  <link href="{{ url_for('static', path='/css/wpo-minify-header-contact-form-71759816380.min.css') }}" id="wpo_min-header-0-css" media="all" rel="stylesheet" type="text/css"/>
+  <!-- WordPress REST, RSD 및 생성기 메타데이터 제거됨 -->
+  <link href="{{ url_for('static', path='/images/logo-inverse.svg') }}" rel="icon" sizes="32x32"/>
+  <link href="{{ url_for('static', path='/images/logo-inverse.svg') }}" rel="icon" sizes="192x192"/>
+  <link href="{{ url_for('static', path='/images/logo-inverse.svg') }}" rel="apple-touch-icon"/>
+  <meta content="{{ url_for('static', path='/images/logo-inverse.svg') }}" name="msapplication-TileImage"/>
+  <!-- ********|| 스타일시트 시작 ||******** -->
+  <style>
+   body{opacity: 0; transition:all 0.3s ease-in-out;}
+  </style>
+<!-- Google Fonts preconnect/stylesheet 제거됨; 로컬 폰트 사용 -->
+<!-- Google Fonts preconnect 제거됨 -->
+<!-- Google Fonts preconnect/stylesheet 제거됨; 로컬 폰트 사용 -->
+  <link as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'" rel="stylesheet"/>
+  <link as="style" href="{{ url_for('static', path='/lib/SwiperJs/swiper-bundle.min.css') }}" onload="this.onload=null;this.rel='stylesheet'" rel="stylesheet"/>
+  <link as="style" href="{{ url_for('static', path='/css/style.css') }}?v=3" onload="this.onload=null;this.rel='stylesheet'" rel="stylesheet"/>
+  <link href="{{ url_for('static', path='/css/local-fonts.css') }}" rel="stylesheet"/>
+  <noscript>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', path='/lib/SwiperJs/swiper-bundle.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='/css/style.css') }}?v=3" rel="stylesheet">
+     </link>
+    </link>
+   </link>
+  </noscript>
+  <!-- ********|| 스타일시트 끝 ||******** -->
+  <!--[if gte IE 9]
+  <style type="text/css"> .gradient{filter: none;}</style>
+  <![endif]-->
+  <!-- 자체 호스팅을 위해 Google Analytics 제거됨 (gtag) -->
+  <script>
+   document.addEventListener("DOMContentLoaded", function () {
+      "use strict";
+      var body = document.querySelector("body");
+      body.style.opacity = 1;
+    });
+  </script>
+ </head>
+ <body class="" style="opacity: 1; height: 4712px;">
+  <input id="home_url" type="hidden" value="{{ request.base_url }}"/>
+  <input id="current_url" type="hidden" value="{{ request.base_url }}"/>
+  <div class="viewport SmoothScroll">
+   <div class="main" style="transform: translate3d(0px, 0px, 0px);">
+    <div class="layer layer-front">
+     <header>
+      <div class="container">
+       <div class="brand">
+        <a class="hoverable-sm brand-logo logo-white" href="{{ request.base_url }}">
+         <canvas height="96" style="width: 100%; height: 100%; transform-origin: 0px 0px 0px; content-visibility: visible;" width="96">
+         </canvas>
+        </a>
+       </div>
+       <div class="navigation">
+        <div class="navigation-header">
+         <div class="navigation-brand">
+          <a class="anchor brand-logo logo-white" href="{{ request.base_url }}">
+           <canvas height="0" style="width: 100%; height: 100%; transform-origin: 0px 0px 0px; content-visibility: visible;" width="0">
+           </canvas>
+          </a>
+         </div>
+         <button class="btn-menu-trigger" type="button">
+          <i class="fa-regular fa-fw fa-x">
+          </i>
+         </button>
+        </div>
+        <ul class="navigation-menu">
+          <a class="menu-item anchor hoverable-sm active" href="/">
+           <span style="translate: none; rotate: none; scale: none; transform: translate(0px, 0%);">
+            스튜디오
+           </span>
+          </a>
+         <li>
+          <a class="menu-item anchor hoverable-sm" href="{{ url_for('read_dashboard') }}">
+           <span style="translate: none; rotate: none; scale: none; transform: translate(0px, 0%);">
+            대시보드
+           </span>
+          </a>
+         </li>
+          <a class="menu-item anchor hoverable-sm" href="{{ url_for('read_history') }}">
+           <span style="translate: none; rotate: none; scale: none; transform: translate(0px, 0%);">
+            작업물
+           </span>
+          </a>
+         <li>
+          <a class="menu-item anchor hoverable-sm" href="{{ url_for('read_contact') }}">
+           <span style="translate: none; rotate: none; scale: none; transform: translate(0px, 0%);">
+            문의하기
+           </span>
+          </a>
+         </li>
+        </ul>
+       </div>
+       <button class="btn-menu-trigger" type="button">
+        <i class="fa-regular fa-fw fa-bars">
+        </i>
+       </button>
+      </div>
+     </header>
+     <section class="section-banner">
+      <div class="banner-background">
+       <div class="background-curtain">
+       </div>
+      </div>
+      <div class="container">
+       <div class="banner-content">
+        <div class="banner-title">
+         <h1 class="title hoverable" style="translate: none; rotate: none; scale: none; opacity: 1; transform: translate(0px, 0px);">
+          우리는 정체성,
+          <br/>
+          경험, 그리고 존재감을 만듭니다.
+         </h1>
+        </div>
+        <div class="banner-sliders">
+         <div class="banner-slider-row">
+          <div class="swiper-controls non-hoverable" style="opacity: 1;">
+           <button aria-controls="swiper-wrapper-dc73326b07210f23e" aria-disabled="true" aria-label="Previous slide" class="swiper-button swiper-button-prev swiper-button-disabled" disabled="" tabindex="-1" type="button">
+            <span>
+             <i class="fa-solid fa-play fa-flip-horizontal">
+             </i>
+            </span>
+           </button>
+           <button aria-controls="swiper-wrapper-dc73326b07210f23e" aria-disabled="false" aria-label="Next slide" class="swiper-button swiper-button-next" tabindex="0" type="button">
+            <span>
+             <i class="fa-solid fa-play">
+             </i>
+            </span>
+           </button>
+          </div>
+          <div class="banner-slider-project">
+           <div class="swiper projects-title-1 swiper-initialized swiper-vertical swiper-autoheight swiper-backface-hidden" style="opacity: 1;">
+            <div aria-live="polite" class="swiper-wrapper" id="swiper-wrapper-6385ffdd237f4915" style="height: 39px;">
+             <div aria-label="1 / 5" class="swiper-slide swiper-slide-active" role="group" style="height: 39px;">
+              <div class="project-info">
+               <div class="title non-hoverable">
+                GEN
+               </div>
+               <div class="description non-hoverable">
+                브랜딩, 브랜드 가이드
+               </div>
+              </div>
+             </div>
+             <div aria-label="2 / 5" class="swiper-slide swiper-slide-next" role="group" style="height: 39px;">
+              <div class="project-info">
+               <div class="title non-hoverable">
+                Berrics
+               </div>
+               <div class="description non-hoverable">
+                전략 &amp; 디자인, 아이덴티티, 인터페이스
+               </div>
+              </div>
+             </div>
+             <div aria-label="3 / 5" class="swiper-slide" role="group" style="height: 39px;">
+              <div class="project-info">
+               <div class="title non-hoverable">
+                Cariuma
+               </div>
+               <div class="description non-hoverable">
+                브랜딩, 인터랙티브 콘텐츠
+               </div>
+              </div>
+             </div>
+             <div aria-label="4 / 5" class="swiper-slide" role="group" style="height: 39px;">
+              <div class="project-info">
+               <div class="title non-hoverable">
+                Zuso
+               </div>
+               <div class="description non-hoverable">
+                브랜딩, UX/UI, 일러스트레이션, 애니메이션
+               </div>
+              </div>
+             </div>
+             <div aria-label="5 / 5" class="swiper-slide" role="group" style="height: 39px;">
+              <div class="project-info">
+               <div class="title non-hoverable">
+                Superela
+               </div>
+               <div class="description non-hoverable">
+                앱 디자인, 브랜딩, 일러스트레이션, 모션, UX/UI
+               </div>
+              </div>
+             </div>
+            </div>
+            <span aria-atomic="true" aria-live="assertive" class="swiper-notification">
+            </span>
+           </div>
+          </div>
+         </div>
+         <div class="banner-slider-row">
+          <div class="banner-slider-project-primary">
+           <div class="swiper projects-primary swiper-initialized swiper-horizontal swiper-watch-progress swiper-backface-hidden" style="translate: none; rotate: none; scale: none; transform: translate(0px, 0%);">
+            <div aria-live="polite" class="swiper-wrapper" id="swiper-wrapper-dc73326b07210f23e" style="cursor: grab;">
+             <div aria-label="1 / 5" class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-active" role="group" style="width: 732px; margin-right: 1px;">
+              <div class="project-primary-media" data-swiper-parallax="50%" style="transform: translate3d(0%, 0px, 0px);">
+               <a class="project-link anchor" href="{{ request.base_url }}works/gen/">
+                <div class="project-image image-hover">
+                 <img alt="GEN" class="swiper-lazy" src="{{ url_for('static', path='/images/Gen-01-scaled.jpg.webp') }}" style="translate: none; rotate: none; scale: none; transform: translate(0px, 0px);"/>
+                </div>
+                <div class="project-details">
+                 <h2 class="title">
+                  GEN
+                 </h2>
+                 <div class="category">
+                  브랜딩, 브랜드 가이드
+                 </div>
+                 <div class="location">
+                  미국 애틀랜타
+                 </div>
+                </div>
+               </a>
+              </div>
+             </div>
+             <div aria-label="2 / 5" class="swiper-slide swiper-slide-next" role="group" style="width: 732px; margin-right: 1px;">
+              <div class="project-primary-media" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
+               <a class="project-link anchor" href="{{ request.base_url }}works/berrics/">
+                <div class="project-image image-hover">
+                 <img alt="Berrics" class="swiper-lazy" src="{{ url_for('static', path='/images/Berrics-1-scaled.jpg.webp') }}"/>
+                </div>
+                <div class="project-details">
+                 <h2 class="title">
+                  Berrics
+                 </h2>
+                 <div class="category">
+                  전략 &amp; 디자인, 아이덴티티, 인터페이스
+                 </div>
+                 <div class="location">
+                  미국 로스앤젤레스
+                 </div>
+                </div>
+               </a>
+              </div>
+             </div>
+             <div aria-label="3 / 5" class="swiper-slide" role="group" style="width: 732px; margin-right: 1px;">
+              <div class="project-primary-media" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
+               <a class="project-link anchor" href="{{ request.base_url }}works/cariuma/">
+                <div class="project-image image-hover">
+                 <img alt="Cariuma" class="swiper-lazy" src="{{ url_for('static', path='/images/Cariuma-1-1-scaled.jpg.webp') }}"/>
+                </div>
+                <div class="project-details">
+                 <h2 class="title">
+                  Cariuma
+                 </h2>
+                 <div class="category">
+                  브랜딩, 인터랙티브 콘텐츠
+                 </div>
+                 <div class="location">
+                  싱가포르
+                 </div>
+                </div>
+               </a>
+              </div>
+             </div>
+             <div aria-label="4 / 5" class="swiper-slide" role="group" style="width: 732px; margin-right: 1px;">
+              <div class="project-primary-media" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
+               <a class="project-link anchor" href="{{ request.base_url }}works/zuso/">
+                <div class="project-video non-hoverable">
+                 <video autoplay="" loop="" muted="" playsinline="">
+                  <source src="{{ url_for('static', path='/videos/Zuso-Video-3.mp4') }}" type="video/mp4"/>
+                 </video>
+                </div>
+                <div class="project-details">
+                 <h2 class="title">
+                  Zuso
+                 </h2>
+                 <div class="category">
+                  브랜딩, UX/UI, 일러스트레이션, 애니메이션
+                 </div>
+                 <div class="location">
+                  미국 솔트레이크시티
+                 </div>
+                </div>
+               </a>
+              </div>
+             </div>
+             <div aria-label="5 / 5" class="swiper-slide" role="group" style="width: 732px; margin-right: 1px;">
+              <div class="project-primary-media" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
+               <a class="project-link anchor" href="{{ request.base_url }}works/superela/">
+                <div class="project-image image-hover">
+                 <img alt="Superela" class="swiper-lazy" src="{{ url_for('static', path='/images/Superela-1-scaled.jpg.webp') }}"/>
+                </div>
+                <div class="project-details">
+                 <h2 class="title">
+                  Superela
+                 </h2>
+                 <div class="category">
+                  앱 디자인, 브랜딩, 일러스트레이션, 모션, UX/UI
+                 </div>
+                 <div class="location">
+                  포르투갈 카스카이스
+                 </div>
+                </div>
+               </a>
+              </div>
+             </div>
+            </div>
+            <span aria-atomic="true" aria-live="assertive" class="swiper-notification">
+            </span>
+           </div>
+          </div>
+          <div class="web-information">
+           <div class="action" style="opacity: 1;">
+             <a class="btn-action non-hoverable" href="{{ url_for('read_history') }}">
+              ← 작업물 보기
+            </a>
+           </div>
+           <div class="options" style="opacity: 1;">
+            <div class="social non-hoverable">
+             <a class="social-link" href="#" title="Instagram (외부 링크)" target="_blank">
+              <i class="fa-brands fa-fw fa-instagram">
+              </i>
+             </a>
+             <a class="social-link" href="#" title="LinkedIn (외부 링크)" target="_blank">
+              <i class="fa-brands fa-fw fa-linkedin-in">
+              </i>
+             </a>
+             <a class="social-link" href="#" title="WhatsApp (외부 링크)" target="_blank">
+              <i class="fa-brands fa-fw fa-whatsapp">
+              </i>
+             </a>
+            </div>
+            <div class="scroll-action non-hoverable">
+             <button class="scroll-down-button" type="button">
+              <span>
+               <i class="fa-solid fa-play fa-rotate-90">
+               </i>
+              </span>
+             </button>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="banner-slider-row" id="scrollTo">
+          <div class="banner-slider-project-wrapper">
+           <div class="banner-slider-project-secondary">
+            <div class="swiper projects-secondary-1 swiper-initialized swiper-horizontal swiper-watch-progress swiper-backface-hidden" style="translate: none; rotate: none; scale: none; transform: translate(0px, 0%);">
+             <div aria-live="polite" class="swiper-wrapper" id="swiper-wrapper-636bcf0552f789df" style="cursor: grab;">
+              <div aria-label="1 / 5" class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-active" role="group" style="width: 342px; margin-right: 1px;">
+               <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(0%, 0px, 0px);">
+                <a class="anchor" href="{{ request.base_url }}works/gen/">
+                 <div class="image image-hover">
+                  <img alt="GEN" class="swiper-lazy" src="{{ url_for('static', path='/images/Gen-32-1.png.webp') }}" style="translate: none; rotate: none; scale: none; transform: translate(0px, 0px);"/>
+                 </div>
+                </a>
+               </div>
+              </div>
+              <div aria-label="2 / 5" class="swiper-slide swiper-slide-next" role="group" style="width: 342px; margin-right: 1px;">
+               <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
+                <a class="anchor" href="{{ request.base_url }}works/berrics/">
+                 <div class="image image-hover">
+                  <img alt="Berrics" class="swiper-lazy" src="{{ url_for('static', path='/images/Berrics-23.jpg.webp') }}"/>
+                 </div>
+                </a>
+               </div>
+              </div>
+              <div aria-label="3 / 5" class="swiper-slide" role="group" style="width: 342px; margin-right: 1px;">
+               <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
+                <a class="anchor" href="{{ request.base_url }}works/cariuma/">
+                 <div class="image image-hover">
+                  <img alt="Cariuma" class="swiper-lazy" src="{{ url_for('static', path='/images/Cariuma-12.jpg.webp') }}"/>
+                 </div>
+                </a>
+               </div>
+              </div>
+              <div aria-label="4 / 5" class="swiper-slide" role="group" style="width: 342px; margin-right: 1px;">
+               <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
+                <a class="anchor" href="{{ request.base_url }}works/zuso/">
+                 <div class="image image-hover">
+                  <img alt="Zuso" class="swiper-lazy" src="{{ url_for('static', path='/images/Zuso-11.jpg.webp') }}"/>
+                 </div>
+                </a>
+               </div>
+              </div>
+              <div aria-label="5 / 5" class="swiper-slide" role="group" style="width: 342px; margin-right: 1px;">
+               <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
+                <a class="anchor" href="{{ request.base_url }}works/superela/">
+                 <div class="image image-hover">
+                  <img alt="Superela" class="swiper-lazy" src="{{ url_for('static', path='/images/Superela-8.jpg.webp') }}"/>
+                 </div>
+                </a>
+               </div>
+              </div>
+             </div>
+             <span aria-atomic="true" aria-live="assertive" class="swiper-notification">
+             </span>
+            </div>
+           </div>
+           <div class="banner-slider-project-secondary">
+            <div class="swiper projects-secondary-2 swiper-initialized swiper-horizontal swiper-watch-progress swiper-backface-hidden" style="translate: none; rotate: none; scale: none; transform: translate(0px, 0%);">
+             <div aria-live="polite" class="swiper-wrapper" id="swiper-wrapper-864ea3af4aa3fa7a" style="cursor: grab;">
+              <div aria-label="1 / 5" class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-active" role="group" style="width: 342px; margin-right: 1px;">
+               <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(0%, 0px, 0px);">
+                <a class="anchor" href="{{ request.base_url }}works/gen/">
+                 <div class="image image-hover">
+                  <img alt="GEN" class="swiper-lazy" src="{{ url_for('static', path='/images/Gen-21-1.png.webp') }}" style="translate: none; rotate: none; scale: none; transform: translate(0px, 0px);"/>
+                 </div>
+                </a>
+               </div>
+              </div>
+              <div aria-label="2 / 5" class="swiper-slide swiper-slide-next" role="group" style="width: 342px; margin-right: 1px;">
+               <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
+                <a class="anchor" href="{{ request.base_url }}works/berrics/">
+                 <div class="image image-hover">
+                  <img alt="Berrics" class="swiper-lazy" src="{{ url_for('static', path='/images/Berrics-22.jpg.webp') }}"/>
+                 </div>
+                </a>
+               </div>
+              </div>
+              <div aria-label="3 / 5" class="swiper-slide" role="group" style="width: 342px; margin-right: 1px;">
+               <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
+                <a class="anchor" href="{{ request.base_url }}works/cariuma/">
+                 <div class="image image-hover">
+                  <img alt="Cariuma" class="swiper-lazy" src="{{ url_for('static', path='/images/Cariuma-11.jpg.webp') }}"/>
+                 </div>
+                </a>
+               </div>
+              </div>
+              <div aria-label="4 / 5" class="swiper-slide" role="group" style="width: 342px; margin-right: 1px;">
+               <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
+                <a class="anchor" href="{{ request.base_url }}works/zuso/">
+                 <div class="video non-hoverable">
+                  <video autoplay="" loop="" muted="" playsinline="">
+                   <source src="{{ url_for('static', path='/videos/Weekly_Planner.mp4') }}" type="video/mp4"/>
+                  </video>
+                 </div>
+                </a>
+               </div>
+              </div>
+              <div aria-label="5 / 5" class="swiper-slide" role="group" style="width: 342px; margin-right: 1px;">
+               <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
+                <a class="anchor" href="{{ request.base_url }}works/superela/">
+                 <div class="image image-hover">
+                  <img alt="Superela" class="swiper-lazy" src="{{ url_for('static', path='/images/Superela-23.jpg.webp') }}"/>
+                 </div>
+                </a>
+               </div>
+              </div>
+             </div>
+             <span aria-atomic="true" aria-live="assertive" class="swiper-notification">
+             </span>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="banner-slider-row">
+          <div class="swiper-controls alternate non-hoverable" style="opacity: 1;">
+           <button aria-controls="swiper-wrapper-dc73326b07210f23e" aria-disabled="true" aria-label="Previous slide" class="swiper-button swiper-button-prev swiper-button-disabled" disabled="" tabindex="-1" type="button">
+            <span>
+             <i class="fa-solid fa-play fa-flip-horizontal">
+             </i>
+            </span>
+           </button>
+           <button aria-controls="swiper-wrapper-dc73326b07210f23e" aria-disabled="false" aria-label="Next slide" class="swiper-button swiper-button-next" tabindex="0" type="button">
+            <span>
+             <i class="fa-solid fa-play">
+             </i>
+            </span>
+           </button>
+          </div>
+          <div class="banner-slider-project alternate">
+           <div class="swiper projects-title-2 swiper-initialized swiper-vertical swiper-autoheight swiper-backface-hidden" style="opacity: 1;">
+            <div aria-live="polite" class="swiper-wrapper" id="swiper-wrapper-79eaaea4e3f10f18d" style="height: 39px;">
+             <div aria-label="1 / 5" class="swiper-slide swiper-slide-active" role="group" style="height: 39px;">
+              <div class="project-name non-hoverable">
+               GEN
+              </div>
+             </div>
+             <div aria-label="2 / 5" class="swiper-slide swiper-slide-next" role="group" style="height: 39px;">
+              <div class="project-name non-hoverable">
+               Berrics
+              </div>
+             </div>
+             <div aria-label="3 / 5" class="swiper-slide" role="group" style="height: 39px;">
+              <div class="project-name non-hoverable">
+               Cariuma
+              </div>
+             </div>
+             <div aria-label="4 / 5" class="swiper-slide" role="group" style="height: 39px;">
+              <div class="project-name non-hoverable">
+               Zuso
+              </div>
+             </div>
+             <div aria-label="5 / 5" class="swiper-slide" role="group" style="height: 39px;">
+              <div class="project-name non-hoverable">
+               Superela
+              </div>
+             </div>
+            </div>
+            <span aria-atomic="true" aria-live="assertive" class="swiper-notification">
+            </span>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+     </section>
+    </div>
+   </div>
+  </div>
+  <!-- ********|| 자바스크립트 시작 ||******** -->
+  <script defer="defer" src="{{ url_for('static', path='/lib/Lottie/lottie.min.js') }}" type="text/javascript">
+  </script>
+  <script defer="defer" src="{{ url_for('static', path='/lib/GSAP_v3.12.4/gsap.min.js') }}" type="text/javascript">
+  </script>
+  <script defer="defer" src="{{ url_for('static', path='/lib/GSAP_v3.12.4/ScrollTrigger.min.js') }}" type="text/javascript">
+  </script>
+  <script defer="defer" src="{{ url_for('static', path='/lib/GSAP_v3.12.4/ScrollToPlugin.min.js') }}" type="text/javascript">
+  </script>
+  <script defer="defer" src="{{ url_for('static', path='/lib/SwiperJs/swiper-bundle.min.js') }}" type="text/javascript">
+  </script>
+  <script src="{{ url_for('static', path='/lib/SmoothScroll/SmoothScroll.min.js') }}" type="text/javascript">
+  </script>
+  <script src="{{ url_for('static', path='/js/script.js') }}?v=2" type="text/javascript">
+  </script>
+  <!-- ********|| 자바스크립트 끝 ||******** -->
+  <script type="speculationrules">
+   {"prefetch":[{"source":"document","where":{"and":[{"href_matches":"\/*"},{"not":{"href_matches":["\/wp-*.php","\/wp-admin\/*","\/wp-content\/uploads\/*","\/wp-content\/*","\/wp-content\/plugins\/*","\/wp-content\/themes\/reino\/*","\/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+  </script>
+  <!--
+  <script id="wpo_min-footer-0-js" src="{{ url_for('static', path='/js/wpo-minify-footer-71110d17.min.js') }}" type="text/javascript">
+  </script>
+  <script id="wpo_min-footer-0-js-after" type="text/javascript">
+   /* <![CDATA[ */
+wp.i18n.setLocaleData( { 'text direction\u0004ltr': [ 'ltr' ] } );
+/* ]]> */
+  </script>
+  <script id="wpo_min-footer-1-js-before" type="text/javascript">
+   /* <![CDATA[ */
+var wpcf7 = {
+  "api": {
+    "root": "",
+    "namespace": "contact-form-7\/v1"
+  }
+};
+/* ]]> */
+  </script>
+  <script id="wpo_min-footer-1-js" src="{{ url_for('static', path='/js/wpo-minify-footer-68e80742.min.js') }}" type="text/javascript">
+  </script>
+  -->
+ </body>
+</html>
