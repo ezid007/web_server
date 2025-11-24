@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import StreamingResponse, JSONResponse, FileResponse
+from fastapi.responses import StreamingResponse, JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import rclpy
@@ -17,10 +18,10 @@ from rclpy.time import Time
 
 app = FastAPI()
 
-# CORS 설정 (React 프론트엔드 접근 허용)
+# CORS 설정
 origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
 ]
 
 app.add_middleware(
@@ -31,9 +32,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 정적 파일 마운트 (원본 static + React assets)
+# 정적 파일 마운트
 app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="assets")
+
+# 템플릿 설정
+templates = Jinja2Templates(directory="templates")
 
 
 # 3. ROS2 통합 노드 클래스 (카메라 + SLAM 지도)
@@ -337,40 +340,34 @@ async def slam_map():
     )
 
 
-# React SPA 라우트들 (모든 경로에서 React 앱 서빙)
-@app.get("/")
-async def serve_react_root():
-    return FileResponse("frontend/dist/index.html")
+# HTML 템플릿 라우트
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.get("/dashboard")
-async def serve_react_dashboard():
-    return FileResponse("frontend/dist/index.html")
+@app.get("/dashboard", response_class=HTMLResponse)
+async def read_dashboard(request: Request):
+    # 초기 로봇 상태 데이터 (템플릿 렌더링용)
+    robot_status = {
+        "battery": 74,
+        "mode": "X-BOOST",
+        "voltage": 23.8,
+        "main_ac": "30 KWH",
+    }
+    return templates.TemplateResponse(
+        "dashboard.html", {"request": request, "status": robot_status}
+    )
 
 
-@app.get("/works")
-async def serve_react_works():
-    return FileResponse("frontend/dist/index.html")
+@app.get("/works", response_class=HTMLResponse)
+async def read_works(request: Request):
+    return templates.TemplateResponse("works.html", {"request": request})
 
 
-@app.get("/contact")
-async def serve_react_contact():
-    return FileResponse("frontend/dist/index.html")
-
-
-# SPA를 위한 Catch-all 라우트 (API 및 정적 파일 제외)
-@app.get("/{full_path:path}")
-async def serve_spa(full_path: str):
-    # API나 스트리밍 경로는 제외
-    if (
-        full_path.startswith("api")
-        or full_path.startswith("camera")
-        or full_path.startswith("slam")
-    ):
-        return JSONResponse({"error": "Not Found"}, status_code=404)
-
-    # React의 index.html 반환
-    return FileResponse("frontend/dist/index.html")
+@app.get("/contact", response_class=HTMLResponse)
+async def read_contact(request: Request):
+    return templates.TemplateResponse("contact.html", {"request": request})
 
 
 if __name__ == "__main__":

@@ -98,7 +98,7 @@
         </div>
         <ul class="navigation-menu">
          <li>
-          <a class="menu-item anchor hoverable-sm" href="{{ request.base_url }}">
+          <a class="menu-item anchor hoverable-sm" href="{{ url_for('read_root') }}">
            <span style="translate: none; rotate: none; scale: none; transform: translate(0px, 0%);">스튜디오</span>
           </a>
          </li>
@@ -108,12 +108,12 @@
           </a>
          </li>
          <li>
-          <a class="menu-item anchor hoverable-sm active" href="{{ request.base_url }}works/">
+          <a class="menu-item anchor hoverable-sm active" href="{{ url_for('read_works') }}">
            <span style="translate: none; rotate: none; scale: none; transform: translate(0px, 0%);">작업물</span>
           </a>
          </li>
          <li>
-          <a class="menu-item anchor hoverable-sm" href="{{ request.base_url }}contact/">
+          <a class="menu-item anchor hoverable-sm" href="{{ url_for('read_contact') }}">
            <span style="translate: none; rotate: none; scale: none; transform: translate(0px, 0%);">문의하기</span>
           </a>
          </li>
@@ -495,16 +495,16 @@
        <div class="footer-bar">
         <ul class="footer-links">
          <li>
-          <a class="link anchor hoverable-sm" href="{{ request.base_url }}" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);">스튜디오</a>
+          <a class="link anchor hoverable-sm" href="{{ url_for('read_root') }}" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);">스튜디오</a>
          </li>
          <li>
           <a class="link anchor hoverable-sm" href="{{ url_for('read_dashboard') }}" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);">대시보드</a>
          </li>
          <li>
-          <a class="link anchor hoverable-sm" href="{{ request.base_url }}works/" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);">작업물</a>
+          <a class="link anchor hoverable-sm" href="{{ url_for('read_works') }}" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);">작업물</a>
          </li>
          <li>
-          <a class="link anchor hoverable-sm" href="{{ request.base_url }}contact/" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);">문의하기</a>
+          <a class="link anchor hoverable-sm" href="{{ url_for('read_contact') }}" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);">문의하기</a>
          </li>
         </ul>
         <ul class="social-links">
@@ -543,7 +543,7 @@
        <div class="navigation">
         <ul class="navigation-menu">
          <li>
-          <a class="menu-item anchor hoverable-sm" href="{{ request.base_url }}">
+          <a class="menu-item anchor hoverable-sm" href="{{ url_for('read_root') }}">
            <span style="translate: none; rotate: none; scale: none; transform: translate(0px, 0%);">스튜디오</span>
           </a>
          </li>
@@ -553,12 +553,12 @@
           </a>
          </li>
          <li>
-          <a class="menu-item anchor hoverable-sm active" href="{{ request.base_url }}works/">
+          <a class="menu-item anchor hoverable-sm active" href="{{ url_for('read_works') }}">
            <span style="translate: none; rotate: none; scale: none; transform: translate(0px, 0%);">작업물</span>
           </a>
          </li>
          <li>
-          <a class="menu-item anchor hoverable-sm" href="{{ request.base_url }}contact/">
+          <a class="menu-item anchor hoverable-sm" href="{{ url_for('read_contact') }}">
            <span style="translate: none; rotate: none; scale: none; transform: translate(0px, 0%);">문의하기</span>
           </a>
          </li>

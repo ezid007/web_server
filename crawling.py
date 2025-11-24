@@ -16,7 +16,7 @@ driver = webdriver.Chrome(
 )
 
 # 3. 목표 사이트 접속
-url = "https://reinostudio.com.br/contact/"
+url = "https://reinostudio.com.br/"
 print(f"🌐 {url} 에 접속 중...")
 driver.get(url)
 
@@ -28,7 +28,7 @@ html = driver.page_source
 soup = BeautifulSoup(html, "html.parser")
 
 # 6. 파일로 저장하기
-save_path = "templates/contact.html"
+save_path = "templates/index_v2.html"
 with open(save_path, "w", encoding="utf-8") as f:
     f.write(soup.prettify())  # 보기 좋게 정렬해서 저장
 

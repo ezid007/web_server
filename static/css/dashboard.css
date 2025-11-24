@@ -46,26 +46,27 @@
    헤더 관련 스타일
    ========================================== */
 .dashboard-header {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    z-index: 1000;
-    background: rgba(26, 29, 35, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 1.5rem 2rem;
+    width: 100%;
+    padding: 5rem 0 3rem 0;
+    z-index: 9;
+    transition: all 0.3s cubic-bezier(0, 0.5, 0.5, 1);
 }
 
 .dashboard-header .container {
-    max-width: 1800px;
+    max-width: none;
     margin: 0 auto;
+    padding: 0 1.5rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
 }
 
 .dashboard-header .brand {
-    flex: 0 0 auto;
+    position: relative;
+    display: flex;
 }
 
 .dashboard-header .brand-logo {
@@ -75,27 +76,70 @@
 }
 
 .dashboard-header .navigation {
-    flex: 1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-primary);
+    z-index: 10;
     display: flex;
+    align-items: center;
     justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0, 0.5, 0.5, 1);
+}
+
+.dashboard-header .navigation.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.dashboard-header .navigation-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 5rem 2rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dashboard-header .navigation-brand {
+    position: relative;
+    display: flex;
+}
+
+.dashboard-header .navigation-brand .brand-logo {
+    display: block;
+    width: 96px;
+    height: 96px;
 }
 
 .dashboard-header .navigation-menu {
-    display: flex;
     list-style: none;
-    gap: 3rem;
     margin: 0;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
 .dashboard-header .menu-item {
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: 3rem;
+    font-weight: 700;
     letter-spacing: 0.05em;
-    text-transform: uppercase;
     transition: color 0.3s ease;
+    position: relative;
+}
+
+.dashboard-header .menu-item span {
+    display: inline-block;
+    transition: transform 0.3s ease;
 }
 
 .dashboard-header .menu-item:hover,
@@ -104,22 +148,17 @@
 }
 
 .dashboard-header .btn-menu-trigger {
-    display: none;
     background: none;
     border: none;
     color: var(--text-primary);
     font-size: 1.5rem;
     cursor: pointer;
+    padding: 0.5rem;
+    transition: color 0.3s ease;
 }
 
-@media screen and (max-width: 768px) {
-    .dashboard-header .navigation {
-        display: none;
-    }
-
-    .dashboard-header .btn-menu-trigger {
-        display: block;
-    }
+.dashboard-header .btn-menu-trigger:hover {
+    color: var(--accent-orange);
 }
 
 /* 헤더 왼쪽 로고 영역 */
@@ -207,10 +246,48 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3개의 동일한 너비 열 */
     gap: 1.5rem; /* 그리드 아이템 간격 */
-    padding: 1.5rem 2rem; /* 외부 여백 */
-    max-width: 1800px; /* 최대 너비 */
-    margin: 8rem auto 2rem;
-    min-height: calc(100vh - 10rem);
+    padding: 0 1.5rem 5rem; /* 좌우 여백, 하단 여백 5rem으로 Home과 동일 */
+    max-width: 1600px; /* Home과 동일한 최대 너비 */
+    width: 100%;
+    margin: 12rem auto 0; /* 상단 여백만, 하단은 padding으로 */
+    min-height: calc(100vh - 12rem); /* 최소 높이 설정 */
+}
+
+/* 반응형 max-width (Home의 container와 동일) */
+@media (min-width: 1900px) {
+    .dashboard-page .dashboard-main {
+        max-width: 1600px;
+    }
+}
+
+@media (min-width: 1600px) and (max-width: 1899px) {
+    .dashboard-page .dashboard-main {
+        max-width: 1440px;
+    }
+}
+
+@media (min-width: 1400px) and (max-width: 1599px) {
+    .dashboard-page .dashboard-main {
+        max-width: 1280px;
+    }
+}
+
+@media (min-width: 1200px) and (max-width: 1399px) {
+    .dashboard-page .dashboard-main {
+        max-width: 1170px;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .dashboard-page .dashboard-main {
+        max-width: 960px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .dashboard-page .dashboard-main {
+        max-width: 740px;
+    }
 }
 
 @media screen and (max-width: 1440px) {
@@ -447,44 +524,6 @@
     height: 100%;
     object-fit: contain;
     background: #1a1a1a;
-}
-
-.map-waiting {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-secondary);
-    gap: 1.5rem;
-}
-
-.waiting-spinner {
-    width: 50px;
-    height: 50px;
-    border: 3px solid var(--border-color);
-    border-top: 3px solid var(--accent-orange);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-.map-waiting p {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    font-weight: 500;
 }
 
 .port-list-container {
