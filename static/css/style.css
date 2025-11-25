@@ -460,7 +460,7 @@ header .btn-menu-trigger {
 /* 배너 끝 */
 
 /* 배너 슬라이더 시작 */
-/* ========== Rows ========== */
+/* ========== 행 ========== */
 .banner-sliders {
     position: relative;
     width: 100%;
@@ -486,7 +486,7 @@ header .btn-menu-trigger {
     gap: 3rem;
 }
 
-/* ========== Swiper Controls ========== */
+/* ========== 스와이퍼 컨트롤 ========== */
 .banner-sliders .swiper-controls {
     display: flex;
     grid-column: span 2 / span 2;
@@ -537,7 +537,7 @@ header .btn-menu-trigger {
     color: var(--shades02);
 }
 
-/* ========== Project Title Slider ========== */
+/* ========== 프로젝트 제목 슬라이더 ========== */
 .banner-sliders .banner-slider-project {
     margin: auto 0;
     grid-column: span 6 / span 6;
@@ -584,7 +584,7 @@ header .btn-menu-trigger {
     font-style: italic;
 }
 
-/* ========== Project Slider ========== */
+/* ========== 프로젝트 슬라이더 ========== */
 .banner-sliders .banner-slider-project-primary {
     grid-column: span 2 / span 2;
 }
@@ -689,7 +689,7 @@ header .btn-menu-trigger {
     font-style: italic;
 }
 
-/* ========== Web Information ========== */
+/* ========== 웹 정보 ========== */
 .banner-sliders .web-information {
     position: relative;
     grid-column: span 1 / span 1;
@@ -768,7 +768,7 @@ header .btn-menu-trigger {
     transform: scale(0.2);
 }
 
-/* ========== Project Secondary Sliders ========== */
+/* ========== 프로젝트 보조 슬라이더 ========== */
 .banner-sliders .banner-slider-project-wrapper {
     width: 100%;
     margin-left: auto; /*display: flex; justify-content: flex-end;*/
@@ -832,47 +832,7 @@ header .btn-menu-trigger {
 }
 /* 배너 슬라이더 끝 */
 
-/* 소개 시작 */
-.section-about {
-    position: relative;
-    padding: 5rem 0;
-    background-color: var(--shades01); /*background-color: transparent;*/
-}
-.section-about .about-content {
-    display: flex;
-    flex-direction: column;
-    gap: 12rem;
-}
-.section-about .about-title {
-    display: flex;
-    position: relative;
-    z-index: 1;
-}
-.section-about .about-title .title {
-    font-size: 6rem;
-    font-weight: 600;
-    margin: 0;
-    color: var(--shades02);
-    letter-spacing: -0.5rem;
-    font-family: "Poppins", sans-serif;
-    max-width: 90rem;
-}
-.section-about .about-wrapper {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 11.25rem;
-}
-.section-about .about-description {
-    font-size: 1.5rem;
-    color: var(--shades03);
-    font-weight: 400;
-    line-height: 1.5;
-    letter-spacing: -0.8px;
-}
-.section-about .about-description p {
-    margin: 0 0 2.5rem;
-}
-/* 배너 슬라이더 끝 */
+
 
 /* 소개 시작 */
 .section-about {
@@ -935,7 +895,7 @@ header .btn-menu-trigger {
     margin: 0;
 }
 
-/* ========== Service Contents ========== */
+/* ========== 서비스 콘텐츠 ========== */
 .section-services .service-content {
     position: relative;
 }
@@ -1015,7 +975,7 @@ header .btn-menu-trigger {
     margin: 1.5rem 0 0;
 }
 
-/* ========== Service Actions ========== */
+/* ========== 서비스 액션 ========== */
 .section-services .service-action {
     display: flex;
     align-items: center;
@@ -1302,7 +1262,7 @@ footer .social-links > li a.link {
     position: relative;
     padding: 4rem 0;
 }
-/* ========== About US ========== */
+/* ========== 회사 소개 ========== */
 .project-aboutus {
     position: relative;
     padding: 6rem 0;
@@ -1334,7 +1294,8 @@ footer .social-links > li a.link {
 .bg-dark .project-aboutus .content .content-data {
     color: var(--shades01);
 }
-/* ========== Video Player ========== */
+/* 비디오 플레이어 스타일 */
+/* ========== 비디오 플레이어 ========== */
 .plyr {
     border-radius: 2px;
 }
@@ -1346,7 +1307,8 @@ footer .social-links > li a.link {
     height: 2rem;
 }
 
-/* ========== Media Blocks ========== */
+/* 미디어 블록 스타일 */
+/* ========== 미디어 블록 ========== */
 .project-media-block {
     position: relative;
     padding: 4rem 0;
@@ -1459,7 +1421,8 @@ footer .social-links > li a.link {
     max-width: 83.33%;
 }
 
-/* ========== Media Grid Blocks ========== */
+/* 미디어 그리드 블록 스타일 */
+/* ========== 미디어 그리드 블록 ========== */
 .project-media-grid-block {
     position: relative;
     padding: 4rem 0;
@@ -1551,7 +1514,8 @@ footer .social-links > li a.link {
     aspect-ratio: 1/1;
 }
 
-/* ========== Text Blocks ========== */
+/* 텍스트 블록 스타일 */
+/* ========== 텍스트 블록 ========== */
 .project-text-block {
     position: relative;
     padding: 6rem 0;
@@ -1627,7 +1591,8 @@ footer .social-links > li a.link {
     color: var(--shades01);
 }
 
-/* ========== Actions Blocks ========== */
+/* 액션 블록 스타일 */
+/* ========== 액션 블록 ========== */
 .project-action-block {
     position: relative;
     padding: 0 0 4rem;
@@ -1945,7 +1910,8 @@ footer .social-links > li a.link {
     transform: scaleX(1);
 }
 
-/* ========== After Contact Form 7 ========== */
+/* Contact Form 7 스타일 (커스텀) */
+/* ========== Contact Form 7 이후 ========== */
 .section-contact .form-checkboxes .checkbox-inputs {
     position: relative;
     margin: 1rem -0.5rem 0;
@@ -2051,6 +2017,7 @@ footer .social-links > li a.link {
     background-color: var(--shades02);
 }
 
+/* Contact Form 7 기본 스타일 */
 /* ========== Contact Form 7 ========== */
 .wpcf7-spinner {
     position: absolute !important;
@@ -2225,10 +2192,11 @@ footer .social-links > li a.link {
 .section-works .works .work-item:nth-child(6n + 6) .work-item-description {
     text-align: right;
 }
-/* ********|| WORKS ENDS ||******** */
+/* 작업물 끝 */
 
-/* ********|| SERVICES STARTS ||******** */
-/* ========== Services Banner ========== */
+/* 서비스 시작 */
+/* 서비스 배너 스타일 */
+/* ========== 서비스 배너 ========== */
 .section-services-banner {
     position: relative;
     z-index: 0;
@@ -2269,7 +2237,8 @@ footer .social-links > li a.link {
     margin: 0 0 2.5rem;
 }
 
-/* ========== Services Teams ========== */
+/* 서비스 팀 섹션 스타일 */
+/* ========== 서비스 팀 ========== */
 .section-services-teams {
     position: relative;
     z-index: 0;
@@ -2325,7 +2294,8 @@ footer .social-links > li a.link {
     margin: 0 0 2.5rem;
 }
 
-/* ========== Services Collaborate ========== */
+/* 서비스 협업 섹션 스타일 */
+/* ========== 서비스 협업 ========== */
 .section-services-collaborate {
     position: relative;
     z-index: 0;
@@ -2448,7 +2418,8 @@ footer .social-links > li a.link {
     letter-spacing: -0.8px;
 }
 
-/* ========== Services Why Us ========== */
+/* 서비스 Why Us 섹션 스타일 */
+/* ========== 서비스 Why Us ========== */
 .section-services-why-us {
     position: relative;
     z-index: 0;
@@ -2506,6 +2477,7 @@ footer .social-links > li a.link {
     margin: 0 0 2.5rem;
 }
 
+/* 서비스 작업물 섹션 스타일 */
 /* ========== 서비스 작업물 ========== */
 .section-services-works {
     position: relative;
@@ -2595,6 +2567,7 @@ footer .social-links > li a.link {
 }
 /* 서비스 끝 */
 
+/* 레이어 백 (뒷면) 스타일 */
 /* 레이어 백 시작 */
 .layer-back header {
     z-index: 10;
@@ -2787,6 +2760,7 @@ footer .social-links > li a.link {
 }
 /* 레이어 백 끝 */
 
+/* 반응형 스타일 */
 /* 반응형 시작 */
 @media screen and (max-width: 1680px) {
     .section-banner .banner-background {

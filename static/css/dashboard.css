@@ -42,196 +42,7 @@
     overflow-x: hidden;
 }
 
-/* ==========================================
-   헤더 관련 스타일
-   ========================================== */
-.dashboard-header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 5rem 0 3rem 0;
-    z-index: 9;
-    transition: all 0.3s cubic-bezier(0, 0.5, 0.5, 1);
-}
 
-.dashboard-header .container {
-    max-width: none;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.dashboard-header .brand {
-    position: relative;
-    display: flex;
-}
-
-.dashboard-header .brand-logo {
-    display: block;
-    width: 96px;
-    height: 96px;
-}
-
-.dashboard-header .navigation {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--bg-primary);
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s cubic-bezier(0, 0.5, 0.5, 1);
-}
-
-.dashboard-header .navigation.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.dashboard-header .navigation-header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 5rem 2rem 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.dashboard-header .navigation-brand {
-    position: relative;
-    display: flex;
-}
-
-.dashboard-header .navigation-brand .brand-logo {
-    display: block;
-    width: 96px;
-    height: 96px;
-}
-
-.dashboard-header .navigation-menu {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.dashboard-header .menu-item {
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 3rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    transition: color 0.3s ease;
-    position: relative;
-}
-
-.dashboard-header .menu-item span {
-    display: inline-block;
-    transition: transform 0.3s ease;
-}
-
-.dashboard-header .menu-item:hover,
-.dashboard-header .menu-item.active {
-    color: var(--text-primary);
-}
-
-.dashboard-header .btn-menu-trigger {
-    background: none;
-    border: none;
-    color: var(--text-primary);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0.5rem;
-    transition: color 0.3s ease;
-}
-
-.dashboard-header .btn-menu-trigger:hover {
-    color: var(--accent-orange);
-}
-
-/* 헤더 왼쪽 로고 영역 */
-.header-left .logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.2rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-}
-
-/* 로고 아이콘 */
-.logo i {
-    color: var(--accent-orange);
-    font-size: 1.5rem;
-}
-
-/* 헤더 네비게이션 메뉴 */
-.header-nav {
-    display: flex;
-    gap: 2rem;
-}
-
-/* 네비게이션 아이템 */
-.nav-item {
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 500;
-    letter-spacing: 1px;
-    transition: color 0.3s;
-}
-
-/* 네비게이션 아이템 활성화/호버 상태 */
-.nav-item.active,
-.nav-item:hover {
-    color: var(--text-primary);
-}
-
-/* 헤더 오른쪽 영역 */
-.header-right {
-    display: flex;
-    gap: 1rem;
-}
-
-/* 아이콘 버튼 */
-.icon-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1.2rem;
-    cursor: pointer;
-    position: relative;
-    padding: 0.5rem;
-    transition: color 0.3s;
-}
-
-/* 아이콘 버튼 호버 */
-.icon-btn:hover {
-    color: var(--text-primary);
-}
-
-/* 알림 점 (빨간 점) */
-.notification-dot {
-    position: absolute;
-    top: 0.3rem;
-    right: 0.3rem;
-    width: 8px;
-    height: 8px;
-    background: var(--accent-orange);
-    border-radius: 50%;
-}
 
 /* ==========================================
    메인 대시보드 그리드 레이아웃
@@ -302,7 +113,7 @@
     }
 }
 
-/* Card Base */
+/* 카드 기본 스타일 */
 .card {
     background: var(--bg-card);
     border-radius: 1rem;
@@ -352,7 +163,7 @@
     background: var(--border-color);
 }
 
-/* SLAM Map Section */
+/* SLAM 맵 섹션 */
 .slam-section {
     grid-column: span 2;
     grid-row: span 2;
@@ -433,7 +244,7 @@
     color: var(--text-primary);
 }
 
-/* Camera Side View */
+/* 카메라 측면 뷰 */
 .camera-side-view {
     display: flex;
     flex-direction: column;
@@ -485,17 +296,17 @@
     letter-spacing: 1px;
 }
 
-/* Port Section */
+/* 포트 섹션 */
 .port-section {
     grid-column: span 1;
 }
 
-/* Battery Section */
+/* 배터리 섹션 */
 .battery-section {
     grid-column: span 1;
 }
 
-/* Energy Flow Section */
+/* 에너지 흐름 섹션 */
 .energy-flow {
     grid-column: 1 / 3;
     grid-row: 1 / 3;
@@ -534,7 +345,7 @@
     border: 1px solid var(--border-color);
 }
 
-/* Port List Styles */
+/* 포트 목록 스타일 */
 .port-list {
     display: flex;
     flex-direction: column;
@@ -604,7 +415,7 @@
     background: white;
 }
 
-/* Battery Info */
+/* 배터리 정보 */
 .battery-info {
     display: flex;
     justify-content: space-between;
@@ -693,7 +504,7 @@
     height: 100%;
 }
 
-/* Robot Card Styles */
+/* 로봇 카드 스타일 */
 .robot-card {
     grid-column: 3;
     grid-row: 1 / 3;
@@ -718,7 +529,7 @@
     background-clip: text;
 }
 
-/* Camera View Styles */
+/* 카메라 뷰 스타일 */
 .camera-view {
     position: relative;
     height: 360px;
@@ -813,6 +624,7 @@
     letter-spacing: 1px;
 }
 
+/* 출력 표시기 스타일 */
 .output-indicator {
     position: absolute;
     left: 2rem;
@@ -837,6 +649,7 @@
     font-weight: 700;
 }
 
+/* 포트 목록 스타일 */
 .port-list {
     display: flex;
     flex-direction: column;
@@ -903,6 +716,7 @@
     background: white;
 }
 
+/* 배터리 정보 스타일 */
 .battery-info {
     display: flex;
     align-items: center;
@@ -966,7 +780,8 @@
     border-radius: 2px;
 }
 
-/* Robot Card */
+/* 로봇 카드 스타일 */
+
 .robot-card {
     grid-row: span 2;
 }
@@ -1076,7 +891,8 @@
     margin-left: 0.5rem;
 }
 
-/* Details Card */
+/* 상세 정보 카드 스타일 */
+
 .details-card {
     grid-column: span 1;
 }
@@ -1114,7 +930,8 @@
     color: var(--accent-orange);
 }
 
-/* Cable Card */
+/* 케이블 카드 스타일 */
+
 .cable-card {
     display: flex;
     flex-direction: column;
@@ -1258,7 +1075,8 @@
     transition: all 0.3s;
 }
 
-/* Voltage Card */
+/* 전압 카드 스타일 */
+
 .voltage-card {
     display: flex;
     flex-direction: column;
@@ -1357,7 +1175,8 @@
     background: var(--border-color);
 }
 
-/* Charging Card */
+/* 충전 카드 스타일 */
+
 .charging-card {
     grid-row: span 2;
 }
@@ -1445,7 +1264,8 @@
     font-weight: 600;
 }
 
-/* Responsive */
+/* 반응형 스타일 */
+
 @media (max-width: 1400px) {
     .dashboard-main {
         grid-template-columns: repeat(2, 1fr);
@@ -1482,7 +1302,7 @@
     }
 }
 
-/* SLAM Map Section - New Layout */
+/* SLAM 맵 섹션 - 새로운 레이아웃 */
 .slam-map-section {
     grid-column: 1 / 3;
     grid-row: 1 / 3;
@@ -1519,7 +1339,7 @@
     object-fit: contain;
 }
 
-/* Robot Info Card - New Layout */
+/* 로봇 정보 카드 - 새로운 레이아웃 */
 .robot-info-card {
     grid-column: 3;
     grid-row: 1;
@@ -1593,25 +1413,25 @@
     box-shadow: 0 0 20px var(--accent-orange-glow);
 }
 
-/* Details Card */
+/* 상세 정보 카드 */
 .details-card {
     grid-column: 3;
     grid-row: 3;
 }
 
-/* Cable Card */
+/* 케이블 카드 */
 .cable-card {
     grid-column: 1;
     grid-row: 3;
 }
 
-/* Voltage Card */
+/* 전압 카드 */
 .voltage-card {
     grid-column: 2;
     grid-row: 3;
 }
 
-/* Charging Card */
+/* 충전 카드 */
 .charging-card {
     grid-column: 1 / 3;
     grid-row: 4;
