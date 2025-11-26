@@ -265,6 +265,8 @@ async def add_cache_header(request: Request, call_next):
             response.headers["Cache-Control"] = "public, max-age=604800, immutable"
         elif path.endswith(".mp4"):
             response.headers["Cache-Control"] = "public, max-age=604800"
+        elif path.endswith(".json"):
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
         else:
             response.headers["Cache-Control"] = "public, max-age=3600"
     return response
