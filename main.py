@@ -4,6 +4,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 try:
     import rclpy
@@ -31,11 +35,14 @@ import numpy as np
 app = FastAPI()
 
 # CORS 설정
+HOST = os.getenv("HOST")
+PORT = int(os.getenv("PORT"))
+
 origins = [
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "http://43.200.211.61",
-    "http://43.200.211.61:8000",
+    f"http://localhost:{PORT}",
+    f"http://127.0.0.1:{PORT}",
+    f"http://{HOST}",
+    f"http://{HOST}:{PORT}",
 ]
 
 app.add_middleware(
@@ -403,5 +410,5 @@ async def read_contact(request: Request):
 
 
 if __name__ == "__main__":
-    # 로컬 테스트용 (8000번 포트)
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    # 로컬 테스트용
+    uvicorn.run("main:app", host=HOST, port=PORT, reload=True)
