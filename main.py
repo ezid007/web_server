@@ -4,17 +4,29 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-import rclpy
-from rclpy.node import Node
-from sensor_msgs.msg import Image
-from nav_msgs.msg import OccupancyGrid
-from cv_bridge import CvBridge
+
+try:
+    import rclpy
+    from rclpy.node import Node
+    from sensor_msgs.msg import Image
+    from nav_msgs.msg import OccupancyGrid
+    from cv_bridge import CvBridge
+    from tf2_ros import Buffer, TransformListener
+    from rclpy.time import Time
+    ROS_AVAILABLE = True
+except ImportError:
+    ROS_AVAILABLE = False
+    # Dummy classes/imports to prevent NameError if used in type hints or inheritance
+    class Node: pass
+    class Buffer: pass
+    class TransformListener: pass
+    class Time: pass
+
 import cv2
 import asyncio
 import threading
 import numpy as np
-from tf2_ros import Buffer, TransformListener
-from rclpy.time import Time
+
 
 app = FastAPI()
 
@@ -22,6 +34,8 @@ app = FastAPI()
 origins = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+    "http://43.200.211.61",
+    "http://43.200.211.61:8000",
 ]
 
 app.add_middleware(
@@ -39,147 +53,158 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
-# 3. ROS2 통합 노드 클래스 (카메라 + SLAM 지도)
-class RobotNode(Node):
-    def __init__(self):
-        super().__init__("robot_dashboard_subscriber")
-        self.bridge = CvBridge()
-        self.latest_camera_frame = None
-        self.latest_map_frame = None
-        self.latest_map_info = None  # 지도 메타 정보 저장
-        self.robot_pose = None  # 로봇 위치 저장
+if ROS_AVAILABLE:
+    # 3. ROS2 통합 노드 클래스 (카메라 + SLAM 지도)
+    class RobotNode(Node):
+        def __init__(self):
+            super().__init__("robot_dashboard_subscriber")
+            self.bridge = CvBridge()
+            self.latest_camera_frame = None
+            self.latest_map_frame = None
+            self.latest_map_info = None  # 지도 메타 정보 저장
+            self.robot_pose = None  # 로봇 위치 저장
 
-        # TF 버퍼 및 리스너 설정
-        self.tf_buffer = Buffer()
-        self.tf_listener = TransformListener(self.tf_buffer, self)
+            # TF 버퍼 및 리스너 설정
+            self.tf_buffer = Buffer()
+            self.tf_listener = TransformListener(self.tf_buffer, self)
 
-        # 카메라 토픽 구독
-        self.camera_subscription = self.create_subscription(
-            Image,
-            "/camera/image_raw",  # TurtleBot3 카메라 토픽
-            self.camera_callback,
-            10,
-        )
-
-        # SLAM 지도 토픽 구독
-        self.map_subscription = self.create_subscription(
-            OccupancyGrid,
-            "/map",  # Cartographer가 발행하는 지도 토픽
-            self.map_callback,
-            10,
-        )
-
-    def camera_callback(self, msg):
-        """카메라 이미지 콜백"""
-        try:
-            # RGB888 포맷으로 들어오는 이미지를 BGR8로 변환
-            if msg.encoding == "rgb8":
-                cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
-            else:
-                cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
-
-            # 320x240 크기 확인
-            if cv_image.shape[1] != 320 or cv_image.shape[0] != 240:
-                cv_image = cv2.resize(cv_image, (320, 240))
-
-            self.latest_camera_frame = cv_image
-        except Exception as e:
-            self.get_logger().error(
-                f"카메라 이미지 변환 실패: {e} (encoding: {msg.encoding})"
+            # 카메라 토픽 구독
+            self.camera_subscription = self.create_subscription(
+                Image,
+                "/camera/image_raw",  # TurtleBot3 카메라 토픽
+                self.camera_callback,
+                10,
             )
 
-    def map_callback(self, msg):
-        """SLAM 지도 콜백 - OccupancyGrid를 이미지로 변환"""
-        try:
-            # 지도 메타 정보 저장
-            self.latest_map_info = msg.info
+            # SLAM 지도 토픽 구독
+            self.map_subscription = self.create_subscription(
+                OccupancyGrid,
+                "/map",  # Cartographer가 발행하는 지도 토픽
+                self.map_callback,
+                10,
+            )
 
-            # OccupancyGrid 데이터를 numpy 배열로 변환
-            # 값 범위: -1 (unknown), 0 (free), 100 (occupied)
-            width = msg.info.width
-            height = msg.info.height
-            data = np.array(msg.data, dtype=np.int8).reshape((height, width))
-
-            # 시각화를 위한 색상 매핑
-            # -1 (unknown) -> 회색(128)
-            # 0 (free) -> 흰색(255)
-            # 100 (occupied) -> 검은색(0)
-            map_image = np.zeros((height, width), dtype=np.uint8)
-            map_image[data == -1] = 128  # unknown: 회색
-            map_image[data == 0] = 255  # free: 흰색
-            map_image[data == 100] = 0  # occupied: 검은색
-
-            # 지도 회전 (상하 반전)
-            map_image = cv2.flip(map_image, 0)
-
-            # 컬러로 변환 (3채널)
-            map_image_color = cv2.cvtColor(map_image, cv2.COLOR_GRAY2BGR)
-
-            # 로봇 위치 가져오기 및 표시
+        def camera_callback(self, msg):
+            """카메라 이미지 콜백"""
             try:
-                transform = self.tf_buffer.lookup_transform(
-                    "map",  # 목표 프레임
-                    "base_footprint",  # 소스 프레임 (로봇 위치)
-                    Time(),  # 최신 시간
+                # RGB888 포맷으로 들어오는 이미지를 BGR8로 변환
+                if msg.encoding == "rgb8":
+                    cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+                else:
+                    cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+
+                # 320x240 크기 확인
+                if cv_image.shape[1] != 320 or cv_image.shape[0] != 240:
+                    cv_image = cv2.resize(cv_image, (320, 240))
+
+                self.latest_camera_frame = cv_image
+            except Exception as e:
+                self.get_logger().error(
+                    f"카메라 이미지 변환 실패: {e} (encoding: {msg.encoding})"
                 )
 
-                # 로봇 위치를 지도 좌표로 변환
-                robot_x = transform.transform.translation.x
-                robot_y = transform.transform.translation.y
+        def map_callback(self, msg):
+            """SLAM 지도 콜백 - OccupancyGrid를 이미지로 변환"""
+            try:
+                # 지도 메타 정보 저장
+                self.latest_map_info = msg.info
 
-                # 지도 픽셀 좌표로 변환
-                resolution = msg.info.resolution
-                origin_x = msg.info.origin.position.x
-                origin_y = msg.info.origin.position.y
+                # OccupancyGrid 데이터를 numpy 배열로 변환
+                # 값 범위: -1 (unknown), 0 (free), 100 (occupied)
+                width = msg.info.width
+                height = msg.info.height
+                data = np.array(msg.data, dtype=np.int8).reshape((height, width))
 
-                pixel_x = int((robot_x - origin_x) / resolution)
-                pixel_y = int((robot_y - origin_y) / resolution)
+                # 시각화를 위한 색상 매핑
+                # -1 (unknown) -> 회색(128)
+                # 0 (free) -> 흰색(255)
+                # 100 (occupied) -> 검은색(0)
+                map_image = np.zeros((height, width), dtype=np.uint8)
+                map_image[data == -1] = 128  # unknown: 회색
+                map_image[data == 0] = 255  # free: 흰색
+                map_image[data == 100] = 0  # occupied: 검은색
 
-                # 상하 반전 적용 (flip 때문에)
-                pixel_y = height - pixel_y
+                # 지도 회전 (상하 반전)
+                map_image = cv2.flip(map_image, 0)
 
-                # 로봇 위치 표시 (주황색 원)
-                if 0 <= pixel_x < width and 0 <= pixel_y < height:
-                    cv2.circle(
-                        map_image_color, (pixel_x, pixel_y), 8, (0, 107, 255), -1
-                    )  # 주황색 원
-                    cv2.circle(
-                        map_image_color, (pixel_x, pixel_y), 10, (255, 255, 255), 2
-                    )  # 흰색 테두리
+                # 컬러로 변환 (3채널)
+                map_image_color = cv2.cvtColor(map_image, cv2.COLOR_GRAY2BGR)
 
-                    # 로봇 방향 표시 (화살표)
-                    # 쿼터니언에서 yaw 각도 추출
-                    quat = transform.transform.rotation
-                    siny_cosp = 2 * (quat.w * quat.z + quat.x * quat.y)
-                    cosy_cosp = 1 - 2 * (quat.y * quat.y + quat.z * quat.z)
-                    yaw = np.arctan2(siny_cosp, cosy_cosp)
-
-                    # 화살표 끝점 계산
-                    arrow_length = 20
-                    arrow_x = int(pixel_x + arrow_length * np.cos(yaw))
-                    arrow_y = int(pixel_y - arrow_length * np.sin(yaw))  # y축 반전
-
-                    cv2.arrowedLine(
-                        map_image_color,
-                        (pixel_x, pixel_y),
-                        (arrow_x, arrow_y),
-                        (0, 107, 255),  # 주황색
-                        3,
-                        tipLength=0.3,
+                # 로봇 위치 가져오기 및 표시
+                try:
+                    transform = self.tf_buffer.lookup_transform(
+                        "map",  # 목표 프레임
+                        "base_footprint",  # 소스 프레임 (로봇 위치)
+                        Time(),  # 최신 시간
                     )
 
+                    # 로봇 위치를 지도 좌표로 변환
+                    robot_x = transform.transform.translation.x
+                    robot_y = transform.transform.translation.y
+
+                    # 지도 픽셀 좌표로 변환
+                    resolution = msg.info.resolution
+                    origin_x = msg.info.origin.position.x
+                    origin_y = msg.info.origin.position.y
+
+                    pixel_x = int((robot_x - origin_x) / resolution)
+                    pixel_y = int((robot_y - origin_y) / resolution)
+
+                    # 상하 반전 적용 (flip 때문에)
+                    pixel_y = height - pixel_y
+
+                    # 로봇 위치 표시 (주황색 원)
+                    if 0 <= pixel_x < width and 0 <= pixel_y < height:
+                        cv2.circle(
+                            map_image_color, (pixel_x, pixel_y), 8, (0, 107, 255), -1
+                        )  # 주황색 원
+                        cv2.circle(
+                            map_image_color, (pixel_x, pixel_y), 10, (255, 255, 255), 2
+                        )  # 흰색 테두리
+
+                        # 로봇 방향 표시 (화살표)
+                        # 쿼터니언에서 yaw 각도 추출
+                        quat = transform.transform.rotation
+                        siny_cosp = 2 * (quat.w * quat.z + quat.x * quat.y)
+                        cosy_cosp = 1 - 2 * (quat.y * quat.y + quat.z * quat.z)
+                        yaw = np.arctan2(siny_cosp, cosy_cosp)
+
+                        # 화살표 끝점 계산
+                        arrow_length = 20
+                        arrow_x = int(pixel_x + arrow_length * np.cos(yaw))
+                        arrow_y = int(pixel_y - arrow_length * np.sin(yaw))  # y축 반전
+
+                        cv2.arrowedLine(
+                            map_image_color,
+                            (pixel_x, pixel_y),
+                            (arrow_x, arrow_y),
+                            (0, 107, 255),  # 주황색
+                            3,
+                            tipLength=0.3,
+                        )
+
+                except Exception as e:
+                    self.get_logger().debug(f"로봇 위치 가져오기 실패: {e}")
+
+                # 적절한 크기로 리사이즈 (600x400)
+                map_image_resized = cv2.resize(
+                    map_image_color, (600, 400), interpolation=cv2.INTER_NEAREST
+                )
+
+                self.latest_map_frame = map_image_resized
+
             except Exception as e:
-                self.get_logger().debug(f"로봇 위치 가져오기 실패: {e}")
+                self.get_logger().error(f"SLAM 지도 변환 실패: {e}")
+else:
+    # ROS2가 없을 때 사용할 더미 클래스
+    class RobotNode:
+        def __init__(self):
+            self.latest_camera_frame = None
+            self.latest_map_frame = None
+        
+        def destroy_node(self):
+            pass
 
-            # 적절한 크기로 리사이즈 (600x400)
-            map_image_resized = cv2.resize(
-                map_image_color, (600, 400), interpolation=cv2.INTER_NEAREST
-            )
-
-            self.latest_map_frame = map_image_resized
-
-        except Exception as e:
-            self.get_logger().error(f"SLAM 지도 변환 실패: {e}")
 
 
 # 전역 노드 변수
@@ -189,6 +214,11 @@ robot_node = None
 def init_ros():
     """ROS2 초기화 및 노드 시작"""
     global robot_node
+    if not ROS_AVAILABLE:
+        print("ROS2 not available, skipping initialization.")
+        robot_node = RobotNode() # Dummy node
+        return
+
     try:
         rclpy.init()
         robot_node = RobotNode()
@@ -213,7 +243,7 @@ async def startup_event():
 async def shutdown_event():
     if robot_node:
         robot_node.destroy_node()
-    if rclpy.ok():
+    if ROS_AVAILABLE and rclpy.ok():
         rclpy.shutdown()
 
 
