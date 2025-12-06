@@ -188,15 +188,35 @@
                         </div>
                     </div>
                 </div>
-                <div class="battery-info">
-                    <div class="battery-time">
-                        <span class="time-value">12</span>
-                        <span class="time-label">HR</span>
-                        <span class="battery-label">BATTERY LIFE</span>
+                <!-- 하단 상태 바: 날짜, 온도, 배터리 -->
+                <div class="status-bar">
+                    <!-- 1) 날짜 정보 -->
+                    <div class="status-item date-card">
+                        <span class="date-value" id="currentDate">2025/12/06</span>
                     </div>
-                    <div class="load-indicator">
-                        <span class="load-label">MEDIUM LOAD</span>
-                        <div class="load-bar"></div>
+                    
+                    <!-- 2) 온도 정보 -->
+                    <div class="status-item temp-card">
+                        <span class="temp-label">Temp</span>
+                        <div class="temp-value">
+                            <i class="fas fa-thermometer-half"></i>
+                            <span>30°C</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 3) 배터리 정보 -->
+                    <div class="status-item battery-card">
+                        <span class="battery-label">BATTERY LIFE</span>
+                        <div class="battery-time">
+                            <span class="time-value">12</span>
+                            <span class="time-unit">HR</span>
+                        </div>
+                        <div class="battery-detail">
+                            <div class="battery-icon">
+                                <div class="battery-fill" style="width: {{ status.battery }};"></div>
+                            </div>
+                            <span class="battery-percent">{{ status.battery }}%</span>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -230,163 +250,6 @@
                         <span class="status-off">OFF</span>
                     </span>
                 </div>
-            </section>
-
-            <!-- 상세 정보 섹션 -->
-
-            <section class="card details-card">
-                <h3 class="card-title">DETAILS</h3>
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <span class="detail-label">Mode</span>
-                        <span class="detail-value">
-                            <i class="fas fa-bolt"></i>
-                            {{ status.mode }}
-                        </span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Time</span>
-                        <span class="detail-value">
-                            <i class="far fa-clock"></i>
-                            16H 11M
-                        </span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Frequency</span>
-                        <span class="detail-value">
-                            <i class="fas fa-circle-notch"></i>
-                            50 HZ
-                        </span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Temp</span>
-                        <span class="detail-value">
-                            <i class="fas fa-temperature-high"></i>
-                            30°C
-                        </span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Ampere</span>
-                        <span class="detail-value">
-                            <i class="fas fa-charging-station"></i>
-                            600A
-                        </span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Current</span>
-                        <span class="detail-value">
-                            <i class="fas fa-cog"></i>
-                            10A
-                        </span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 케이블 섹션 -->
-
-            <section class="card cable-card">
-                <div class="cable-visual">
-                    <div class="cable-connector">
-                        <div class="connector-part"></div>
-                        <div class="cable-wire"></div>
-                        <div class="connector-part"></div>
-                    </div>
-                    <div class="time-indicator">
-                        <span class="time-remain">0 15</span>
-                        <span class="time-unit">1w</span>
-                    </div>
-                </div>
-                <div class="cable-control">
-                    <span class="cable-mode">FLASH MODE</span>
-                    <span class="cable-name">CABEL</span>
-                    <div class="toggle-switch">
-                        <span class="toggle-label">ON</span>
-                        <div class="toggle-slider"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 전압 표시 섹션 -->
-
-            <section class="card voltage-card">
-                <div class="voltage-display">
-                    <div class="voltage-meter">
-                        <div class="meter-bars">
-                            <div class="bar active"></div>
-                            <div class="bar active"></div>
-                            <div class="bar active"></div>
-                            <div class="bar"></div>
-                            <div class="bar"></div>
-                        </div>
-                        <div class="voltage-value">{{ status.voltage }}</div>
-                        <div class="voltage-label">
-                            VOLT
-                            <br />
-                            DISPLAY
-                        </div>
-                    </div>
-                </div>
-                <div class="voltage-info">
-                    <div class="info-item">
-                        <span class="info-label">AC</span>
-                        <span class="info-value">23.8V</span>
-                    </div>
-                    <div class="info-divider">/</div>
-                    <div class="info-item">
-                        <span class="info-label">DC</span>
-                        <span class="info-value">14V</span>
-                    </div>
-                    <button class="details-btn">
-                        <span>Details</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-            </section>
-
-            <!-- 충전 모드 섹션 -->
-
-            <section class="card charging-card">
-                <h3 class="card-title">CHARGING MODE</h3>
-                <div class="charging-display">
-                    <div class="charging-circle">
-                        <svg class="progress-ring" width="200" height="200">
-                            <circle
-                                class="progress-ring-bg"
-                                cx="100"
-                                cy="100"
-                                r="85"
-                            ></circle>
-                            <circle
-                                class="progress-ring-fill"
-                                cx="100"
-                                cy="100"
-                                r="85"
-                                style="stroke-dasharray: 534; stroke-dashoffset: {{ 534 - (534 * status.battery / 100) }};"
-                            ></circle>
-                        </svg>
-                        <div class="charging-percent">
-                            <i class="fas fa-battery-three-quarters"></i>
-                            <span class="percent-value">
-                                {{ status.battery }}%
-                            </span>
-                        </div>
-                    </div>
-                    <div class="charging-range">
-                        <span class="range-min">0%</span>
-                        <span class="range-max">100%</span>
-                    </div>
-                </div>
-                <div class="charging-info">
-                    <div class="info-row">
-                        <span class="info-label">Power</span>
-                        <span class="info-value">5A / 220V</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Input</span>
-                        <span class="info-value">200 KWH</span>
-                    </div>
-                </div>
-            </section>
         </main>
 
         <!-- ********|| 자바스크립트 시작 ||******** -->
@@ -436,6 +299,16 @@
                         '<span class="status-off">ON</span> OFF';
                 }
             }
+            
+            // 현재 날짜 표시
+            function updateDate() {
+                const now = new Date();
+                const y = now.getFullYear();
+                const m = String(now.getMonth() + 1).padStart(2, '0');
+                const d = String(now.getDate()).padStart(2, '0');
+                document.getElementById('currentDate').textContent = `${y}/${m}/${d}`;
+            }
+            updateDate();
         </script>
         <!-- ********|| 자바스크립트 끝 ||******** -->
     </body>
