@@ -436,7 +436,7 @@
 
 /* 날짜 카드 */
 .date-card {
-    align-items: flex-start;
+    align-items: center;
 }
 
 .date-value {
