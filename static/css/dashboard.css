@@ -786,6 +786,24 @@
         inset 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
+/* 긴급 정지 활성화 상태 */
+.stop-btn.emergency-active {
+    animation: emergency-pulse 0.2s infinite alternate;
+    background: radial-gradient(circle at 30% 30%, #ffff00, #ff6600 60%, #ff0000);
+    border-color: #ff0000;
+}
+
+@keyframes emergency-pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+    }
+    100% {
+        transform: scale(1.05);
+        box-shadow: 0 0 40px rgba(255, 255, 0, 1);
+    }
+}
+
 /* 출력 표시기 스타일 */
 .output-indicator {
     position: absolute;
@@ -1597,4 +1615,74 @@
 .charging-card {
     grid-column: 1 / 3;
     grid-row: 4;
+}
+
+/* ==========================================
+   로봇 시스템 정보 바 (CPU 온도, CPU 사용률, WiFi)
+   ========================================== */
+.system-bar {
+    margin-top: 1rem;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.system-card {
+    align-items: center;
+    text-align: center;
+}
+
+.system-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    margin-bottom: 0.25rem;
+}
+
+.system-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.system-value i {
+    color: var(--accent-orange);
+    font-size: 1rem;
+}
+
+/* WiFi 상태 표시 스타일 */
+.wifi-status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.25rem;
+    margin-left: 0.5rem;
+}
+
+.wifi-excellent {
+    color: #4caf50;
+    background: rgba(76, 175, 80, 0.15);
+}
+
+.wifi-good {
+    color: #8bc34a;
+    background: rgba(139, 195, 74, 0.15);
+}
+
+.wifi-fair {
+    color: #ff9800;
+    background: rgba(255, 152, 0, 0.15);
+}
+
+.wifi-weak {
+    color: #ff5722;
+    background: rgba(255, 87, 34, 0.15);
+}
+
+.wifi-poor {
+    color: #f44336;
+    background: rgba(244, 67, 54, 0.15);
 }
