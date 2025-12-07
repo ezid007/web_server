@@ -2042,8 +2042,20 @@
         font-size: 1rem;
     }
     
+    .camera-view,
     .cctv-view-inline {
-        height: 200px;
+        width: 100%;
+        height: auto; /* 고정 높이 제거 */
+        aspect-ratio: 4 / 3; /* 4:3 비율 고정 */
+        margin-bottom: 0.5rem;
+    }
+    
+    .camera-view img,
+    .cctv-view-inline img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* 꽉 차게 표시 (필요시 잘림 허용) */
+        background: transparent; /* 검은 배경 제거 */
     }
     
     .robot-header-compact {
@@ -2070,8 +2082,9 @@
         min-height: 200px;
     }
     
-    .camera-view {
-        height: 150px;
+    .camera-view,
+    .cctv-view-inline {
+        height: auto;
     }
     
     .wasd-pad {
@@ -2089,10 +2102,6 @@
         width: 80px;
         height: 80px;
         font-size: 0.875rem;
-    }
-    
-    .cctv-view-inline {
-        height: 150px;
     }
     
     .status-bar.system-bar {

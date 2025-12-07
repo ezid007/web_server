@@ -3569,9 +3569,16 @@ footer .social-links > li a.link {
         padding-right: 0.75rem;
     }
     
-    /* 헤더 - 데스크탑 스타일 유지 */
+    /* 헤더 - 고정 및 스타일 */
     header {
         padding: 0.5rem 0;
+        position: fixed; /* 절대 위치에서 고정 위치로 변경 */
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000; /* z-index 상향 조정 */
+        background-color: var(--bg-primary); /* 배경색 추가 (투명 방지) */
+        border-bottom: 1px solid var(--border-color); /* 구분선 추가 */
     }
     header .brand {
         height: 1.5rem;
@@ -3580,8 +3587,9 @@ footer .social-links > li a.link {
         width: 1.8rem;
         height: 1.8rem;
     }
-    header .brand .brand-logo img {
-        transform: scale(1.0) translateY(0);
+    header .brand .brand-logo img,
+    header .brand .brand-logo canvas {
+        transform: scale(1.0);
     }
     
     /* 네비게이션 - 데스크탑 스타일 유지 (숨기지 않음) */
@@ -3603,25 +3611,28 @@ footer .social-links > li a.link {
     header .navigation .navigation-menu {
         flex-direction: row;
         align-items: center;
-        gap: 0.25rem;
+        gap: 1.15rem; /* 간격 대폭 확대 (0.75rem -> 1.15rem) */
         padding-left: 0;
+        margin: 0;
     }
     header .navigation-menu .menu-item {
         display: inline-flex;
-        padding: 0 0.15rem;
-        font-size: 0.5rem;
-        font-weight: 500;
+        padding: 0 0.1rem; /* 패딩은 줄이고 갭으로 조절 */
+        font-size: 0.7rem; /* 폰트 크기 확대 */
+        font-weight: 600; /* 두께감 추가 */
         height: auto;
         width: auto;
         text-align: center;
+        letter-spacing: -0.5px; /* 자간 미세 조정 */
     }
     header .navigation-menu .menu-item.active span:before {
-        width: 4px;
-        height: 4px;
+        width: 100%; /* 밑줄 꽉 차게 */
+        height: 2px;
         bottom: -4px;
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
+        left: 0;
+        right: 0;
+        transform: none;
+        border-radius: 2px;
     }
     
     /* 햄버거 메뉴 버튼 숨김 */
