@@ -796,7 +796,20 @@
 
 .wasd-btn.center {
     background: #333;
-    color: #666;
+    color: #888;
+}
+
+.wasd-btn.center:hover {
+    background: #444;
+    color: #aaa;
+}
+
+.wasd-btn.center:active,
+.wasd-btn.center.active {
+    background: #4a90d9;
+    color: white;
+    transform: scale(0.95);
+    box-shadow: 0 0 10px rgba(74, 144, 217, 0.5);
 }
 
 /* STOP 버튼 */
