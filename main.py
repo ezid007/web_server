@@ -414,6 +414,49 @@ async def get_weather():
         })
 
 
+# ============================================
+# CCTV 서버 프록시 API
+# ============================================
+import os
+CCTV_SERVER_URL = os.getenv("CCTV_SERVER_URL", "http://192.168.0.188:8000")
+
+
+@app.get("/api/cctv/status")
+async def get_cctv_status():
+    """CCTV 서버 상태 프록시 (소음 dB, 실행 상태)"""
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.get(f"{CCTV_SERVER_URL}/status")
+            return JSONResponse(content=response.json())
+    except Exception as e:
+        return JSONResponse(content={"error": str(e), "db": 0, "is_running": False})
+
+
+@app.post("/api/cctv/toggle_power")
+async def toggle_cctv_power():
+    """CCTV 서버 전원 토글 프록시"""
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.post(f"{CCTV_SERVER_URL}/toggle_power")
+            return JSONResponse(content=response.json())
+    except Exception as e:
+        return JSONResponse(content={"error": str(e), "status": "error"})
+
+
+@app.get("/cctv/stream")
+async def cctv_stream():
+    """CCTV 비디오 스트림 프록시 (MJPEG)"""
+    async def generate():
+        try:
+            async with httpx.AsyncClient(timeout=None) as client:
+                async with client.stream("GET", f"{CCTV_SERVER_URL}/video_feed") as response:
+                    async for chunk in response.aiter_bytes():
+                        yield chunk
+        except Exception as e:
+            print(f"CCTV 스트림 오류: {e}")
+    
+    return StreamingResponse(generate(), media_type="multipart/x-mixed-replace; boundary=frame")
+
 
 # ============================================
 # 스트리밍 엔드포인트

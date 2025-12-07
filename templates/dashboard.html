@@ -313,6 +313,30 @@
                     </button>
                 </div>
             </section>
+            
+            <!-- CCTV 카드 섹션 -->
+            <section class="card cctv-card">
+                <div class="cctv-header">
+                    <h2 class="cctv-title">문살살 CCTV</h2>
+                    <div class="cctv-status">
+                        <span class="db-display" id="cctvDb">-- dB</span>
+                        <button class="cctv-power-btn" id="cctvPowerBtn" onclick="toggleCctvPower()">
+                            <i class="fas fa-power-off"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="cctv-view">
+                    <img 
+                        id="cctvStream" 
+                        src="/cctv/stream" 
+                        alt="CCTV Stream"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                    />
+                    <div class="cctv-waiting" style="display: none">
+                        <p>CCTV 연결 대기 중...</p>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <!-- ********|| 자바스크립트 시작 ||******** -->
@@ -576,6 +600,42 @@
                     }
                 });
             });
+            
+            // ========== CCTV 관련 함수 ==========
+            // CCTV 상태 업데이트
+            async function updateCctvStatus() {
+                try {
+                    const response = await fetch('/api/cctv/status');
+                    const data = await response.json();
+                    
+                    document.getElementById('cctvDb').textContent = `${data.db || 0} dB`;
+                    
+                    const powerBtn = document.getElementById('cctvPowerBtn');
+                    if (data.is_running) {
+                        powerBtn.classList.add('on');
+                    } else {
+                        powerBtn.classList.remove('on');
+                    }
+                } catch (error) {
+                    console.error('CCTV status error:', error);
+                }
+            }
+            
+            // CCTV 전원 토글
+            async function toggleCctvPower() {
+                try {
+                    const response = await fetch('/api/cctv/toggle_power', { method: 'POST' });
+                    const data = await response.json();
+                    console.log('CCTV power toggled:', data);
+                    updateCctvStatus();
+                } catch (error) {
+                    console.error('CCTV toggle error:', error);
+                }
+            }
+            
+            // CCTV 상태 1초마다 업데이트
+            updateCctvStatus();
+            setInterval(updateCctvStatus, 1000);
         </script>
         <!-- ********|| 자바스크립트 끝 ||******** -->
     </body>
