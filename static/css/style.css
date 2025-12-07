@@ -379,6 +379,31 @@ header .btn-menu-trigger {
     display: none;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+}
+
+/* CSS 햄버거 아이콘 */
+.hamburger-icon {
+    display: block;
+    width: 1.5rem;
+    height: 2px;
+    background-color: currentColor;
+    position: relative;
+}
+.hamburger-icon::before,
+.hamburger-icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: currentColor;
+}
+.hamburger-icon::before {
+    top: -6px;
+}
+.hamburger-icon::after {
+    bottom: -6px;
 }
 
 .alternate header .navigation-menu .menu-item {
@@ -3194,54 +3219,51 @@ footer .social-links > li a.link {
     header {
         padding: 3.5rem 0;
     }
+    /* 네비게이션 - 데스크탑 스타일 유지 */
     header .navigation {
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        z-index: 9;
-        background-color: var(--shades03);
-        padding: 3.5rem 1.5rem;
+        position: static;
+        width: auto;
+        height: auto;
+        background-color: transparent;
+        padding: 0;
         display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        opacity: 0;
-        visibility: hidden;
-        transform: translate3d(0, 100%, 0);
+        flex-direction: row;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
     }
     header .navigation .navigation-header {
-        display: flex;
+        display: none;
     }
     header .navigation .navigation-menu {
-        flex-direction: column;
-        align-items: flex-start;
-        margin-right: auto;
-        gap: 1rem;
-        padding-left: 1.5rem;
+        flex-direction: row;
+        align-items: center;
+        gap: 3rem;
+        padding-left: 0;
     }
     header .navigation-menu .menu-item {
-        display: block;
-        padding: 0;
+        display: inline-flex;
+        padding: 0 1rem;
+        font-size: 0.9rem;
         height: auto;
-        width: 100%;
-        text-align: left;
-        font-size: 4.25rem;
-        font-weight: 700;
-        overflow: unset;
+        width: auto;
+        text-align: center;
+        font-weight: 500;
     }
     header .navigation-menu .menu-item.active span:before {
-        left: auto;
-        right: -1rem;
-        bottom: 0.5rem;
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
+        bottom: -6px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
     }
+    /* 햄버거 메뉴 버튼 숨김 */
     header .btn-menu-trigger {
-        display: flex;
+        display: none !important;
     }
     .alternate header .navigation {
-        background-color: var(--shades01);
+        background-color: transparent;
     }
     .section-banner {
         padding: 8rem 0 2rem;
@@ -3534,5 +3556,297 @@ footer .social-links > li a.link {
     }
     .section-services-why-us .services-why-us-description {
         gap: 10rem;
+    }
+}
+
+/* ===========================================
+   모바일 반응형 (768px 이하)
+   =========================================== */
+@media screen and (max-width: 768px) {
+    /* 컨테이너 */
+    .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    
+    /* 헤더 - 데스크탑 스타일 유지 */
+    header {
+        padding: 0.5rem 0;
+    }
+    header .brand {
+        height: 1.5rem;
+    }
+    header .brand .brand-logo {
+        width: 1.8rem;
+        height: 1.8rem;
+    }
+    header .brand .brand-logo img {
+        transform: scale(1.0) translateY(0);
+    }
+    
+    /* 네비게이션 - 데스크탑 스타일 유지 (숨기지 않음) */
+    header .navigation {
+        position: static;
+        width: auto;
+        height: auto;
+        background-color: transparent;
+        padding: 0;
+        display: flex;
+        flex-direction: row;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+    }
+    header .navigation .navigation-header {
+        display: none;
+    }
+    header .navigation .navigation-menu {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.25rem;
+        padding-left: 0;
+    }
+    header .navigation-menu .menu-item {
+        display: inline-flex;
+        padding: 0 0.15rem;
+        font-size: 0.5rem;
+        font-weight: 500;
+        height: auto;
+        width: auto;
+        text-align: center;
+    }
+    header .navigation-menu .menu-item.active span:before {
+        width: 4px;
+        height: 4px;
+        bottom: -4px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
+    
+    /* 햄버거 메뉴 버튼 숨김 */
+    header .btn-menu-trigger {
+        display: none !important;
+    }
+    
+    /* 배너 */
+    .section-banner {
+        padding: 4rem 0 1.5rem;
+    }
+    .section-banner .banner-title .title {
+        font-size: 2.5rem;
+    }
+    .section-banner .banner-title .highlight {
+        font-size: 1rem;
+    }
+    .section-banner.alternate .banner-title .title {
+        font-size: 2rem;
+    }
+    
+    /* 어바웃 */
+    .section-about {
+        padding: 2rem 0;
+    }
+    .section-about .about-title .title {
+        font-size: 2.25rem;
+    }
+    .section-about .about-description {
+        font-size: 1rem;
+    }
+    .section-about .about-wrapper {
+        gap: 2rem;
+        flex-direction: column;
+    }
+    .section-about .about-content {
+        gap: 2rem;
+    }
+    
+    /* 서비스 */
+    .section-services {
+        padding: 2rem 0;
+    }
+    .section-services .service-item .item-front .item-title {
+        font-size: 2.5rem;
+        letter-spacing: -2px;
+    }
+    .section-services .service-item .item-front .item-title img {
+        height: 2.5rem;
+        min-width: 2.5rem;
+    }
+    
+    /* 작업물 */
+    .section-works {
+        padding: 2rem 0;
+    }
+    .section-works .works {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    .section-works .works .work-item {
+        padding: 0 0 3rem 0;
+    }
+    .section-works .works .work-item-title {
+        font-size: 1.75rem;
+    }
+    .section-works .works .work-item-serial {
+        font-size: 5rem;
+        top: -2rem;
+        width: 6rem;
+    }
+    .section-works .works .work-item-description {
+        font-size: 1rem;
+    }
+    .section-works .works .work-item:nth-child(n) .work-item-serial {
+        right: -2rem;
+        left: auto;
+    }
+    
+    /* 컨택트 */
+    .section-contact {
+        padding: 6rem 0 4rem;
+    }
+    .section-contact .contact-content {
+        padding: 0;
+        max-width: 100%;
+        gap: 2rem;
+    }
+    .section-contact .contact-title .title {
+        font-size: 2.5rem;
+    }
+    .section-contact .contact-address {
+        font-size: 1rem;
+    }
+    .section-contact .form-checkbox-group .checkbox,
+    .section-contact .form-radio-group .radio {
+        max-width: calc(50% - 0.5rem);
+    }
+    .section-contact .form-checkboxes .wpcf7-list-item {
+        max-width: calc(50% - 0.5rem);
+    }
+    
+    /* 푸터 */
+    footer {
+        padding: 4rem 0 0;
+    }
+    footer .footer-title {
+        font-size: 4rem;
+    }
+    footer .footer-information {
+        flex-direction: column;
+        gap: 2rem;
+    }
+    footer .footer-contact .contact-data {
+        font-size: 0.875rem;
+    }
+    footer .footer-description {
+        font-size: 0.875rem;
+    }
+    footer .footer-bar {
+        padding: 2rem 0;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    /* 클라이언트 */
+    .section-clients .client-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .section-clients .client-list .client {
+        padding: 1.5rem 0.5rem;
+    }
+}
+
+/* ===========================================
+   소형 모바일 반응형 (480px 이하)
+   =========================================== */
+/* ===========================================
+   소형 모바일 반응형 (480px 이하)
+   =========================================== */
+@media screen and (max-width: 480px) {
+    .container {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    
+    header {
+        padding: 0.5rem 0;
+    }
+    header .brand {
+        height: 1.5rem;
+    }
+    header .navigation-menu .menu-item {
+        font-size: 0.5rem; /* 작게 조정 */
+        padding: 0 0.1rem;
+    }
+    
+    .section-banner {
+        padding: 4rem 0 1rem;
+    }
+    .section-banner .banner-title .title {
+        font-size: 1.75rem;
+    }
+    .section-banner.alternate .banner-title .title {
+        font-size: 1.25rem;
+    }
+    
+    .section-about .about-title .title {
+        font-size: 1.5rem;
+    }
+    
+    .section-services .service-item .item-front .item-title {
+        font-size: 1.75rem;
+    }
+    .section-services .service-item .item-front .item-title img {
+        height: 1.5rem;
+        min-width: 1.5rem;
+    }
+    
+    .section-works .works .work-item-title {
+        font-size: 1.25rem;
+    }
+    .section-works .works .work-item-serial {
+        display: none;
+    }
+    
+    .section-contact .contact-title .title {
+        font-size: 1.75rem;
+    }
+    .section-contact .form-checkbox-group .checkbox,
+    .section-contact .form-radio-group .radio {
+        max-width: 100%;
+    }
+    .section-contact .form-checkboxes .wpcf7-list-item {
+        max-width: 100%;
+    }
+    
+    footer .footer-title {
+        font-size: 2.5rem;
+    }
+    footer .footer-bar {
+        padding: 1rem 0;
+    }
+    
+    .section-clients .client-list {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* ===========================================
+   가로 모드 / 높이가 낮은 화면 (헤더 축소)
+   =========================================== */
+@media screen and (max-height: 600px) {
+    header {
+        padding: 0.25rem 0;
+    }
+    header .brand-logo {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+    header .brand-logo img {
+        transform: scale(1.0);
+    }
+    header .navigation-menu .menu-item {
+        padding: 0 0.5rem;
+        font-size: 0.75rem;
     }
 }
