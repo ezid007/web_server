@@ -122,6 +122,17 @@ async def add_cache_header(request: Request, call_next):
 
 
 # ============================================
+# Favicon
+# ============================================
+from fastapi.responses import FileResponse
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """브라우저 favicon 요청 처리"""
+    return FileResponse("static/images/logo-inverse.svg", media_type="image/svg+xml")
+
+
+# ============================================
 # API 엔드포인트
 # ============================================
 
@@ -174,7 +185,7 @@ async def teleop_control(command: TeleopCommand):
     return JSONResponse(content={"status": "ok", "command": key})
 
 
-# 지역별 격자 좌표 (기상청 API용)
+# 지역별 격자 좌표 (기상청 API용) - 위경도 변환 실패 시 폴백용
 LOCATION_GRID = {
     "서울": {"nx": 60, "ny": 127},
     "부산": {"nx": 98, "ny": 76},
@@ -187,33 +198,145 @@ LOCATION_GRID = {
     "수원": {"nx": 60, "ny": 121},
 }
 
+# 하늘 상태 코드
+SKY_STATUS = {
+    "1": {"name": "맑음", "icon": "fa-sun", "color": "#FFD700"},
+    "3": {"name": "구름많음", "icon": "fa-cloud-sun", "color": "#87CEEB"},
+    "4": {"name": "흐림", "icon": "fa-cloud", "color": "#A9A9A9"},
+}
+
+# 강수 형태 코드
+PTY_STATUS = {
+    "0": {"name": "없음", "icon": None},
+    "1": {"name": "비", "icon": "fa-cloud-rain"},
+    "2": {"name": "비/눈", "icon": "fa-cloud-meatball"},
+    "3": {"name": "눈", "icon": "fa-snowflake"},
+    "4": {"name": "소나기", "icon": "fa-cloud-showers-heavy"},
+    "5": {"name": "빗방울", "icon": "fa-cloud-rain"},
+    "6": {"name": "빗방울눈날림", "icon": "fa-cloud-meatball"},
+    "7": {"name": "눈날림", "icon": "fa-snowflake"},
+}
+
+
+def latlon_to_grid(lat: float, lon: float) -> dict:
+    """위도/경도를 기상청 격자 좌표로 변환 (LCC DFS 좌표 변환)"""
+    import math
+    
+    RE = 6371.00877  # 지구 반경(km)
+    GRID = 5.0  # 격자 간격(km)
+    SLAT1 = 30.0  # 투영 위도1(degree)
+    SLAT2 = 60.0  # 투영 위도2(degree)
+    OLON = 126.0  # 기준점 경도(degree)
+    OLAT = 38.0  # 기준점 위도(degree)
+    XO = 43  # 기준점 X좌표(GRID)
+    YO = 136  # 기준점 Y좌표(GRID)
+    
+    DEGRAD = math.pi / 180.0
+    
+    re = RE / GRID
+    slat1 = SLAT1 * DEGRAD
+    slat2 = SLAT2 * DEGRAD
+    olon = OLON * DEGRAD
+    olat = OLAT * DEGRAD
+    
+    sn = math.tan(math.pi * 0.25 + slat2 * 0.5) / math.tan(math.pi * 0.25 + slat1 * 0.5)
+    sn = math.log(math.cos(slat1) / math.cos(slat2)) / math.log(sn)
+    sf = math.tan(math.pi * 0.25 + slat1 * 0.5)
+    sf = math.pow(sf, sn) * math.cos(slat1) / sn
+    ro = math.tan(math.pi * 0.25 + olat * 0.5)
+    ro = re * sf / math.pow(ro, sn)
+    
+    ra = math.tan(math.pi * 0.25 + lat * DEGRAD * 0.5)
+    ra = re * sf / math.pow(ra, sn)
+    theta = lon * DEGRAD - olon
+    if theta > math.pi:
+        theta -= 2.0 * math.pi
+    if theta < -math.pi:
+        theta += 2.0 * math.pi
+    theta *= sn
+    
+    nx = int(ra * math.sin(theta) + XO + 0.5)
+    ny = int(ro - ra * math.cos(theta) + YO + 0.5)
+    
+    return {"nx": nx, "ny": ny}
+
+
+async def get_location_from_ip() -> dict:
+    """IP 주소 기반 위치 정보 조회"""
+    # 영어 → 한글 도시명 매핑
+    city_korean = {
+        "Seoul": "서울",
+        "Busan": "부산",
+        "Incheon": "인천",
+        "Daegu": "대구",
+        "Daejeon": "대전",
+        "Gwangju": "광주",
+        "Ulsan": "울산",
+        "Sejong": "세종",
+        "Suwon": "수원",
+        "Suwon-si": "수원",
+        "Seongnam-si": "성남",
+        "Seongnam": "성남",
+        "Yongin-si": "용인",
+        "Yongin": "용인",
+        "Goyang-si": "고양",
+        "Bucheon-si": "부천",
+        "Ansan-si": "안산",
+        "Anyang-si": "안양",
+        "Cheongju-si": "청주",
+        "Jeonju": "전주",
+        "Cheonan": "천안",
+        "Gimhae-si": "김해",
+        "Changwon-si": "창원",
+        "Pohang-si": "포항",
+        "Jeju City": "제주",
+        "Jeju-si": "제주",
+    }
+    
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.get("http://ip-api.com/json/?lang=ko")
+            data = response.json()
+            
+            if data.get("status") == "success":
+                city_en = data.get("city", "Seoul")
+                city_kr = city_korean.get(city_en, city_en)  # 매핑 없으면 영문 그대로
+                return {
+                    "city": city_kr,
+                    "lat": data.get("lat", 37.5665),
+                    "lon": data.get("lon", 126.9780),
+                    "region": data.get("regionName", ""),
+                }
+    except Exception as e:
+        print(f"IP 위치 조회 실패: {e}")
+    
+    # 기본값: 서울
+    return {"city": "서울", "lat": 37.5665, "lon": 126.9780, "region": "서울특별시"}
+
 
 @app.get("/api/weather")
 async def get_weather():
-    """기상청 API를 통해 현재 날씨 정보 조회"""
-    # 기본 위치: 서울 (나중에 로봇 위치로 변경 가능)
-    location = "서울"
-    grid = LOCATION_GRID.get(location, LOCATION_GRID["서울"])
+    """기상청 API를 통해 현재 날씨 정보 조회 (IP 기반 위치 + 상세 정보)"""
+    
+    # IP 기반 위치 조회
+    location_info = await get_location_from_ip()
+    location = location_info["city"]
+    
+    # 위경도 → 격자 좌표 변환
+    grid = latlon_to_grid(location_info["lat"], location_info["lon"])
     
     # 기상청 API는 매시간 정각에 업데이트됨
-    # base_time은 0200, 0500, 0800, 1100, 1400, 1700, 2000, 2300
     now = datetime.now()
-    base_times = ["0200", "0500", "0800", "1100", "1400", "1700", "2000", "2300"]
-    
-    # 현재 시간보다 이전인 가장 최근 base_time 찾기
-    current_hour = now.hour
-    base_time = "2300"  # 기본값
+    base_time = now.strftime("%H") + "00"
     base_date = now.strftime("%Y%m%d")
     
-    for bt in base_times:
-        bt_hour = int(bt[:2])
-        if current_hour >= bt_hour + 1:  # API 생성 시간 고려 (+1시간)
-            base_time = bt
-    
-    # 만약 현재 시간이 02시 이전이면 전날 23시 데이터 사용
-    if current_hour < 3:
-        base_date = (now - timedelta(days=1)).strftime("%Y%m%d")
-        base_time = "2300"
+    # 정각 직후에는 아직 데이터가 없을 수 있으므로 1시간 전 데이터 사용
+    if now.minute < 40:
+        prev_hour = now.hour - 1
+        if prev_hour < 0:
+            prev_hour = 23
+            base_date = (now - timedelta(days=1)).strftime("%Y%m%d")
+        base_time = f"{prev_hour:02d}00"
     
     try:
         url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst"
@@ -223,7 +346,7 @@ async def get_weather():
             "pageNo": "1",
             "dataType": "JSON",
             "base_date": base_date,
-            "base_time": now.strftime("%H") + "00",  # 초단기실황은 매시간 정각
+            "base_time": base_time,
             "nx": grid["nx"],
             "ny": grid["ny"],
         }
@@ -232,19 +355,51 @@ async def get_weather():
             response = await client.get(url, params=params)
             data = response.json()
         
-        # 응답에서 온도(T1H) 추출
-        temperature = None
+        # 응답에서 필요한 정보 추출
+        weather_data = {
+            "temperature": None,
+            "sky": "1",  # 기본: 맑음
+            "pty": "0",  # 기본: 강수 없음
+            "wind_speed": None,
+            "humidity": None,
+        }
+        
         if "response" in data and "body" in data["response"]:
             items = data["response"]["body"].get("items", {}).get("item", [])
             for item in items:
-                if item.get("category") == "T1H":  # 기온
-                    temperature = float(item.get("obsrValue", 0))
-                    break
+                category = item.get("category")
+                value = item.get("obsrValue")
+                
+                if category == "T1H":  # 기온
+                    weather_data["temperature"] = float(value)
+                elif category == "PTY":  # 강수형태
+                    weather_data["pty"] = str(int(float(value)))
+                elif category == "WSD":  # 풍속
+                    weather_data["wind_speed"] = float(value)
+                elif category == "REH":  # 습도
+                    weather_data["humidity"] = float(value)
+        
+        # 하늘상태는 초단기예보에서 가져와야 함 (실황에는 없음)
+        # 강수형태가 있으면 그에 맞는 아이콘 사용
+        pty = weather_data["pty"]
+        if pty != "0" and pty in PTY_STATUS:
+            icon = PTY_STATUS[pty]["icon"]
+            sky_name = PTY_STATUS[pty]["name"]
+        else:
+            sky_info = SKY_STATUS.get(weather_data["sky"], SKY_STATUS["1"])
+            icon = sky_info["icon"]
+            sky_name = sky_info["name"]
         
         return JSONResponse(content={
             "location": location,
-            "temperature": temperature if temperature is not None else 0,
+            "region": location_info.get("region", ""),
+            "temperature": weather_data["temperature"] if weather_data["temperature"] is not None else 0,
+            "sky": sky_name,
+            "icon": icon,
+            "wind_speed": weather_data["wind_speed"] if weather_data["wind_speed"] is not None else 0,
+            "humidity": weather_data["humidity"] if weather_data["humidity"] is not None else 0,
             "timestamp": now.strftime("%Y-%m-%d %H:%M"),
+            "grid": grid,
         })
     
     except Exception as e:
@@ -252,8 +407,12 @@ async def get_weather():
         return JSONResponse(content={
             "location": location,
             "temperature": 0,
+            "sky": "맑음",
+            "icon": "fa-sun",
+            "wind_speed": 0,
             "error": str(e),
         })
+
 
 
 # ============================================

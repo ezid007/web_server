@@ -4,7 +4,11 @@ __pycache__/
 *$py.class
 *.so
 .Python
+
+# ROS2 build folders
 build/
+install/
+log/
 develop-eggs/
 dist/
 downloads/

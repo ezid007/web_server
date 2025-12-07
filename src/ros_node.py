@@ -4,6 +4,7 @@ ROS2 통합 노드 - 카메라, SLAM, 시스템 정보 구독 및 텔레옵 발�
 try:
     import rclpy
     from rclpy.node import Node
+    from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
     from sensor_msgs.msg import Image, BatteryState
     from nav_msgs.msg import OccupancyGrid
     from geometry_msgs.msg import Twist
@@ -63,12 +64,17 @@ class RobotNode(Node if ROS_AVAILABLE else object):
                 10,
             )
 
-            # SLAM 지도 구독
+            # SLAM 지도 구독 - transient_local QoS (map_server의 latch된 메시지 수신)
+            map_qos = QoSProfile(
+                depth=1,
+                durability=DurabilityPolicy.TRANSIENT_LOCAL,
+                reliability=ReliabilityPolicy.RELIABLE,
+            )
             self.map_subscription = self.create_subscription(
                 OccupancyGrid,
                 config.MAP_TOPIC,
                 self.map_callback,
-                10,
+                map_qos,
             )
 
             # 시스템 정보 구독
@@ -131,6 +137,7 @@ class RobotNode(Node if ROS_AVAILABLE else object):
     def map_callback(self, msg):
         """SLAM 지도 콜백 - OccupancyGrid를 이미지로 변환"""
         try:
+            self.get_logger().debug(f"맵 콜백 수신: {msg.info.width}x{msg.info.height}")
             self.latest_map_info = msg.info
 
             width = msg.info.width

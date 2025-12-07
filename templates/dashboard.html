@@ -195,12 +195,20 @@
                         <span class="date-value" id="currentDate">2025/12/06</span>
                     </div>
                     
-                    <!-- 2) 온도 정보 (기상청 API) -->
+                    <!-- 2) 날씨 정보 (기상청 API + IP 위치) -->
                     <div class="status-item temp-card">
-                        <span class="temp-label" id="weatherLocation">서울</span>
-                        <div class="temp-value">
-                            <i class="fas fa-thermometer-half"></i>
+                        <span class="weather-label" id="weatherLocation">--</span>
+                        <div class="weather-temp">
+                            <i id="weatherIcon" class="fas fa-sun"></i>
                             <span id="weatherTemp">--°C</span>
+                        </div>
+                        <div class="weather-sky">
+                            <span id="weatherSky">--</span>
+                        </div>
+                        <div class="weather-wind">
+                            <i class="fas fa-wind"></i>
+                            <span id="weatherWind">--</span>
+                            <span class="wind-unit">m/s</span>
                         </div>
                     </div>
                     
@@ -365,15 +373,32 @@
             }
             updateDate();
             
-            // 날씨 정보 업데이트 (기상청 API)
+            // 날씨 정보 업데이트 (기상청 API + IP 기반 위치)
             async function updateWeather() {
                 try {
                     const response = await fetch('/api/weather');
                     const data = await response.json();
                     
-                    document.getElementById('weatherLocation').textContent = data.location || '서울';
+                    // 위치 표시
+                    document.getElementById('weatherLocation').textContent = data.location || '--';
+                    
+                    // 온도 표시
                     document.getElementById('weatherTemp').textContent = 
                         data.temperature !== undefined ? `${data.temperature}°C` : '--°C';
+                    
+                    // 날씨 아이콘 업데이트
+                    const iconEl = document.getElementById('weatherIcon');
+                    if (data.icon) {
+                        iconEl.className = 'fas ' + data.icon;
+                    }
+                    
+                    // 하늘 상태 표시
+                    document.getElementById('weatherSky').textContent = data.sky || '--';
+                    
+                    // 풍속 표시
+                    document.getElementById('weatherWind').textContent = 
+                        data.wind_speed !== undefined ? data.wind_speed.toFixed(1) : '--';
+                        
                 } catch (error) {
                     console.error('Weather update error:', error);
                 }

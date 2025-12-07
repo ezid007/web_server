@@ -418,7 +418,7 @@
 /* 하단 상태 바 (날짜, 온도, 배터리) */
 .status-bar {
     display: grid;
-    grid-template-columns: 1fr 1fr 1.5fr;
+    grid-template-columns: 1fr 1.8fr 1fr;
     gap: 1rem;
     padding: 1rem;
     background: var(--bg-secondary);
@@ -446,30 +446,60 @@
     letter-spacing: 2px;
 }
 
-/* 온도 카드 */
+/* 날씨 카드 (가로 배치) */
 .temp-card {
+    flex-direction: row;
     align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
-.temp-label {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--text-secondary);
+.weather-label {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
     letter-spacing: 1px;
-    margin-bottom: 0.25rem;
+    min-width: 50px;
 }
 
-.temp-value {
+.weather-temp {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 1.25rem;
+}
+
+.weather-temp #weatherTemp {
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
 }
 
-.temp-value i {
+.weather-temp #weatherIcon {
+    font-size: 1.25rem;
+    color: #FFD700;
+}
+
+.weather-sky {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.weather-wind {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.weather-wind i {
     color: var(--accent-orange);
+}
+
+.wind-unit {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
 }
 
 /* 배터리 카드 */
@@ -1685,4 +1715,48 @@
 .wifi-poor {
     color: #f44336;
     background: rgba(244, 67, 54, 0.15);
+}
+
+/* 날씨 상세 정보 스타일 */
+.weather-detail {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+#weatherSky {
+    font-weight: 500;
+}
+
+.wind-info {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.wind-info i {
+    color: var(--accent-orange);
+    font-size: 0.7rem;
+}
+
+.temp-card #weatherIcon {
+    font-size: 1.5rem;
+    color: #FFD700;
+}
+
+.temp-card #weatherIcon.fa-cloud-rain,
+.temp-card #weatherIcon.fa-cloud-showers-heavy {
+    color: #4FC3F7;
+}
+
+.temp-card #weatherIcon.fa-snowflake {
+    color: #E1F5FE;
+}
+
+.temp-card #weatherIcon.fa-cloud,
+.temp-card #weatherIcon.fa-cloud-sun {
+    color: #90A4AE;
 }
