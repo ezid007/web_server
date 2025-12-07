@@ -263,11 +263,8 @@
             <!-- 로봇 카드 섹션 (오른쪽 상단) -->
 
             <section class="card robot-card">
-                <div class="robot-header">
-                    <h2 class="robot-title">TURTLEBOT-3</h2>
-                </div>
-                <div class="camera-label">
-                    TURTLEBOT3 CAMERA 320×240 @ 30FPS
+                <div class="robot-header-compact">
+                    <span class="robot-title-sm">TURTLEBOT-3</span>
                 </div>
                 <div class="camera-view">
                     <img
@@ -275,19 +272,6 @@
                         src="/camera/stream"
                         alt="TurtleBot3 Camera"
                     />
-                </div>
-                <div class="power-control">
-                    <span class="power-label">POWER</span>
-                    <button
-                        class="power-btn active"
-                        onclick="togglePower(this)"
-                    >
-                        <i class="fas fa-power-off"></i>
-                    </button>
-                    <span class="power-status">
-                        ON
-                        <span class="status-off">OFF</span>
-                    </span>
                 </div>
                 
                 <!-- WASD 컨트롤 + STOP 버튼 -->
@@ -312,28 +296,26 @@
                         STOP
                     </button>
                 </div>
-            </section>
-            
-            <!-- CCTV 카드 섹션 -->
-            <section class="card cctv-card">
-                <div class="cctv-header">
-                    <h2 class="cctv-title">문살살 CCTV</h2>
-                    <div class="cctv-status">
+                
+                <!-- CCTV 화면 (로봇 카드 아래) -->
+                <div class="cctv-section">
+                    <div class="cctv-label">
+                        <span>문살살 CCTV</span>
                         <span class="db-display" id="cctvDb">-- dB</span>
                         <button class="cctv-power-btn" id="cctvPowerBtn" onclick="toggleCctvPower()">
                             <i class="fas fa-power-off"></i>
                         </button>
                     </div>
-                </div>
-                <div class="cctv-view">
-                    <img 
-                        id="cctvStream" 
-                        src="/cctv/stream" 
-                        alt="CCTV Stream"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                    />
-                    <div class="cctv-waiting" style="display: none">
-                        <p>CCTV 연결 대기 중...</p>
+                    <div class="cctv-view-inline">
+                        <img 
+                            id="cctvStream" 
+                            src="/cctv/stream" 
+                            alt="CCTV Stream"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        />
+                        <div class="cctv-waiting" style="display: none">
+                            <p>CCTV 연결 대기 중...</p>
+                        </div>
                     </div>
                 </div>
             </section>
