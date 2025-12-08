@@ -70,6 +70,13 @@ poetry.lock
 *.woff2
 *.eot
 
+# Dataset
+dataset/
+
+# models
+models/
+*.pt
+
 # JSON animation files (Lottie)
 static/json/
 frontend/public/static/json/

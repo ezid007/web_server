@@ -29,14 +29,14 @@ from datetime import datetime, timedelta
 from urllib.parse import quote
 
 # 기상청 API 키
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY", "")
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
 
 app = FastAPI()
 
 # CORS 설정
-HOST = os.getenv("HOST", "0.0.0.0")
-PORT = int(os.getenv("PORT", "8000"))
+HOST = os.getenv("HOST")
+PORT = int(os.getenv("PORT"))
 
 origins = [
     f"http://localhost:{PORT}",
@@ -417,8 +417,7 @@ async def get_weather():
 # ============================================
 # CCTV 서버 프록시 API
 # ============================================
-import os
-CCTV_SERVER_URL = os.getenv("CCTV_SERVER_URL", "http://192.168.0.188:8000")
+CCTV_SERVER_URL = os.getenv("CCTV_SERVER_URL")
 
 
 @app.get("/api/cctv/status")
@@ -482,15 +481,59 @@ async def camera_stream():
                     )
             else:
                 # 카메라 대기 화면 생성
-                blank_image = np.zeros((240, 320, 3), dtype=np.uint8)
+                blank_image = np.zeros((480, 640, 3), dtype=np.uint8)
                 blank_image[:] = (30, 30, 30)
                 cv2.putText(
-                    blank_image, "CAMERA", (90, 100),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 107, 53), 2
+                    blank_image, "CAMERA", (230, 220),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 107, 53), 3
                 )
                 cv2.putText(
-                    blank_image, "Waiting...", (100, 140),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (139, 142, 152), 2
+                    blank_image, "Waiting...", (250, 270),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (139, 142, 152), 2
+                )
+                ret, buffer = cv2.imencode(".jpg", blank_image, [cv2.IMWRITE_JPEG_QUALITY, 80])
+                if ret:
+                    frame = buffer.tobytes()
+                    yield (
+                        b"--frame\r\n"
+                        b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
+                    )
+            await asyncio.sleep(1 / 30)  # 30 FPS
+
+    return StreamingResponse(
+        generate(), media_type="multipart/x-mixed-replace; boundary=frame"
+    )
+
+
+@app.get("/camera/raw")
+async def camera_raw_stream():
+    """터틀봇3 카메라 원본 스트림 (YOLO 없음, 오토 라벨링용)"""
+
+    async def generate():
+        while True:
+            if robot_node and robot_node.latest_raw_frame is not None:
+                ret, buffer = cv2.imencode(
+                    ".jpg",
+                    robot_node.latest_raw_frame,
+                    [cv2.IMWRITE_JPEG_QUALITY, 90],
+                )
+                if ret:
+                    frame = buffer.tobytes()
+                    yield (
+                        b"--frame\r\n"
+                        b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n"
+                    )
+            else:
+                # 대기 화면
+                blank_image = np.zeros((480, 640, 3), dtype=np.uint8)
+                blank_image[:] = (30, 30, 30)
+                cv2.putText(
+                    blank_image, "RAW CAMERA", (200, 220),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255, 107, 53), 3
+                )
+                cv2.putText(
+                    blank_image, "Waiting...", (250, 270),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (139, 142, 152), 2
                 )
                 ret, buffer = cv2.imencode(".jpg", blank_image, [cv2.IMWRITE_JPEG_QUALITY, 80])
                 if ret:

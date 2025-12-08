@@ -40,6 +40,7 @@ class RobotNode(Node if ROS_AVAILABLE else object):
         
         # 카메라 및 지도 프레임
         self.latest_camera_frame = None
+        self.latest_raw_frame = None  # 원본 프레임 (YOLO 없음, 오토 라벨링용)
         self.latest_map_frame = None
         self.latest_map_info = None
         self.robot_pose = None
@@ -50,6 +51,17 @@ class RobotNode(Node if ROS_AVAILABLE else object):
         self.wifi_signal = 0
         self.battery_percentage = 0.0
         self.battery_voltage = 0.0
+        
+        # YOLO 모델 로드
+        self.yolo_model = None
+        self.yolo_classes = {0: "unknown", 1: "junginhoe"}  # classes.yaml과 동기화
+        if config.YOLO_ENABLED and config.YOLO_MODEL_PATH.exists():
+            try:
+                from ultralytics import YOLO
+                self.yolo_model = YOLO(str(config.YOLO_MODEL_PATH))
+                print(f"✅ YOLO 모델 로드됨: {config.YOLO_MODEL_PATH}")
+            except Exception as e:
+                print(f"⚠️ YOLO 모델 로드 실패: {e}")
 
         if ROS_AVAILABLE:
             # TF 버퍼 및 리스너 설정
@@ -124,8 +136,16 @@ class RobotNode(Node if ROS_AVAILABLE else object):
             else:
                 cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
 
-            if cv_image.shape[1] != 320 or cv_image.shape[0] != 240:
-                cv_image = cv2.resize(cv_image, (320, 240))
+            # 640x480으로 리사이즈 (YOLO 탐지 성능 향상)
+            if cv_image.shape[1] != 640 or cv_image.shape[0] != 480:
+                cv_image = cv2.resize(cv_image, (640, 480))
+
+            # 원본 프레임 저장 (오토 라벨링용 - YOLO 없음)
+            self.latest_raw_frame = cv_image.copy()
+
+            # YOLO 추론 및 시각화 (대시보드 표시용)
+            if self.yolo_model is not None:
+                cv_image = self._detect_and_draw(cv_image)
 
             self.latest_camera_frame = cv_image
         except Exception as e:
@@ -133,6 +153,47 @@ class RobotNode(Node if ROS_AVAILABLE else object):
                 self.get_logger().error(
                     f"카메라 이미지 변환 실패: {e} (encoding: {msg.encoding})"
                 )
+
+    def _detect_and_draw(self, frame):
+        """YOLO 추론 및 바운딩 박스 그리기"""
+        try:
+            # YOLO 추론 (사람 클래스만)
+            results = self.yolo_model(frame, conf=config.YOLO_CONFIDENCE, verbose=False)
+            
+            for result in results:
+                boxes = result.boxes
+                for box in boxes:
+                    x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
+                    conf = box.conf[0].cpu().numpy()
+                    class_id = int(box.cls[0].cpu().numpy())
+                    
+                    # 클래스 이름 결정
+                    if class_id == 0:
+                        label = "사람"
+                        color = (128, 128, 128)  # 회색 - 미학습
+                    else:
+                        label = self.yolo_classes.get(class_id, f"ID:{class_id}")
+                        color = (0, 255, 0)  # 초록 - 학습된 사람
+                    
+                    # 바운딩 박스 그리기
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+                    
+                    # 라벨 배경
+                    label_text = f"{label} {conf:.0%}"
+                    (text_w, text_h), _ = cv2.getTextSize(
+                        label_text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2
+                    )
+                    cv2.rectangle(frame, (x1, y1 - text_h - 10), (x1 + text_w + 4, y1), color, -1)
+                    
+                    # 라벨 텍스트
+                    cv2.putText(
+                        frame, label_text, (x1 + 2, y1 - 5),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2
+                    )
+        except Exception as e:
+            print(f"⚠️ YOLO 추론 오류: {e}")
+        
+        return frame
 
     def map_callback(self, msg):
         """SLAM 지도 콜백 - OccupancyGrid를 이미지로 변환"""
@@ -276,6 +337,18 @@ class DummyRobotNode:
         self.wifi_signal = 0
         self.battery_percentage = 0.0
         self.battery_voltage = 0.0
+        self.latest_raw_frame = None  # 원본 프레임 (YOLO 없음)
+        
+        # YOLO 모델 로드 (ROS2 없이도 테스트용)
+        self.yolo_model = None
+        self.yolo_classes = {0: "unknown", 1: "junginhoe"}
+        if config.YOLO_ENABLED and config.YOLO_MODEL_PATH.exists():
+            try:
+                from ultralytics import YOLO
+                self.yolo_model = YOLO(str(config.YOLO_MODEL_PATH))
+                print(f"✅ YOLO 모델 로드됨 (DummyNode): {config.YOLO_MODEL_PATH}")
+            except Exception as e:
+                print(f"⚠️ YOLO 모델 로드 실패: {e}")
 
     def destroy_node(self):
         pass
