@@ -29,6 +29,7 @@ ANGULAR_SPEED = float(os.getenv("ANGULAR_SPEED"))  # rad/s
 
 # YOLO 인식 설정
 YOLO_ENABLED = os.getenv("YOLO_ENABLED", "true").lower() == "true"
-YOLO_MODEL_PATH = Path(__file__).parent.parent / "auto_labeling" / "models" / "user_detection" / "weights" / "best.pt"
-YOLO_CONFIDENCE = float(os.getenv("YOLO_CONFIDENCE"))
+_default_model = Path(__file__).parent.parent / "auto_labeling" / "models" / "user_detection" / "weights" / "best.pt"
+YOLO_MODEL_PATH = Path(os.getenv("YOLO_MODEL_PATH", str(_default_model)))
+YOLO_CONFIDENCE = float(os.getenv("YOLO_CONFIDENCE", "0.5"))
 

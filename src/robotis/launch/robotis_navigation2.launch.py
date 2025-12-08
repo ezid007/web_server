@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 #
-# Navigation2 Launch File for Robotis Package
+# Navigation2 + Rosbridge Launch File for Robotis Package
 # Map path: /home/tuf/web_server/map/map.yaml
+# 웹 대시보드에서 Nav2 Goal 설정을 위해 rosbridge 포함
 
 import os
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -32,7 +33,23 @@ def generate_launch_description():
         }.items()
     )
     
+    # Rosbridge websocket node for web dashboard Nav2 goal
+    rosbridge_node = Node(
+        package='rosbridge_server',
+        executable='rosbridge_websocket',
+        name='rosbridge_websocket',
+        output='screen',
+        parameters=[{
+            'port': 9090,
+            'address': '',
+            'retry_startup_delay': 5.0,
+        }]
+    )
+    
     ld = LaunchDescription()
     ld.add_action(navigation2_cmd)
+    ld.add_action(rosbridge_node)
     
     return ld
+
+

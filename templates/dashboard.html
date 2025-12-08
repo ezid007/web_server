@@ -171,20 +171,21 @@
 
             <section class="card energy-flow">
                 <div class="card-header">
-                    <h2>SLAM MAP</h2>
+                    <h2>NAV2 MAP</h2>
+                    <div class="nav2-controls">
+                        <span id="nav2-status" class="nav2-status disconnected">연결 중...</span>
+                        <button class="nav2-btn" onclick="nav2MapViewer && nav2MapViewer.centerMap()" title="맵 중앙 정렬">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="energy-content">
-                    <div class="slam-map-container">
-                        <img
-                            id="slamMap"
-                            class="slam-map-img"
-                            src="/slam/map"
-                            alt="SLAM Map"
-                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                        />
-                        <div class="map-waiting" style="display: none">
-                            <div class="waiting-spinner"></div>
-                            <p>SLAM 맵 대기 중...</p>
+                    <div class="nav2-map-container">
+                        <canvas id="nav2Canvas" width="600" height="400"></canvas>
+                        <div class="nav2-hint">
+                            <span>🖱️ 클릭: Goal 설정</span>
+                            <span>🔄 휠: 확대/축소</span>
+                            <span>⌨️ Ctrl+드래그: 이동</span>
                         </div>
                     </div>
                 </div>
@@ -292,7 +293,7 @@
                     </div>
                     
                     <!-- 긴급 정지 버튼 -->
-                    <button class="stop-btn" id="btn-stop" onclick="emergencyStop()">
+                    <button class="stop-btn" id="btn-stop" onclick="emergencyStop()" ontouchend="emergencyStop(); event.preventDefault();">
                         STOP
                     </button>
                 </div>
@@ -355,6 +356,9 @@
             src="{{ url_for('static', path='/js/script.js') }}?v=2"
             type="text/javascript"
         ></script>
+        <!-- Nav2 맵 뷰어 -->
+        <script src="{{ url_for('static', path='/lib/roslib.min.js') }}"></script>
+        <script src="{{ url_for('static', path='/js/nav2-map.js') }}?v=1"></script>
         <script src="{{ url_for('static', path='/js/dashboard.js') }}"></script>
         <script>
             function togglePower(btn) {
@@ -509,6 +513,11 @@
                 
                 console.log("🚨 EMERGENCY STOP ACTIVATED");
                 
+                // Nav2 네비게이션 Goal 취소
+                if (nav2MapViewer && nav2MapViewer.connected) {
+                    nav2MapViewer.cancelGoal();
+                }
+                
                 // 버튼 시각적 피드백
                 stopBtn.classList.add('emergency-active');
                 stopBtn.textContent = 'STOPPING...';
@@ -637,6 +646,11 @@
             // CCTV 상태 1초마다 업데이트
             updateCctvStatus();
             setInterval(updateCctvStatus, 1000);
+            
+            // ========== Nav2 맵 뷰어 초기화 ==========
+            // rosbridge 서버 URL (PC IP:9090)
+            const rosbridgeUrl = 'ws://' + window.location.hostname + ':9090';
+            initNav2MapViewer(rosbridgeUrl);
         </script>
         <!-- ********|| 자바스크립트 끝 ||******** -->
     </body>
