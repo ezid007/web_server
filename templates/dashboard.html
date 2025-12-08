@@ -581,6 +581,25 @@
                         sendCommand('stop');
                     }
                 });
+                
+                // 모바일 터치 이벤트 추가
+                btn.addEventListener('touchstart', function(e) {
+                    e.preventDefault(); // 더블탭 줌 방지
+                    const key = this.dataset.key;
+                    this.classList.add('active');
+                    if (keyMap[key]) {
+                        sendCommand(keyMap[key].cmd);
+                    }
+                }, { passive: false });
+                
+                btn.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    const key = this.dataset.key;
+                    this.classList.remove('active');
+                    if (key !== 's') {
+                        sendCommand('stop');
+                    }
+                }, { passive: false });
             });
             
             // ========== CCTV 관련 함수 ==========
