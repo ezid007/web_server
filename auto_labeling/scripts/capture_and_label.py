@@ -102,7 +102,8 @@ def capture_and_label(
     print("🎯 자동 라벨링 시작!")
     print("=" * 50)
     print("조작 방법:")
-    print("  [SPACE] - 현재 프레임 저장")
+    print("  [SPACE] - 현재 프레임 저장 (사람 탐지 시)")
+    print("  [B] - 배경 이미지 저장 (빈 라벨)")
     print("  [A] - 자동 저장 모드 토글")
     print("  [N] - 새로운 사람 클래스 추가")
     print("  [1-9] - 클래스 ID 변경")
@@ -201,6 +202,20 @@ def capture_and_label(
                 target_class_id = add_new_person(name)
                 classes = load_classes()
             cv2.namedWindow("Auto Labeling (Press Q to quit)")
+        elif key == ord('b'):  # B - 배경 이미지 저장 (빈 라벨)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+            image_filename = f"background_{timestamp}.jpg"
+            label_filename = f"background_{timestamp}.txt"
+            
+            # 이미지 저장
+            cv2.imwrite(str(IMAGES_DIR / image_filename), frame)
+            
+            # 빈 라벨 파일 저장
+            with open(LABELS_DIR / label_filename, 'w') as f:
+                pass  # 빈 파일
+            
+            image_count += 1
+            print(f"🖼️  배경 저장됨: {image_filename}")
         elif ord('1') <= key <= ord('9'):  # 1-9 - 클래스 변경
             new_id = key - ord('1')
             if new_id < len(classes):
