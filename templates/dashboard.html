@@ -117,10 +117,7 @@
                                 class="menu-item anchor hoverable-sm"
                                 href="{{ request.base_url }}"
                             >
-                                <span
-                                >
-                                    스튜디오
-                                </span>
+                                <span>스튜디오</span>
                             </a>
                         </li>
                         <li>
@@ -128,10 +125,7 @@
                                 class="menu-item anchor hoverable-sm active"
                                 href="{{ url_for('read_dashboard') }}"
                             >
-                                <span
-                                >
-                                    대시보드
-                                </span>
+                                <span>대시보드</span>
                             </a>
                         </li>
                         <li>
@@ -139,10 +133,7 @@
                                 class="menu-item anchor hoverable-sm"
                                 href="{{ url_for('read_works') }}"
                             >
-                                <span
-                                >
-                                    작업물
-                                </span>
+                                <span>작업물</span>
                             </a>
                         </li>
                         <li>
@@ -150,10 +141,7 @@
                                 class="menu-item anchor hoverable-sm"
                                 href="{{ url_for('read_contact') }}"
                             >
-                                <span
-                                >
-                                    문의하기
-                                </span>
+                                <span>문의하기</span>
                             </a>
                         </li>
                     </ul>
@@ -170,25 +158,37 @@
             <!-- 에너지 흐름 섹션 (왼쪽) -->
 
             <section class="card energy-flow">
+                <!-- NAV2 MAP 헤더 -->
                 <div class="card-header">
                     <h2>NAV2 MAP</h2>
                     <div class="nav2-controls">
-                        <span id="nav2-status" class="nav2-status disconnected">연결 중...</span>
-                        <button class="nav2-btn" onclick="nav2MapViewer && nav2MapViewer.centerMap()" title="맵 중앙 정렬">
+                        <span id="nav2-status" class="nav2-status disconnected">
+                            연결 중...
+                        </span>
+                        <button
+                            class="nav2-btn"
+                            onclick="nav2MapViewer && nav2MapViewer.centerMap()"
+                            title="맵 중앙 정렬"
+                        >
                             <i class="fas fa-crosshairs"></i>
                         </button>
                     </div>
                 </div>
+
                 <!-- 상단 상태 바: 날짜, 날씨, WiFi -->
                 <div class="status-bar mb-3">
                     <!-- 1) 날짜 정보 -->
                     <div class="status-item date-card">
-                        <span class="date-value" id="currentDate">2025/12/06</span>
+                        <span class="date-value" id="currentDate">
+                            2025/12/06
+                        </span>
                     </div>
-                    
+
                     <!-- 2) 날씨 정보 (기상청 API + IP 위치) -->
                     <div class="status-item temp-card">
-                        <span class="weather-label" id="weatherLocation">--</span>
+                        <span class="weather-label" id="weatherLocation">
+                            --
+                        </span>
                         <div class="weather-temp">
                             <i id="weatherIcon" class="fas fa-sun"></i>
                             <span id="weatherTemp">--°C</span>
@@ -216,15 +216,19 @@
 
                 <div class="energy-content">
                     <div class="nav2-map-container">
-                        <canvas id="nav2Canvas" width="600" height="400"></canvas>
-                        <div class="nav2-hint">
-                            <span>🖱️ 클릭: Goal 설정</span>
-                            <span>🔄 휠: 확대/축소</span>
-                            <span>⌨️ Ctrl+드래그: 이동</span>
-                        </div>
+                        <canvas
+                            id="nav2Canvas"
+                            width="600"
+                            height="400"
+                        ></canvas>
+                    </div>
+                    <div class="nav2-hint">
+                        <span>🖱️ 클릭: Goal 설정</span>
+                        <span>🔄 휠: 확대/축소</span>
+                        <span>⌨️ Ctrl+드래그: 이동</span>
                     </div>
                 </div>
-                
+
                 <!-- 하단 상태 바: CPU 온도, CPU 사용률, 배터리 -->
                 <div class="status-bar bottom-bar">
                     <!-- 4) CPU 온도 -->
@@ -235,7 +239,7 @@
                             <span id="cpuTemp">--°C</span>
                         </div>
                     </div>
-                    
+
                     <!-- 5) CPU 사용률 -->
                     <div class="status-item system-card">
                         <span class="system-label">CPU USAGE</span>
@@ -249,14 +253,22 @@
                     <div class="status-item battery-card">
                         <span class="battery-label">BATTERY</span>
                         <div class="battery-time">
-                            <span class="time-value" id="batteryVoltage">--</span>
+                            <span class="time-value" id="batteryVoltage">
+                                --
+                            </span>
                             <span class="time-unit">V</span>
                         </div>
                         <div class="battery-detail">
                             <div class="battery-icon">
-                                <div class="battery-fill" id="batteryFill" style="width: 0%;"></div>
+                                <div
+                                    class="battery-fill"
+                                    id="batteryFill"
+                                    style="width: 0%"
+                                ></div>
                             </div>
-                            <span class="battery-percent" id="batteryPercent">--%</span>
+                            <span class="battery-percent" id="batteryPercent">
+                                --%
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -275,43 +287,66 @@
                         alt="TurtleBot3 Camera"
                     />
                 </div>
-                
+
                 <!-- WASD 컨트롤 + STOP 버튼 -->
                 <div class="teleop-controls">
                     <!-- WASD 방향키 -->
                     <div class="wasd-pad">
                         <div class="wasd-row">
-                            <button class="wasd-btn" id="btn-w" data-key="w">W</button>
+                            <button class="wasd-btn" id="btn-w" data-key="w">
+                                W
+                            </button>
                         </div>
                         <div class="wasd-row middle">
-                            <button class="wasd-btn" id="btn-a" data-key="a">A</button>
-                            <button class="wasd-btn center" id="btn-s" data-key="s">S</button>
-                            <button class="wasd-btn" id="btn-d" data-key="d">D</button>
+                            <button class="wasd-btn" id="btn-a" data-key="a">
+                                A
+                            </button>
+                            <button
+                                class="wasd-btn center"
+                                id="btn-s"
+                                data-key="s"
+                            >
+                                S
+                            </button>
+                            <button class="wasd-btn" id="btn-d" data-key="d">
+                                D
+                            </button>
                         </div>
                         <div class="wasd-row">
-                            <button class="wasd-btn" id="btn-x" data-key="x">X</button>
+                            <button class="wasd-btn" id="btn-x" data-key="x">
+                                X
+                            </button>
                         </div>
                     </div>
-                    
+
                     <!-- 긴급 정지 버튼 -->
-                    <button class="stop-btn" id="btn-stop" onclick="emergencyStop()" ontouchend="emergencyStop(); event.preventDefault();">
+                    <button
+                        class="stop-btn"
+                        id="btn-stop"
+                        onclick="emergencyStop()"
+                        ontouchend="emergencyStop(); event.preventDefault();"
+                    >
                         STOP
                     </button>
                 </div>
-                
+
                 <!-- CCTV 화면 (로봇 카드 아래) -->
                 <div class="cctv-section">
                     <div class="cctv-label">
                         <span>문살살 CCTV</span>
                         <span class="db-display" id="cctvDb">-- dB</span>
-                        <button class="cctv-power-btn" id="cctvPowerBtn" onclick="toggleCctvPower()">
+                        <button
+                            class="cctv-power-btn"
+                            id="cctvPowerBtn"
+                            onclick="toggleCctvPower()"
+                        >
                             <i class="fas fa-power-off"></i>
                         </button>
                     </div>
                     <div class="cctv-view-inline">
-                        <img 
-                            id="cctvStream" 
-                            src="/cctv/stream" 
+                        <img
+                            id="cctvStream"
+                            src="/cctv/stream"
                             alt="CCTV Stream"
                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                         />
@@ -373,284 +408,317 @@
                         '<span class="status-off">ON</span> OFF';
                 }
             }
-            
+
             // 현재 날짜 표시
             function updateDate() {
                 const now = new Date();
                 const y = now.getFullYear();
-                const m = String(now.getMonth() + 1).padStart(2, '0');
-                const d = String(now.getDate()).padStart(2, '0');
-                document.getElementById('currentDate').textContent = `${y}/${m}/${d}`;
+                const m = String(now.getMonth() + 1).padStart(2, "0");
+                const d = String(now.getDate()).padStart(2, "0");
+                document.getElementById(
+                    "currentDate"
+                ).textContent = `${y}/${m}/${d}`;
             }
             updateDate();
-            
+
             // 날씨 정보 업데이트 (기상청 API + IP 기반 위치)
             async function updateWeather() {
                 try {
-                    const response = await fetch('/api/weather');
+                    const response = await fetch("/api/weather");
                     const data = await response.json();
-                    
+
                     // 위치 표시
-                    document.getElementById('weatherLocation').textContent = data.location || '--';
-                    
+                    document.getElementById("weatherLocation").textContent =
+                        data.location || "--";
+
                     // 온도 표시
-                    document.getElementById('weatherTemp').textContent = 
-                        data.temperature !== undefined ? `${data.temperature}°C` : '--°C';
-                    
+                    document.getElementById("weatherTemp").textContent =
+                        data.temperature !== undefined
+                            ? `${data.temperature}°C`
+                            : "--°C";
+
                     // 날씨 아이콘 업데이트
-                    const iconEl = document.getElementById('weatherIcon');
+                    const iconEl = document.getElementById("weatherIcon");
                     if (data.icon) {
-                        iconEl.className = 'fas ' + data.icon;
+                        iconEl.className = "fas " + data.icon;
                     }
-                    
+
                     // 하늘 상태 표시
-                    document.getElementById('weatherSky').textContent = data.sky || '--';
-                    
+                    document.getElementById("weatherSky").textContent =
+                        data.sky || "--";
+
                     // 풍속 표시
-                    document.getElementById('weatherWind').textContent = 
-                        data.wind_speed !== undefined ? data.wind_speed.toFixed(1) : '--';
-                        
+                    document.getElementById("weatherWind").textContent =
+                        data.wind_speed !== undefined
+                            ? data.wind_speed.toFixed(1)
+                            : "--";
                 } catch (error) {
-                    console.error('Weather update error:', error);
+                    console.error("Weather update error:", error);
                 }
             }
-            
+
             // 초기 로드 및 10분마다 날씨 업데이트
             updateWeather();
             setInterval(updateWeather, 10 * 60 * 1000);
-            
+
             // 로봇 시스템 정보 업데이트
             async function updateSystemInfo() {
                 try {
-                    const response = await fetch('/api/system');
+                    const response = await fetch("/api/system");
                     const data = await response.json();
-                    
-                    document.getElementById('cpuTemp').textContent = 
-                        data.cpu_temperature !== undefined ? `${data.cpu_temperature}°C` : '--°C';
-                    document.getElementById('cpuUsage').textContent = 
-                        data.cpu_usage !== undefined ? `${data.cpu_usage}%` : '--%';
-                    
+
+                    document.getElementById("cpuTemp").textContent =
+                        data.cpu_temperature !== undefined
+                            ? `${data.cpu_temperature}°C`
+                            : "--°C";
+                    document.getElementById("cpuUsage").textContent =
+                        data.cpu_usage !== undefined
+                            ? `${data.cpu_usage}%`
+                            : "--%";
+
                     // WiFi 신호 강도 및 상태 업데이트
                     if (data.wifi_signal !== undefined) {
                         const signal = data.wifi_signal;
-                        document.getElementById('wifiSignal').textContent = `${signal} dBm`;
-                        
+                        document.getElementById(
+                            "wifiSignal"
+                        ).textContent = `${signal} dBm`;
+
                         // 신호 강도에 따른 상태 표시
-                        let status = '';
-                        let statusClass = '';
+                        let status = "";
+                        let statusClass = "";
                         if (signal >= -50) {
-                            status = '매우 좋음';
-                            statusClass = 'wifi-excellent';
+                            status = "매우 좋음";
+                            statusClass = "wifi-excellent";
                         } else if (signal >= -60) {
-                            status = '좋음';
-                            statusClass = 'wifi-good';
+                            status = "좋음";
+                            statusClass = "wifi-good";
                         } else if (signal >= -70) {
-                            status = '보통';
-                            statusClass = 'wifi-fair';
+                            status = "보통";
+                            statusClass = "wifi-fair";
                         } else if (signal >= -80) {
-                            status = '약함';
-                            statusClass = 'wifi-weak';
+                            status = "약함";
+                            statusClass = "wifi-weak";
                         } else {
-                            status = '매우 약함';
-                            statusClass = 'wifi-poor';
+                            status = "매우 약함";
+                            statusClass = "wifi-poor";
                         }
-                        
-                        const wifiStatusEl = document.getElementById('wifiStatus');
+
+                        const wifiStatusEl =
+                            document.getElementById("wifiStatus");
                         wifiStatusEl.textContent = status;
-                        wifiStatusEl.className = 'wifi-status ' + statusClass;
+                        wifiStatusEl.className = "wifi-status " + statusClass;
                     } else {
-                        document.getElementById('wifiSignal').textContent = '-- dBm';
-                        document.getElementById('wifiStatus').textContent = '--';
+                        document.getElementById("wifiSignal").textContent =
+                            "-- dBm";
+                        document.getElementById("wifiStatus").textContent =
+                            "--";
                     }
-                    
+
                     // 배터리 정보 업데이트
                     if (data.battery_percentage !== undefined) {
                         const batteryPct = Math.round(data.battery_percentage);
-                        document.getElementById('batteryPercent').textContent = `${batteryPct}%`;
-                        document.getElementById('batteryFill').style.width = `${batteryPct}%`;
+                        document.getElementById(
+                            "batteryPercent"
+                        ).textContent = `${batteryPct}%`;
+                        document.getElementById(
+                            "batteryFill"
+                        ).style.width = `${batteryPct}%`;
                     }
                     if (data.battery_voltage !== undefined) {
-                        document.getElementById('batteryVoltage').textContent = data.battery_voltage.toFixed(1);
+                        document.getElementById("batteryVoltage").textContent =
+                            data.battery_voltage.toFixed(1);
                     }
                 } catch (error) {
-                    console.error('System info update error:', error);
+                    console.error("System info update error:", error);
                 }
             }
-            
+
             // 초기 로드 및 2초마다 시스템 정보 업데이트
             updateSystemInfo();
             setInterval(updateSystemInfo, 2000);
-            
+
             // 로봇 제어 명령 전송
             function sendCommand(cmd) {
                 console.log("COMMAND:", cmd);
                 // 키 매핑: forward->w, backward->x, left->a, right->d, stop->s
                 const keyMapping = {
-                    'forward': 'w',
-                    'backward': 'x',
-                    'left': 'a',
-                    'right': 'd',
-                    'stop': 's'
+                    forward: "w",
+                    backward: "x",
+                    left: "a",
+                    right: "d",
+                    stop: "s",
                 };
                 const key = keyMapping[cmd] || cmd;
-                
-                fetch('/api/teleop', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ key: key })
+
+                fetch("/api/teleop", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ key: key }),
                 })
-                .then(response => response.json())
-                .then(data => console.log('Teleop response:', data))
-                .catch(error => console.error('Teleop error:', error));
+                    .then((response) => response.json())
+                    .then((data) => console.log("Teleop response:", data))
+                    .catch((error) => console.error("Teleop error:", error));
             }
-            
+
             // 긴급 정지 함수 (오작동 시 강제 정지)
             let emergencyStopInterval = null;
             function emergencyStop() {
-                const stopBtn = document.getElementById('btn-stop');
-                
+                const stopBtn = document.getElementById("btn-stop");
+
                 // 이미 긴급 정지 중이면 무시
                 if (emergencyStopInterval) return;
-                
+
                 console.log("🚨 EMERGENCY STOP ACTIVATED");
-                
+
                 // Nav2 네비게이션 Goal 취소
                 if (nav2MapViewer && nav2MapViewer.connected) {
                     nav2MapViewer.cancelGoal();
                 }
-                
+
                 // 버튼 시각적 피드백
-                stopBtn.classList.add('emergency-active');
-                stopBtn.textContent = 'STOPPING...';
-                
+                stopBtn.classList.add("emergency-active");
+                stopBtn.textContent = "STOPPING...";
+
                 // 1초간 100ms 간격으로 정지 명령 전송 (10회)
                 let count = 0;
                 emergencyStopInterval = setInterval(() => {
-                    sendCommand('stop');
+                    sendCommand("stop");
                     count++;
-                    
+
                     if (count >= 10) {
                         clearInterval(emergencyStopInterval);
                         emergencyStopInterval = null;
-                        
+
                         // 버튼 복원
-                        stopBtn.classList.remove('emergency-active');
-                        stopBtn.textContent = 'STOP';
+                        stopBtn.classList.remove("emergency-active");
+                        stopBtn.textContent = "STOP";
                         console.log("✅ Emergency stop complete");
                     }
                 }, 100);
             }
-            
+
             // WASD 키 매핑
             const keyMap = {
-                'w': { cmd: 'forward', btn: 'btn-w' },
-                'a': { cmd: 'left', btn: 'btn-a' },
-                's': { cmd: 'stop', btn: 'btn-s' },
-                'd': { cmd: 'right', btn: 'btn-d' },
-                'x': { cmd: 'backward', btn: 'btn-x' }
+                w: { cmd: "forward", btn: "btn-w" },
+                a: { cmd: "left", btn: "btn-a" },
+                s: { cmd: "stop", btn: "btn-s" },
+                d: { cmd: "right", btn: "btn-d" },
+                x: { cmd: "backward", btn: "btn-x" },
             };
-            
+
             // 키보드 이벤트 핸들러
-            document.addEventListener('keydown', function(e) {
+            document.addEventListener("keydown", function (e) {
                 const key = e.key.toLowerCase();
                 if (keyMap[key]) {
                     e.preventDefault();
                     const btnEl = document.getElementById(keyMap[key].btn);
-                    if (btnEl && !btnEl.classList.contains('active')) {
-                        btnEl.classList.add('active');
+                    if (btnEl && !btnEl.classList.contains("active")) {
+                        btnEl.classList.add("active");
                         sendCommand(keyMap[key].cmd);
                     }
                 }
             });
-            
-            document.addEventListener('keyup', function(e) {
+
+            document.addEventListener("keyup", function (e) {
                 const key = e.key.toLowerCase();
                 if (keyMap[key]) {
                     const btnEl = document.getElementById(keyMap[key].btn);
                     if (btnEl) {
-                        btnEl.classList.remove('active');
+                        btnEl.classList.remove("active");
                         // S키(정지)가 아닌 경우에만 정지 명령 전송
-                        if (key !== 's') {
-                            sendCommand('stop');
+                        if (key !== "s") {
+                            sendCommand("stop");
                         }
                     }
                 }
             });
-            
+
             // 마우스 클릭 이벤트
-            document.querySelectorAll('.wasd-btn').forEach(btn => {
-                btn.addEventListener('mousedown', function() {
+            document.querySelectorAll(".wasd-btn").forEach((btn) => {
+                btn.addEventListener("mousedown", function () {
                     const key = this.dataset.key;
                     if (keyMap[key]) {
                         sendCommand(keyMap[key].cmd);
                     }
                 });
-                btn.addEventListener('mouseup', function() {
+                btn.addEventListener("mouseup", function () {
                     const key = this.dataset.key;
-                    if (key !== 's') {
-                        sendCommand('stop');
+                    if (key !== "s") {
+                        sendCommand("stop");
                     }
                 });
-                
+
                 // 모바일 터치 이벤트 추가
-                btn.addEventListener('touchstart', function(e) {
-                    e.preventDefault(); // 더블탭 줌 방지
-                    const key = this.dataset.key;
-                    this.classList.add('active');
-                    if (keyMap[key]) {
-                        sendCommand(keyMap[key].cmd);
-                    }
-                }, { passive: false });
-                
-                btn.addEventListener('touchend', function(e) {
-                    e.preventDefault();
-                    const key = this.dataset.key;
-                    this.classList.remove('active');
-                    if (key !== 's') {
-                        sendCommand('stop');
-                    }
-                }, { passive: false });
+                btn.addEventListener(
+                    "touchstart",
+                    function (e) {
+                        e.preventDefault(); // 더블탭 줌 방지
+                        const key = this.dataset.key;
+                        this.classList.add("active");
+                        if (keyMap[key]) {
+                            sendCommand(keyMap[key].cmd);
+                        }
+                    },
+                    { passive: false }
+                );
+
+                btn.addEventListener(
+                    "touchend",
+                    function (e) {
+                        e.preventDefault();
+                        const key = this.dataset.key;
+                        this.classList.remove("active");
+                        if (key !== "s") {
+                            sendCommand("stop");
+                        }
+                    },
+                    { passive: false }
+                );
             });
-            
+
             // ========== CCTV 관련 함수 ==========
             // CCTV 상태 업데이트
             async function updateCctvStatus() {
                 try {
-                    const response = await fetch('/api/cctv/status');
+                    const response = await fetch("/api/cctv/status");
                     const data = await response.json();
-                    
-                    document.getElementById('cctvDb').textContent = `${data.db || 0} dB`;
-                    
-                    const powerBtn = document.getElementById('cctvPowerBtn');
+
+                    document.getElementById("cctvDb").textContent = `${
+                        data.db || 0
+                    } dB`;
+
+                    const powerBtn = document.getElementById("cctvPowerBtn");
                     if (data.is_running) {
-                        powerBtn.classList.add('on');
+                        powerBtn.classList.add("on");
                     } else {
-                        powerBtn.classList.remove('on');
+                        powerBtn.classList.remove("on");
                     }
                 } catch (error) {
-                    console.error('CCTV status error:', error);
+                    console.error("CCTV status error:", error);
                 }
             }
-            
+
             // CCTV 전원 토글
             async function toggleCctvPower() {
                 try {
-                    const response = await fetch('/api/cctv/toggle_power', { method: 'POST' });
+                    const response = await fetch("/api/cctv/toggle_power", {
+                        method: "POST",
+                    });
                     const data = await response.json();
-                    console.log('CCTV power toggled:', data);
+                    console.log("CCTV power toggled:", data);
                     updateCctvStatus();
                 } catch (error) {
-                    console.error('CCTV toggle error:', error);
+                    console.error("CCTV toggle error:", error);
                 }
             }
-            
+
             // CCTV 상태 1초마다 업데이트
             updateCctvStatus();
             setInterval(updateCctvStatus, 1000);
-            
+
             // ========== Nav2 맵 뷰어 초기화 ==========
             // rosbridge 서버 URL (PC IP:9090)
-            const rosbridgeUrl = 'ws://' + window.location.hostname + ':9090';
+            const rosbridgeUrl = "ws://" + window.location.hostname + ":9090";
             initNav2MapViewer(rosbridgeUrl);
         </script>
         <!-- ********|| 자바스크립트 끝 ||******** -->
