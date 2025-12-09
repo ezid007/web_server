@@ -556,31 +556,35 @@
 }
 
 .weather-temp #weatherIcon {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     color: #FFD700;
 }
 
 .weather-sky {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-secondary);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
 }
 
 .weather-wind {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 0.875rem;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 700;
     color: var(--text-primary);
 }
 
 .weather-wind i {
     color: var(--accent-orange);
+    font-size: 1.5rem;
 }
 
 .wind-unit {
-    font-size: 0.7rem;
+    font-size: 1rem;
     color: var(--text-secondary);
+    font-weight: 600;
+    margin-top: 5px;
 }
 
 /* 배터리 카드 */
