@@ -2088,6 +2088,10 @@
         gap: 0.5rem;
         padding: 0.75rem;
     }
+
+    .status-bar.bottom-bar {
+        grid-template-columns: 1fr;
+    }
     
     .status-bar.system-bar {
         grid-template-columns: repeat(3, 1fr);
