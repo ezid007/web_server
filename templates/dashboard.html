@@ -179,18 +179,8 @@
                         </button>
                     </div>
                 </div>
-                <div class="energy-content">
-                    <div class="nav2-map-container">
-                        <canvas id="nav2Canvas" width="600" height="400"></canvas>
-                        <div class="nav2-hint">
-                            <span>🖱️ 클릭: Goal 설정</span>
-                            <span>🔄 휠: 확대/축소</span>
-                            <span>⌨️ Ctrl+드래그: 이동</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- 하단 상태 바: 날짜, 온도, 배터리 -->
-                <div class="status-bar">
+                <!-- 상단 상태 바: 날짜, 날씨, WiFi -->
+                <div class="status-bar mb-3">
                     <!-- 1) 날짜 정보 -->
                     <div class="status-item date-card">
                         <span class="date-value" id="currentDate">2025/12/06</span>
@@ -212,25 +202,31 @@
                             <span class="wind-unit">m/s</span>
                         </div>
                     </div>
-                    
-                    <!-- 3) 배터리 정보 -->
-                    <div class="status-item battery-card">
-                        <span class="battery-label">BATTERY</span>
-                        <div class="battery-time">
-                            <span class="time-value" id="batteryVoltage">--</span>
-                            <span class="time-unit">V</span>
+
+                    <!-- 3) WiFi 신호 강도 -->
+                    <div class="status-item system-card wifi-card">
+                        <span class="system-label">WIFI</span>
+                        <div class="system-value">
+                            <i class="fas fa-wifi"></i>
+                            <span id="wifiSignal">-- dBm</span>
+                            <span id="wifiStatus" class="wifi-status">--</span>
                         </div>
-                        <div class="battery-detail">
-                            <div class="battery-icon">
-                                <div class="battery-fill" id="batteryFill" style="width: 0%;"></div>
-                            </div>
-                            <span class="battery-percent" id="batteryPercent">--%</span>
+                    </div>
+                </div>
+
+                <div class="energy-content">
+                    <div class="nav2-map-container">
+                        <canvas id="nav2Canvas" width="600" height="400"></canvas>
+                        <div class="nav2-hint">
+                            <span>🖱️ 클릭: Goal 설정</span>
+                            <span>🔄 휠: 확대/축소</span>
+                            <span>⌨️ Ctrl+드래그: 이동</span>
                         </div>
                     </div>
                 </div>
                 
-                <!-- 로봇 시스템 정보 바 -->
-                <div class="status-bar system-bar">
+                <!-- 하단 상태 바: CPU 온도, CPU 사용률, 배터리 -->
+                <div class="status-bar bottom-bar">
                     <!-- 4) CPU 온도 -->
                     <div class="status-item system-card">
                         <span class="system-label">CPU TEMP</span>
@@ -248,14 +244,19 @@
                             <span id="cpuUsage">--%</span>
                         </div>
                     </div>
-                    
-                    <!-- 6) WiFi 신호 강도 -->
-                    <div class="status-item system-card wifi-card">
-                        <span class="system-label">WIFI</span>
-                        <div class="system-value">
-                            <i class="fas fa-wifi"></i>
-                            <span id="wifiSignal">-- dBm</span>
-                            <span id="wifiStatus" class="wifi-status">--</span>
+
+                    <!-- 6) 배터리 정보 -->
+                    <div class="status-item battery-card">
+                        <span class="battery-label">BATTERY</span>
+                        <div class="battery-time">
+                            <span class="time-value" id="batteryVoltage">--</span>
+                            <span class="time-unit">V</span>
+                        </div>
+                        <div class="battery-detail">
+                            <div class="battery-icon">
+                                <div class="battery-fill" id="batteryFill" style="width: 0%;"></div>
+                            </div>
+                            <span class="battery-percent" id="batteryPercent">--%</span>
                         </div>
                     </div>
                 </div>
