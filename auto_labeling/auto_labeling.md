@@ -115,21 +115,20 @@ python scripts/train.py --epochs 50 --batch 8 --imgsz 640
 ## 📁 파일 구조
 
 ```
-auto_labeling/
-├── dataset/
-│   ├── images/     ← 캡처된 이미지 저장 위치
-│   └── labels/     ← YOLO 포맷 라벨 저장 위치
-├── models/         ← 학습된 모델 저장 위치
-│   └── user_detection/
-│       └── weights/
-│           ├── best.pt   ← 최고 성능 모델
-│           └── last.pt   ← 마지막 체크포인트
-├── scripts/
-│   ├── capture_and_label.py
-│   ├── review_labels.py
-│   └── train.py
-├── classes.yaml    ← 클래스 정의
-└── auto_labeling.md
+web_server/
+├── models/                 ← 학습된 모델 저장 위치
+│   └── my_yolo.pt          ← .env에서 이름 설정 가능
+├── auto_labeling/
+│   ├── dataset/
+│   │   ├── images/         ← 캡처된 이미지 저장 위치
+│   │   └── labels/         ← YOLO 포맷 라벨 저장 위치
+│   ├── scripts/
+│   │   ├── capture_and_label.py
+│   │   ├── review_labels.py
+│   │   └── train.py
+│   ├── classes.yaml        ← 클래스 정의
+│   └── auto_labeling.md
+└── .env                    ← YOLO_OUTPUT_MODEL, YOLO_DASHBOARD_MODEL 설정
 ```
 
 ---

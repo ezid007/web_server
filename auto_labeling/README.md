@@ -3,13 +3,15 @@
 
 ## 프로젝트 구조
 ```
-auto_labeling/
-├── dataset/
-│   ├── images/      # 캡처된 이미지
-│   └── labels/      # YOLO 포맷 라벨 파일
-├── models/          # 학습된 모델 저장
-├── scripts/         # 실행 스크립트
-└── classes.yaml     # 클래스 정의
+web_server/
+├── models/              # 학습된 모델 (.env에서 이름 설정)
+├── auto_labeling/
+│   ├── dataset/
+│   │   ├── images/      # 캡처된 이미지
+│   │   └── labels/      # YOLO 포맷 라벨 파일
+│   ├── scripts/         # 실행 스크립트
+│   └── classes.yaml     # 클래스 정의
+└── .env                 # YOLO_OUTPUT_MODEL, YOLO_DASHBOARD_MODEL
 ```
 
 ## 사용 방법

@@ -51,7 +51,7 @@ def _resolve_model_path(model_name: str, default: str) -> Path:
     return _base_dir / path
 
 YOLO_MODEL_PATH = _resolve_model_path(
-    os.getenv("YOLO_DASHBOARD_MODEL", ""), "my_yolo.pt"
+    os.getenv("YOLO_DASHBOARD_MODEL", ""), "auto_labeling/models/user_detection/weights/best.pt"
 )
 YOLO_LABELING_MODEL = _resolve_model_path(
     os.getenv("YOLO_LABELING_MODEL", ""), "yolo11n.pt"
