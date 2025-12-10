@@ -1,7 +1,7 @@
 names:
 - unknown
 - junginhoe
-- yeji
+- other
 nc: 3
 path: /home/tuf/web_server/auto_labeling/dataset
 train: images
