@@ -35,7 +35,29 @@ import cv2
 import numpy as np
 import threading
 import queue
+import yaml
+from pathlib import Path
 from . import config
+
+
+# 클래스 설정 파일 경로
+CLASSES_FILE = Path(__file__).parent.parent / "auto_labeling" / "classes.yaml"
+
+
+def load_yolo_classes() -> dict:
+    """
+    classes.yaml에서 클래스 목록을 읽어와 {id: name} 형태로 반환
+    클래스 이름은 이 파일 하나에서만 관리됨
+    """
+    if CLASSES_FILE.exists():
+        try:
+            with open(CLASSES_FILE, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
+                names = data.get('names', ['unknown'])
+                return {i: name for i, name in enumerate(names)}
+        except Exception as e:
+            print(f"⚠️ classes.yaml 로드 실패: {e}")
+    return {0: "unknown"}
 
 
 class RobotNode(Node if ROS_AVAILABLE else object):
@@ -67,7 +89,7 @@ class RobotNode(Node if ROS_AVAILABLE else object):
 
         # YOLO 모델 로드
         self.yolo_model = None
-        self.yolo_classes = {0: "unknown", 1: "junginhoe"}  # classes.yaml과 동기화
+        self.yolo_classes = load_yolo_classes()  # classes.yaml에서 로드
         if config.YOLO_ENABLED and config.YOLO_MODEL_PATH.exists():
             try:
                 from ultralytics import YOLO
@@ -404,7 +426,7 @@ class DummyRobotNode:
 
         # YOLO 모델 로드 (ROS2 없이도 테스트용)
         self.yolo_model = None
-        self.yolo_classes = {0: "unknown", 1: "junginhoe"}
+        self.yolo_classes = load_yolo_classes()  # classes.yaml에서 로드
         if config.YOLO_ENABLED and config.YOLO_MODEL_PATH.exists():
             try:
                 from ultralytics import YOLO

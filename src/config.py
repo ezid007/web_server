@@ -31,7 +31,31 @@ ANGULAR_SPEED = float(os.getenv("ANGULAR_SPEED"))  # rad/s
 
 # YOLO 인식 설정
 YOLO_ENABLED = os.getenv("YOLO_ENABLED", "true").lower() == "true"
-_default_model = Path(__file__).parent.parent / "auto_labeling" / "models" / "user_detection" / "weights" / "best.pt"
-YOLO_MODEL_PATH = Path(os.getenv("YOLO_MODEL_PATH", str(_default_model)))
+
+# YOLO 모델 경로 (models/ 폴더에서 중앙 관리)
+# .env에서 파일명만 적으면 자동으로 models/ 경로가 붙음
+# 예: YOLO_MODEL_PATH=user_detection.pt → models/user_detection.pt
+_base_dir = Path(__file__).parent.parent
+_models_dir = _base_dir / "models"
+
+def _resolve_model_path(model_name: str, default: str) -> Path:
+    """모델 경로 해석: 파일명만 있으면 models/ 폴더에서 찾음"""
+    path = Path(model_name) if model_name else Path(default)
+    # 절대 경로면 그대로 사용
+    if path.is_absolute():
+        return path
+    # 파일명만 있으면 (경로 구분자 없으면) models/ 폴더에서 찾음
+    if path.parent == Path("."):
+        return _models_dir / path
+    # 상대 경로면 base_dir 기준으로 변환
+    return _base_dir / path
+
+YOLO_MODEL_PATH = _resolve_model_path(
+    os.getenv("YOLO_DASHBOARD_MODEL", ""), "my_yolo.pt"
+)
+YOLO_LABELING_MODEL = _resolve_model_path(
+    os.getenv("YOLO_LABELING_MODEL", ""), "yolo11n.pt"
+)
+
 YOLO_CONFIDENCE = float(os.getenv("YOLO_CONFIDENCE", "0.5"))
 

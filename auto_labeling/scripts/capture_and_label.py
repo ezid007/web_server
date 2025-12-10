@@ -38,6 +38,18 @@ WEB_SERVER_PORT = os.getenv("PORT")
 CAMERA_TOPIC = os.getenv("CAMERA_TOPIC", "/camera_node/image_raw")
 DEFAULT_STREAM_URL = f"http://localhost:{WEB_SERVER_PORT}/camera/raw"
 
+# YOLO 모델 경로 (models/ 폴더에서 중앙 관리)
+# .env에서 파일명만 적으면 자동으로 models/ 경로가 붙음
+_models_dir = WEB_SERVER_DIR / "models"
+_labeling_model_env = os.getenv("YOLO_LABELING_MODEL", "yolo11n.pt")
+_labeling_path = Path(_labeling_model_env)
+if _labeling_path.is_absolute():
+    YOLO_LABELING_MODEL = str(_labeling_path)
+elif _labeling_path.parent == Path("."):
+    YOLO_LABELING_MODEL = str(_models_dir / _labeling_path)
+else:
+    YOLO_LABELING_MODEL = str(WEB_SERVER_DIR / _labeling_path)
+
 
 class ROS2CameraReader:
     """
@@ -210,6 +222,26 @@ def save_classes(classes: list):
     }
     with open(CLASSES_FILE, "w", encoding="utf-8") as f:
         yaml.dump(data, f, allow_unicode=True, default_flow_style=False)
+
+
+def count_images_per_class(classes: list) -> dict:
+    """
+    클래스별 이미지 개수 카운트
+    파일명이 'classname_timestamp.jpg' 형태라고 가정
+    """
+    counts = {cls: 0 for cls in classes}
+    counts['background'] = 0  # 배경 이미지도 카운트
+    
+    for img_file in IMAGES_DIR.glob("*.jpg"):
+        filename = img_file.stem  # 확장자 제외한 파일명
+        # 파일명에서 클래스 이름 추출 (첫 번째 언더스코어 이전)
+        parts = filename.split('_')
+        if parts:
+            class_name = parts[0]
+            if class_name in counts:
+                counts[class_name] += 1
+    
+    return counts
 
 
 def add_new_person(name: str):
@@ -392,14 +424,16 @@ def capture_and_label(
 
     auto_save = False
     last_save_time = 0
-    image_count = len(list(IMAGES_DIR.glob("*.jpg")))
     frame_count = 0
     last_detections = []
     last_saved_detections = []  # 마지막으로 저장된 탐지 결과
-    skip_count = 0  # 유사도로 인해 건너뛴 횟수
     target_fps = 30  # 목표 FPS
     frame_interval = 1.0 / target_fps  # 프레임 간격 (약 33ms)
     last_frame_time = time.time()
+    
+    # 클래스별 이미지 개수 카운트
+    class_counts = count_images_per_class(classes)
+    print(f"📊 클래스별 이미지 개수: {class_counts}")
 
     try:
         while True:
@@ -475,8 +509,10 @@ def capture_and_label(
                     2,
                 )
 
-            # 상태 표시
-            status_text = f"Class: {classes[target_class_id]} | Auto: {'ON' if auto_save else 'OFF'} | Saved: {image_count}"
+            # 상태 표시 (현재 클래스 개수만)
+            current_class = classes[target_class_id]
+            current_count = class_counts.get(current_class, 0)
+            status_text = f"{current_class}: {current_count} | Auto: {'ON' if auto_save else 'OFF'}"
             cv2.putText(
                 display_frame,
                 status_text,
@@ -500,7 +536,7 @@ def capture_and_label(
                         should_save = True
                         last_save_time = current_time
                     else:
-                        skip_count += 1
+                        pass  # 유사한 장면이면 저장 건너뜀
 
             # 키 입력 처리
             key = cv2.waitKey(1) & 0xFF
@@ -534,8 +570,8 @@ def capture_and_label(
                 with open(LABELS_DIR / label_filename, "w") as f:
                     pass  # 빈 파일
 
-                image_count += 1
-                print(f"🖼️  배경 저장됨: {image_filename}")
+                class_counts['background'] = class_counts.get('background', 0) + 1
+                print(f"🖼️  배경 저장됨: {image_filename} [background: {class_counts['background']}]")
             elif ord("1") <= key <= ord("9"):  # 1-9 - 클래스 변경
                 new_id = key - ord("1")
                 if new_id < len(classes):
@@ -560,17 +596,23 @@ def capture_and_label(
                         line = f"{det['class_id']} {det['x_center']:.6f} {det['y_center']:.6f} {det['width']:.6f} {det['height']:.6f}\n"
                         f.write(line)
 
-                image_count += 1
-                last_saved_detections = detections.copy()  # 저장된 탐지 결과 기록
-                print(f"💾 저장됨: {image_filename} (탐지: {len(detections)}개)")
+                class_counts[class_name] = class_counts.get(class_name, 0) + 1
+                last_saved_detections = detections.copy()  # 유사도 체크용
+                print(f"💾 저장됨: {image_filename} (탐지: {len(detections)}개) [{class_name}: {class_counts[class_name]}]")
 
     finally:
         stream_reader.stop()
         cv2.destroyAllWindows()
 
-    print(f"\n✅ 완료! 총 {image_count}장의 이미지가 저장되었습니다.")
-    print(f"   📁 이미지: {IMAGES_DIR}")
-    print(f"   📁 라벨: {LABELS_DIR}")
+    # 종료 시 클래스별 요약 출력
+    total_count = sum(class_counts.values())
+    print(f"\n✅ 완료! 총 {total_count}장의 이미지가 저장되었습니다.")
+    print("📊 클래스별 개수:")
+    for cls_name, count in class_counts.items():
+        if count > 0:
+            print(f"   - {cls_name}: {count}장")
+    print(f"\n📁 이미지: {IMAGES_DIR}")
+    print(f"📁 라벨: {LABELS_DIR}")
 
 
 def main():
@@ -578,7 +620,7 @@ def main():
     parser.add_argument(
         "--stream", "-s", default=DEFAULT_STREAM_URL, help="카메라 스트림 URL"
     )
-    parser.add_argument("--model", "-m", default="yolo11n.pt", help="YOLO 모델 경로")
+    parser.add_argument("--model", "-m", default=YOLO_LABELING_MODEL, help="YOLO 모델 경로")
     parser.add_argument(
         "--class-id",
         "-c",
