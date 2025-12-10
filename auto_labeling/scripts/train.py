@@ -25,9 +25,19 @@ CLASSES_FILE = PROJECT_DIR / "classes.yaml"
 # .env에서 출력 모델 이름 로드
 OUTPUT_MODEL_NAME = os.getenv("YOLO_OUTPUT_MODEL", "my_yolo.pt")
 
+# 기본 YOLO 모델 경로 (.env에서 파일명만 적으면 models/ 폴더에서 찾음)
+_base_model_env = os.getenv("YOLO_LABELING_MODEL", "yolo11n.pt")
+_base_model_path = Path(_base_model_env)
+if _base_model_path.is_absolute():
+    DEFAULT_BASE_MODEL = str(_base_model_path)
+elif _base_model_path.parent == Path("."):
+    DEFAULT_BASE_MODEL = str(MODELS_DIR / _base_model_path)
+else:
+    DEFAULT_BASE_MODEL = str(ROOT_DIR / _base_model_path)
+
 
 def train_model(
-    base_model: str = "yolo11n.pt",
+    base_model: str = None,
     epochs: int = 100,
     imgsz: int = 640,
     batch: int = 16,
@@ -45,6 +55,10 @@ def train_model(
         device: 학습 디바이스 (0, 1, cpu 등)
         patience: 조기 종료 patience
     """
+    # 기본 모델 경로 설정
+    if base_model is None:
+        base_model = DEFAULT_BASE_MODEL
+    
     # 모델 디렉토리 생성
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     
@@ -120,7 +134,7 @@ def train_model(
 
 def main():
     parser = argparse.ArgumentParser(description="YOLOv11n 파인튜닝")
-    parser.add_argument("--model", "-m", default="yolo11n.pt", help="기본 모델")
+    parser.add_argument("--model", "-m", default=None, help=f"기본 모델 (기본값: {DEFAULT_BASE_MODEL})")
     parser.add_argument("--epochs", "-e", type=int, default=100, help="에폭 수")
     parser.add_argument("--imgsz", "-s", type=int, default=640, help="이미지 크기")
     parser.add_argument("--batch", "-b", type=int, default=16, help="배치 크기")
