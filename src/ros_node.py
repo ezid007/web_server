@@ -6,7 +6,7 @@ try:
     import rclpy
     from rclpy.node import Node
     from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
-    from sensor_msgs.msg import Image, BatteryState
+    from sensor_msgs.msg import Image, CompressedImage, BatteryState
     from nav_msgs.msg import OccupancyGrid
     from geometry_msgs.msg import Twist
     from std_msgs.msg import Float32, Int32
@@ -90,11 +90,11 @@ class RobotNode(Node if ROS_AVAILABLE else object):
             self.tf_buffer = Buffer()
             self.tf_listener = TransformListener(self.tf_buffer, self)
 
-            # 카메라 구독
+            # 카메라 구독 (압축 이미지)
             self.camera_subscription = self.create_subscription(
-                Image,
-                config.CAMERA_TOPIC,
-                self.camera_callback,
+                CompressedImage,
+                config.CAMERA_COMPRESSED_TOPIC,
+                self.compressed_camera_callback,
                 10,
             )
 
@@ -166,13 +166,17 @@ class RobotNode(Node if ROS_AVAILABLE else object):
             except Exception as e:
                 print(f"⚠️ YOLO 워커 오류: {e}")
 
-    def camera_callback(self, msg):
-        """카메라 이미지 콜백 - 빠르게 반환하여 ROS 스레드 블로킹 방지"""
+    def compressed_camera_callback(self, msg: CompressedImage):
+        """압축된 카메라 이미지 콜백 - JPEG 압축 해제"""
         try:
-            if msg.encoding == "rgb8":
-                cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
-            else:
-                cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+            # JPEG 압축 해제
+            np_arr = np.frombuffer(msg.data, np.uint8)
+            cv_image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+            if cv_image is None:
+                if ROS_AVAILABLE:
+                    self.get_logger().error("JPEG 디코딩 실패")
+                return
 
             # 640x480으로 리사이즈
             if cv_image.shape[1] != 640 or cv_image.shape[0] != 480:
@@ -199,7 +203,7 @@ class RobotNode(Node if ROS_AVAILABLE else object):
         except Exception as e:
             if ROS_AVAILABLE:
                 self.get_logger().error(
-                    f"카메라 이미지 변환 실패: {e} (encoding: {msg.encoding})"
+                    f"압축 이미지 디코딩 실패: {e}"
                 )
 
     def _detect_and_draw(self, frame):

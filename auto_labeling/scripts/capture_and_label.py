@@ -222,6 +222,86 @@ def add_new_person(name: str):
     return classes.index(name)
 
 
+def calculate_iou(box1, box2):
+    """
+    두 바운딩 박스의 IoU(Intersection over Union) 계산
+    box 형식: (x_center, y_center, width, height) - 정규화된 좌표
+    """
+    # 박스를 (x1, y1, x2, y2) 형식으로 변환
+    x1_1 = box1[0] - box1[2] / 2
+    y1_1 = box1[1] - box1[3] / 2
+    x2_1 = box1[0] + box1[2] / 2
+    y2_1 = box1[1] + box1[3] / 2
+
+    x1_2 = box2[0] - box2[2] / 2
+    y1_2 = box2[1] - box2[3] / 2
+    x2_2 = box2[0] + box2[2] / 2
+    y2_2 = box2[1] + box2[3] / 2
+
+    # 교집합 영역 계산
+    inter_x1 = max(x1_1, x1_2)
+    inter_y1 = max(y1_1, y1_2)
+    inter_x2 = min(x2_1, x2_2)
+    inter_y2 = min(y2_1, y2_2)
+
+    if inter_x2 <= inter_x1 or inter_y2 <= inter_y1:
+        return 0.0
+
+    inter_area = (inter_x2 - inter_x1) * (inter_y2 - inter_y1)
+
+    # 합집합 영역 계산
+    box1_area = box1[2] * box1[3]
+    box2_area = box2[2] * box2[3]
+    union_area = box1_area + box2_area - inter_area
+
+    if union_area == 0:
+        return 0.0
+
+    return inter_area / union_area
+
+
+def is_scene_changed(current_detections, previous_detections, iou_threshold=0.85):
+    """
+    현재 탐지 결과가 이전과 충분히 다른지 확인
+    
+    Args:
+        current_detections: 현재 프레임의 탐지 결과
+        previous_detections: 이전 저장된 프레임의 탐지 결과
+        iou_threshold: 이 값보다 IoU가 높으면 동일한 위치로 판단
+    
+    Returns:
+        True: 장면이 변경됨 (저장해야 함)
+        False: 장면이 유사함 (저장 건너뜀)
+    """
+    # 이전 탐지가 없으면 변경된 것으로 처리
+    if not previous_detections:
+        return True
+    
+    # 탐지 수가 다르면 변경된 것
+    if len(current_detections) != len(previous_detections):
+        return True
+    
+    # 각 탐지에 대해 IoU 확인
+    for curr_det in current_detections:
+        curr_box = (curr_det['x_center'], curr_det['y_center'], 
+                    curr_det['width'], curr_det['height'])
+        
+        # 현재 탐지와 가장 유사한 이전 탐지 찾기
+        max_iou = 0
+        for prev_det in previous_detections:
+            prev_box = (prev_det['x_center'], prev_det['y_center'],
+                        prev_det['width'], prev_det['height'])
+            iou = calculate_iou(curr_box, prev_box)
+            max_iou = max(max_iou, iou)
+        
+        # IoU가 임계값보다 낮으면 위치가 변경된 것
+        if max_iou < iou_threshold:
+            return True
+    
+    # 모든 탐지가 유사한 위치에 있으면 변경 없음
+    return False
+
+
 def capture_and_label(
     stream_url: str,
     model_path: str = "yolo11n.pt",
@@ -315,6 +395,8 @@ def capture_and_label(
     image_count = len(list(IMAGES_DIR.glob("*.jpg")))
     frame_count = 0
     last_detections = []
+    last_saved_detections = []  # 마지막으로 저장된 탐지 결과
+    skip_count = 0  # 유사도로 인해 건너뛴 횟수
     target_fps = 30  # 목표 FPS
     frame_interval = 1.0 / target_fps  # 프레임 간격 (약 33ms)
     last_frame_time = time.time()
@@ -413,8 +495,12 @@ def capture_and_label(
 
             if auto_save and len(detections) > 0:
                 if current_time - last_save_time >= save_interval:
-                    should_save = True
-                    last_save_time = current_time
+                    # 유사도 체크: 장면이 변경되었을 때만 저장
+                    if is_scene_changed(detections, last_saved_detections):
+                        should_save = True
+                        last_save_time = current_time
+                    else:
+                        skip_count += 1
 
             # 키 입력 처리
             key = cv2.waitKey(1) & 0xFF
@@ -475,6 +561,7 @@ def capture_and_label(
                         f.write(line)
 
                 image_count += 1
+                last_saved_detections = detections.copy()  # 저장된 탐지 결과 기록
                 print(f"💾 저장됨: {image_filename} (탐지: {len(detections)}개)")
 
     finally:

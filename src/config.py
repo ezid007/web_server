@@ -10,6 +10,8 @@ load_dotenv()
 
 # 카메라 토픽
 CAMERA_TOPIC = os.getenv("CAMERA_TOPIC")
+# 압축 카메라 토픽 (image_transport 사용)
+CAMERA_COMPRESSED_TOPIC = os.getenv("CAMERA_COMPRESSED_TOPIC", "/camera_node/image_raw/compressed")
 
 # SLAM 지도 토픽
 MAP_TOPIC = os.getenv("MAP_TOPIC")
