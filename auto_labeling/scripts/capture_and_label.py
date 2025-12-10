@@ -5,8 +5,8 @@ TurtleBot3 카메라에서 이미지를 캡처하고
 YOLOv11n으로 사람을 탐지하여 자동으로 라벨을 생성합니다.
 
 두 가지 모드 지원:
-1. ROS2 직접 구독 모드 (--ros2): ROS2 토픽에서 직접 영상 수신 (권장, 빠름)
-2. HTTP 스트림 모드 (기본): web_server의 /camera/raw 엔드포인트 사용
+1. ROS2 직접 구독 모드 (기본): ROS2 토픽에서 직접 영상 수신 (권장, 빠름)
+2. HTTP 스트림 모드 (--http): web_server의 /camera/raw 엔드포인트 사용
 """
 
 import os
@@ -642,10 +642,9 @@ def main():
         help="YOLO 추론을 건너뛸 프레임 수 (0=매 프레임, 1=2프레임마다, 2=3프레임마다...)",
     )
     parser.add_argument(
-        "--ros2",
-        "-r",
+        "--http",
         action="store_true",
-        help="ROS2 토픽에서 직접 영상 수신 (권장, 빠름). web_server 없이 사용 가능",
+        help="HTTP 스트림 모드 사용 (main.py 웹서버 필요). 기본은 ROS2 직접 구독",
     )
     parser.add_argument("--add-person", "-a", type=str, help="새로운 사람 클래스 추가")
 
@@ -664,7 +663,7 @@ def main():
         save_interval=args.interval,
         confidence_threshold=args.confidence,
         skip_frames=args.skip_frames,
-        use_ros2=args.ros2,
+        use_ros2=not args.http,  # 기본이 ROS2, --http 시 HTTP 모드
     )
 
 
