@@ -1,6 +1,7 @@
 """
 ROS2 통합 노드 - 카메라, SLAM, 시스템 정보 구독 및 텔레옵 발행
 """
+
 try:
     import rclpy
     from rclpy.node import Node
@@ -12,21 +13,28 @@ try:
     from cv_bridge import CvBridge
     from tf2_ros import Buffer, TransformListener
     from rclpy.time import Time
+
     ROS_AVAILABLE = True
 except ImportError:
     ROS_AVAILABLE = False
+
     class Node:
         pass
+
     class Buffer:
         pass
+
     class TransformListener:
         pass
+
     class Time:
         pass
+
 
 import cv2
 import numpy as np
 import threading
+import queue
 from . import config
 
 
@@ -37,7 +45,7 @@ class RobotNode(Node if ROS_AVAILABLE else object):
         if ROS_AVAILABLE:
             super().__init__("robot_dashboard_node")
             self.bridge = CvBridge()
-        
+
         # 카메라 및 지도 프레임
         self.latest_camera_frame = None
         self.latest_raw_frame = None  # 원본 프레임 (YOLO 없음, 오토 라벨링용)
@@ -51,15 +59,29 @@ class RobotNode(Node if ROS_AVAILABLE else object):
         self.wifi_signal = 0
         self.battery_percentage = 0.0
         self.battery_voltage = 0.0
-        
+
+        # YOLO 비동기 처리를 위한 큐와 스레드
+        self.yolo_queue = queue.Queue(maxsize=1)  # 최신 프레임만 유지
+        self.yolo_thread = None
+        self.yolo_running = False
+
         # YOLO 모델 로드
         self.yolo_model = None
         self.yolo_classes = {0: "unknown", 1: "junginhoe"}  # classes.yaml과 동기화
         if config.YOLO_ENABLED and config.YOLO_MODEL_PATH.exists():
             try:
                 from ultralytics import YOLO
+
                 self.yolo_model = YOLO(str(config.YOLO_MODEL_PATH))
                 print(f"✅ YOLO 모델 로드됨: {config.YOLO_MODEL_PATH}")
+
+                # YOLO 워커 스레드 시작
+                self.yolo_running = True
+                self.yolo_thread = threading.Thread(
+                    target=self._yolo_worker, daemon=True
+                )
+                self.yolo_thread.start()
+                print("✅ YOLO 비동기 워커 시작됨")
             except Exception as e:
                 print(f"⚠️ YOLO 모델 로드 실패: {e}")
 
@@ -128,26 +150,52 @@ class RobotNode(Node if ROS_AVAILABLE else object):
 
             self.get_logger().info("RobotNode 초기화 완료")
 
+    def _yolo_worker(self):
+        """YOLO 추론을 별도 스레드에서 비동기로 처리"""
+        while self.yolo_running:
+            try:
+                # 큐에서 프레임 가져오기 (타임아웃 0.1초)
+                frame = self.yolo_queue.get(timeout=0.1)
+
+                # YOLO 추론 및 결과 저장
+                result_frame = self._detect_and_draw(frame)
+                self.latest_camera_frame = result_frame
+
+            except queue.Empty:
+                continue
+            except Exception as e:
+                print(f"⚠️ YOLO 워커 오류: {e}")
+
     def camera_callback(self, msg):
-        """카메라 이미지 콜백"""
+        """카메라 이미지 콜백 - 빠르게 반환하여 ROS 스레드 블로킹 방지"""
         try:
             if msg.encoding == "rgb8":
                 cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
             else:
                 cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
 
-            # 640x480으로 리사이즈 (YOLO 탐지 성능 향상)
+            # 640x480으로 리사이즈
             if cv_image.shape[1] != 640 or cv_image.shape[0] != 480:
                 cv_image = cv2.resize(cv_image, (640, 480))
 
             # 원본 프레임 저장 (오토 라벨링용 - YOLO 없음)
             self.latest_raw_frame = cv_image.copy()
 
-            # YOLO 추론 및 시각화 (대시보드 표시용)
-            if self.yolo_model is not None:
-                cv_image = self._detect_and_draw(cv_image)
+            # YOLO 비동기 처리 (큐에 넣기, 블로킹 없음)
+            if self.yolo_model is not None and self.yolo_running:
+                # 큐가 가득 차면 이전 프레임 버리고 새 프레임 넣기
+                try:
+                    self.yolo_queue.get_nowait()
+                except queue.Empty:
+                    pass
+                self.yolo_queue.put(cv_image.copy())
 
-            self.latest_camera_frame = cv_image
+                # YOLO 결과가 아직 없으면 원본 표시
+                if self.latest_camera_frame is None:
+                    self.latest_camera_frame = cv_image
+            else:
+                # YOLO 비활성화 시 원본 그대로 표시
+                self.latest_camera_frame = cv_image
         except Exception as e:
             if ROS_AVAILABLE:
                 self.get_logger().error(
@@ -159,14 +207,14 @@ class RobotNode(Node if ROS_AVAILABLE else object):
         try:
             # YOLO 추론 (사람 클래스만)
             results = self.yolo_model(frame, conf=config.YOLO_CONFIDENCE, verbose=False)
-            
+
             for result in results:
                 boxes = result.boxes
                 for box in boxes:
                     x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
                     conf = box.conf[0].cpu().numpy()
                     class_id = int(box.cls[0].cpu().numpy())
-                    
+
                     # 클래스 이름 결정
                     if class_id == 0:
                         label = "사람"
@@ -174,25 +222,32 @@ class RobotNode(Node if ROS_AVAILABLE else object):
                     else:
                         label = self.yolo_classes.get(class_id, f"ID:{class_id}")
                         color = (0, 255, 0)  # 초록 - 학습된 사람
-                    
+
                     # 바운딩 박스 그리기
                     cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-                    
+
                     # 라벨 배경
                     label_text = f"{label} {conf:.0%}"
                     (text_w, text_h), _ = cv2.getTextSize(
                         label_text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2
                     )
-                    cv2.rectangle(frame, (x1, y1 - text_h - 10), (x1 + text_w + 4, y1), color, -1)
-                    
+                    cv2.rectangle(
+                        frame, (x1, y1 - text_h - 10), (x1 + text_w + 4, y1), color, -1
+                    )
+
                     # 라벨 텍스트
                     cv2.putText(
-                        frame, label_text, (x1 + 2, y1 - 5),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2
+                        frame,
+                        label_text,
+                        (x1 + 2, y1 - 5),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.6,
+                        (255, 255, 255),
+                        2,
                     )
         except Exception as e:
             print(f"⚠️ YOLO 추론 오류: {e}")
-        
+
         return frame
 
     def map_callback(self, msg):
@@ -207,8 +262,8 @@ class RobotNode(Node if ROS_AVAILABLE else object):
 
             map_image = np.zeros((height, width), dtype=np.uint8)
             map_image[data == -1] = 128  # unknown: 회색
-            map_image[data == 0] = 255   # free: 흰색
-            map_image[data == 100] = 0   # occupied: 검은색
+            map_image[data == 0] = 255  # free: 흰색
+            map_image[data == 100] = 0  # occupied: 검은색
 
             map_image = cv2.flip(map_image, 0)
             map_image_color = cv2.cvtColor(map_image, cv2.COLOR_GRAY2BGR)
@@ -231,8 +286,12 @@ class RobotNode(Node if ROS_AVAILABLE else object):
                 pixel_y = height - pixel_y
 
                 if 0 <= pixel_x < width and 0 <= pixel_y < height:
-                    cv2.circle(map_image_color, (pixel_x, pixel_y), 8, (0, 107, 255), -1)
-                    cv2.circle(map_image_color, (pixel_x, pixel_y), 10, (255, 255, 255), 2)
+                    cv2.circle(
+                        map_image_color, (pixel_x, pixel_y), 8, (0, 107, 255), -1
+                    )
+                    cv2.circle(
+                        map_image_color, (pixel_x, pixel_y), 10, (255, 255, 255), 2
+                    )
 
                     # 로봇 방향 화살표
                     quat = transform.transform.rotation
@@ -338,13 +397,14 @@ class DummyRobotNode:
         self.battery_percentage = 0.0
         self.battery_voltage = 0.0
         self.latest_raw_frame = None  # 원본 프레임 (YOLO 없음)
-        
+
         # YOLO 모델 로드 (ROS2 없이도 테스트용)
         self.yolo_model = None
         self.yolo_classes = {0: "unknown", 1: "junginhoe"}
         if config.YOLO_ENABLED and config.YOLO_MODEL_PATH.exists():
             try:
                 from ultralytics import YOLO
+
                 self.yolo_model = YOLO(str(config.YOLO_MODEL_PATH))
                 print(f"✅ YOLO 모델 로드됨 (DummyNode): {config.YOLO_MODEL_PATH}")
             except Exception as e:
