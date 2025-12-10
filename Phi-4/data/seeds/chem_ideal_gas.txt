@@ -1,0 +1,1 @@
+The Ideal Gas Law is the equation of state of a hypothetical ideal gas. It is a good approximation of the behavior of many gases under many conditions, although it has several limitations. It is usually stated as PV = nRT, where P is pressure, V is volume, n is the amount of substance, R is the ideal gas constant, and T is temperature.

@@ -558,10 +558,9 @@
   <script src="{{ url_for('static', path='/js/script.js') }}?v=2" type="text/javascript">
   </script>
    <!-- 자바스크립트 끝 -->
-
-  <script type="speculationrules">
-   {"prefetch":[{"source":"document","where":{"and":[{"href_matches":"\/*"},{"not":{"href_matches":["\/wp-*.php","\/wp-admin\/*","\/wp-content\/uploads\/*","\/wp-content\/*","\/wp-content\/plugins\/*","\/wp-content\/themes\/reino\/*","\/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
-  </script>
+        
+        <!-- 챗봇 위젯 -->
+        {% include 'components/chatbot_widget.html' %}
 
  </body>
 </html>

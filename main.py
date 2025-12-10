@@ -19,6 +19,7 @@ except ImportError:
 
 # src 모듈에서 RobotNode import
 from src.ros_node import RobotNode, DummyRobotNode
+from src.chatbot import router as chatbot_router, load_chatbot_model, unload_chatbot_model
 
 import cv2
 import asyncio
@@ -92,6 +93,8 @@ def init_ros():
 @app.on_event("startup")
 async def startup_event():
     init_ros()
+    # PHi-4 챗봇 모델 로드
+    await load_chatbot_model()
 
 
 @app.on_event("shutdown")
@@ -100,6 +103,12 @@ async def shutdown_event():
         robot_node.destroy_node()
     if ROS_AVAILABLE and rclpy.ok():
         rclpy.shutdown()
+    # PHi-4 챗봇 모델 언로드
+    await unload_chatbot_model()
+
+
+# 챗봇 라우터 등록
+app.include_router(chatbot_router)
 
 
 @app.middleware("http")

@@ -1,0 +1,1 @@
+The derivative of a function describes the rate at which the function changes at any given point. For a position function s(t), the first derivative represents velocity, and the second derivative represents acceleration. The chain rule is used to differentiate composite functions.
