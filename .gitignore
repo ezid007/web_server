@@ -76,6 +76,12 @@ dataset/
 # models
 models/
 *.pt
+*.safetensors
+*.bin
+
+# PHi-4 Chatbot (training data & adapter)
+Phi-4/data/
+Phi-4/models/
 
 # JSON animation files (Lottie)
 static/json/
