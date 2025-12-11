@@ -37,6 +37,16 @@ class Nav2MapViewer {
 
         // 이벤트 바인딩
         this.bindEvents();
+
+        // canvas 크기를 컨테이너에 맞추기
+        this.resizeCanvas();
+        window.addEventListener("resize", () => {
+            this.resizeCanvas();
+            if (this.mapData) {
+                this.autoFitMap();
+                this.renderMap();
+            }
+        });
     }
 
     /**
@@ -491,6 +501,18 @@ class Nav2MapViewer {
     centerMap() {
         this.autoFitMap();
         this.renderMap();
+    }
+
+    /**
+     * canvas 크기를 컨테이너에 맞추기
+     */
+    resizeCanvas() {
+        const container = this.canvas.parentElement;
+        if (container) {
+            this.canvas.width = container.clientWidth;
+            this.canvas.height = container.clientHeight;
+            console.log(`🖼️ Canvas 크기 조정: ${this.canvas.width}x${this.canvas.height}`);
+        }
     }
 }
 

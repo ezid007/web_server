@@ -97,6 +97,30 @@ def init_ros():
 @app.on_event("startup")
 async def startup_event():
     init_ros()
+    
+    # 감시 모드 콜백 설정
+    def send_nav_goal(x, y):
+        if robot_node and hasattr(robot_node, 'send_nav_goal'):
+            return robot_node.send_nav_goal(x, y)
+        return False
+    
+    def get_robot_frame():
+        if robot_node and robot_node.latest_camera_frame is not None:
+            return robot_node.latest_camera_frame.copy()
+        return None
+    
+    def get_cctv_frame():
+        # CCTV 프레임 가져오기 (외부 서버에서)
+        # TODO: CCTV 서버에서 프레임 가져오기 구현
+        return None
+    
+    surveillance_system.set_callbacks(
+        send_nav_goal=send_nav_goal,
+        get_robot_frame=get_robot_frame,
+        get_cctv_frame=get_cctv_frame
+    )
+    print("✅ 감시 모드 콜백 설정 완료")
+    
     # PHi-4 챗봇 모델 로드
     await load_chatbot_model()
 

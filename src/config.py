@@ -30,7 +30,7 @@ LINEAR_SPEED = float(os.getenv("LINEAR_SPEED"))  # m/s
 ANGULAR_SPEED = float(os.getenv("ANGULAR_SPEED"))  # rad/s
 
 # YOLO 인식 설정
-YOLO_ENABLED = os.getenv("YOLO_ENABLED", "true").lower() == "true"
+# YOLO_ENABLED 제거됨 - 웹 토글로만 제어 (yolo_detector.enabled)
 
 # YOLO 모델 경로 (models/ 폴더에서 중앙 관리)
 # .env에서 파일명만 적으면 자동으로 models/ 경로가 붙음

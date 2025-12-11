@@ -42,7 +42,7 @@
         />
         <link
             rel="stylesheet"
-            href="{{ url_for('static', path='/css/dashboard.css') }}?v=13"
+            href="{{ url_for('static', path='/css/dashboard.css') }}?v=20"
         />
         <noscript>
             <link
@@ -214,18 +214,86 @@
                     </div>
                 </div>
 
-                <div class="energy-content">
-                    <div class="nav2-map-container">
-                        <canvas
-                            id="nav2Canvas"
-                            width="600"
-                            height="400"
-                        ></canvas>
+                <div class="surveillance-split-layout">
+                    <!-- 왼쪽: Nav2 맵 영역 -->
+                    <div class="nav2-section">
+                        <div class="nav2-map-container">
+                            <canvas
+                                id="nav2Canvas"
+                                width="600"
+                                height="400"
+                            ></canvas>
+                        </div>
+                        <div class="nav2-hint">
+                            <span>🖱️ 클릭: Goal 설정</span>
+                            <span>🔄 휠: 확대/축소</span>
+                            <span>⌨️ Ctrl+드래그: 이동</span>
+                        </div>
                     </div>
-                    <div class="nav2-hint">
-                        <span>🖱️ 클릭: Goal 설정</span>
-                        <span>🔄 휠: 확대/축소</span>
-                        <span>⌨️ Ctrl+드래그: 이동</span>
+
+                    <!-- 오른쪽: 컨트롤 패널 -->
+                    <div class="control-section">
+                        <!-- YOLO 감지 토글 -->
+                        <div class="yolo-control-panel">
+                            <span class="control-label">YOLO 감지</span>
+                            <div class="toggle-switch" id="yoloToggle" onclick="toggleYolo()"></div>
+                        </div>
+
+                        <!-- 펫 모드 패널 -->
+                        <div class="pet-mode-panel">
+                            <div class="panel-header">
+                                <span class="panel-title">
+                                    <i class="fas fa-dog"></i> I'm pet
+                                </span>
+                                <span class="panel-status inactive" id="petModeStatus">OFF</span>
+                            </div>
+                            <button class="pet-mode-btn" id="petModeBtn" onclick="togglePetMode()">
+                                <i class="fas fa-paw"></i>
+                                <span>펫 모드 시작</span>
+                            </button>
+                        </div>
+
+                        <!-- 감시 모드 컨트롤 패널 -->
+                        <div class="surveillance-panel">
+                            <div class="panel-header">
+                                <span class="panel-title">🛡️ SURVEILLANCE</span>
+                                <span class="panel-status inactive" id="surveillanceStatus">OFF</span>
+                            </div>
+
+                            <!-- 감시 시간대 설정 -->
+                            <div class="control-item">
+                                <span class="control-label">감시 시간</span>
+                                <div class="time-input-group">
+                                    <input type="time" class="time-input" id="startTime" value="23:00" />
+                                    <span class="time-separator">~</span>
+                                    <input type="time" class="time-input" id="endTime" value="07:00" />
+                                </div>
+                            </div>
+
+                            <!-- 강제 활성화 토글 -->
+                            <div class="control-item">
+                                <span class="control-label">강제 활성화</span>
+                                <div class="toggle-switch" id="forceToggle" onclick="toggleForce()"></div>
+                            </div>
+
+                            <!-- 감시 모드 시작/중지 버튼 -->
+                            <button class="surveillance-btn" id="surveillanceBtn" onclick="toggleSurveillance()">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>감시 모드 시작</span>
+                            </button>
+
+                            <!-- 순찰 상태 표시 -->
+                            <div class="patrol-status" id="patrolStatus" style="display: none;">
+                                <div class="status-row">
+                                    <span class="status-label">순찰 상태</span>
+                                    <span class="status-value" id="patrolState">대기 중</span>
+                                </div>
+                                <div class="status-row">
+                                    <span class="status-label">현재 포인트</span>
+                                    <span class="status-value" id="currentPoint">-</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -253,22 +321,14 @@
                     <div class="status-item battery-card">
                         <span class="battery-label">BATTERY</span>
                         <div class="battery-time">
-                            <span class="time-value" id="batteryVoltage">
-                                --
-                            </span>
+                            <span class="time-value" id="batteryVoltage">--</span>
                             <span class="time-unit">V</span>
                         </div>
                         <div class="battery-detail">
                             <div class="battery-icon">
-                                <div
-                                    class="battery-fill"
-                                    id="batteryFill"
-                                    style="width: 0%"
-                                ></div>
+                                <div class="battery-fill" id="batteryFill" style="width: 0%"></div>
                             </div>
-                            <span class="battery-percent" id="batteryPercent">
-                                --%
-                            </span>
+                            <span class="battery-percent" id="batteryPercent">--%</span>
                         </div>
                     </div>
                 </div>
@@ -352,54 +412,6 @@
                         />
                         <div class="cctv-waiting" style="display: none">
                             <p>CCTV 연결 대기 중...</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 감시 모드 컨트롤 패널 -->
-                <div class="surveillance-panel">
-                    <div class="panel-header">
-                        <span class="panel-title">🛡️ SURVEILLANCE</span>
-                        <span class="panel-status inactive" id="surveillanceStatus">OFF</span>
-                    </div>
-
-                    <!-- YOLO 토글 -->
-                    <div class="control-item">
-                        <span class="control-label">YOLO 감지</span>
-                        <div class="toggle-switch" id="yoloToggle" onclick="toggleYolo()"></div>
-                    </div>
-
-                    <!-- 감시 시간대 설정 -->
-                    <div class="control-item">
-                        <span class="control-label">감시 시간</span>
-                        <div class="time-input-group">
-                            <input type="time" class="time-input" id="startTime" value="23:00" />
-                            <span class="time-separator">~</span>
-                            <input type="time" class="time-input" id="endTime" value="07:00" />
-                        </div>
-                    </div>
-
-                    <!-- 강제 활성화 토글 -->
-                    <div class="control-item">
-                        <span class="control-label">강제 활성화</span>
-                        <div class="toggle-switch" id="forceToggle" onclick="toggleForce()"></div>
-                    </div>
-
-                    <!-- 감시 모드 시작/중지 버튼 -->
-                    <button class="surveillance-btn" id="surveillanceBtn" onclick="toggleSurveillance()">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>감시 모드 시작</span>
-                    </button>
-
-                    <!-- 순찰 상태 표시 -->
-                    <div class="patrol-status" id="patrolStatus" style="display: none;">
-                        <div class="status-row">
-                            <span class="status-label">순찰 상태</span>
-                            <span class="status-value" id="patrolState">대기 중</span>
-                        </div>
-                        <div class="status-row">
-                            <span class="status-label">현재 포인트</span>
-                            <span class="status-value" id="currentPoint">-</span>
                         </div>
                     </div>
                 </div>
@@ -793,6 +805,40 @@
                     toggle.classList.add("on");
                 } else {
                     toggle.classList.remove("on");
+                }
+            }
+
+            // ========== 펫 모드 관련 함수 ==========
+            let petModeEnabled = false;
+
+            async function togglePetMode() {
+                try {
+                    petModeEnabled = !petModeEnabled;
+                    // TODO: 백엔드 API 연동 (추후 구현)
+                    // const response = await fetch("/api/pet/toggle", { method: "POST" });
+                    // const data = await response.json();
+                    // petModeEnabled = data.enabled;
+                    updatePetModeUI();
+                    console.log("Pet mode toggled:", petModeEnabled);
+                } catch (error) {
+                    console.error("Pet mode toggle error:", error);
+                }
+            }
+
+            function updatePetModeUI() {
+                const btn = document.getElementById("petModeBtn");
+                const status = document.getElementById("petModeStatus");
+                
+                if (petModeEnabled) {
+                    btn.classList.add("active");
+                    btn.querySelector("span").textContent = "펫 모드 중지";
+                    status.textContent = "ON";
+                    status.className = "panel-status active";
+                } else {
+                    btn.classList.remove("active");
+                    btn.querySelector("span").textContent = "펫 모드 시작";
+                    status.textContent = "OFF";
+                    status.className = "panel-status inactive";
                 }
             }
 

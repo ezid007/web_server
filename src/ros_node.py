@@ -8,7 +8,7 @@ try:
     from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
     from sensor_msgs.msg import Image, CompressedImage, BatteryState
     from nav_msgs.msg import OccupancyGrid
-    from geometry_msgs.msg import Twist
+    from geometry_msgs.msg import Twist, PoseStamped
     from std_msgs.msg import Float32, Int32
     from cv_bridge import CvBridge
     from tf2_ros import Buffer, TransformListener
@@ -38,6 +38,12 @@ import queue
 import yaml
 from pathlib import Path
 from . import config
+
+# YOLO 감지기 import (웹에서 ON/OFF 제어용)
+try:
+    from detect.yolo_detector import yolo_detector
+except ImportError:
+    yolo_detector = None
 
 
 # 클래스 설정 파일 경로
@@ -86,26 +92,15 @@ class RobotNode(Node if ROS_AVAILABLE else object):
         self.yolo_queue = queue.Queue(maxsize=1)  # 최신 프레임만 유지
         self.yolo_thread = None
         self.yolo_running = False
-
-        # YOLO 모델 로드
-        self.yolo_model = None
         self.yolo_classes = load_yolo_classes()  # classes.yaml에서 로드
-        if config.YOLO_ENABLED and config.YOLO_MODEL_PATH.exists():
-            try:
-                from ultralytics import YOLO
 
-                self.yolo_model = YOLO(str(config.YOLO_MODEL_PATH))
-                print(f"✅ YOLO 모델 로드됨: {config.YOLO_MODEL_PATH}")
-
-                # YOLO 워커 스레드 시작
-                self.yolo_running = True
-                self.yolo_thread = threading.Thread(
-                    target=self._yolo_worker, daemon=True
-                )
-                self.yolo_thread.start()
-                print("✅ YOLO 비동기 워커 시작됨")
-            except Exception as e:
-                print(f"⚠️ YOLO 모델 로드 실패: {e}")
+        # YOLO 워커 스레드 시작 (웹에서 토글 시 lazy load)
+        self.yolo_running = True
+        self.yolo_thread = threading.Thread(
+            target=self._yolo_worker, daemon=True
+        )
+        self.yolo_thread.start()
+        print("✅ YOLO 비동기 워커 시작됨 (웹 토글로 제어)")
 
         if ROS_AVAILABLE:
             # TF 버퍼 및 리스너 설정
@@ -170,17 +165,35 @@ class RobotNode(Node if ROS_AVAILABLE else object):
                 10,
             )
 
+            # Nav2 Goal 퍼블리셔 (/goal_pose)
+            self.goal_publisher = self.create_publisher(
+                PoseStamped,
+                "/goal_pose",
+                10,
+            )
+
             self.get_logger().info("RobotNode 초기화 완료")
 
     def _yolo_worker(self):
-        """YOLO 추론을 별도 스레드에서 비동기로 처리"""
+        """
+        YOLO 추론을 별도 스레드에서 비동기로 처리
+        yolo_detector를 직접 사용하여 웹 토글과 연동
+        """
         while self.yolo_running:
             try:
                 # 큐에서 프레임 가져오기 (타임아웃 0.1초)
                 frame = self.yolo_queue.get(timeout=0.1)
 
-                # YOLO 추론 및 결과 저장
-                result_frame = self._detect_and_draw(frame)
+                # yolo_detector를 사용하여 감지 (웹 토글로 ON/OFF)
+                if yolo_detector and yolo_detector.enabled:
+                    detections = yolo_detector.detect_persons(frame)
+                    if detections:
+                        result_frame = self._draw_detections(frame, detections)
+                    else:
+                        result_frame = frame
+                else:
+                    result_frame = frame
+                
                 self.latest_camera_frame = result_frame
 
             except queue.Empty:
@@ -207,8 +220,8 @@ class RobotNode(Node if ROS_AVAILABLE else object):
             # 원본 프레임 저장 (오토 라벨링용 - YOLO 없음)
             self.latest_raw_frame = cv_image.copy()
 
-            # YOLO 비동기 처리 (큐에 넣기, 블로킹 없음)
-            if self.yolo_model is not None and self.yolo_running:
+            # YOLO 워커에 프레임 전달 (큐에 넣기)
+            if self.yolo_running:
                 # 큐가 가득 차면 이전 프레임 버리고 새 프레임 넣기
                 try:
                     self.yolo_queue.get_nowait()
@@ -220,7 +233,7 @@ class RobotNode(Node if ROS_AVAILABLE else object):
                 if self.latest_camera_frame is None:
                     self.latest_camera_frame = cv_image
             else:
-                # YOLO 비활성화 시 원본 그대로 표시
+                # YOLO 워커 비활성화 시 원본 그대로 표시
                 self.latest_camera_frame = cv_image
         except Exception as e:
             if ROS_AVAILABLE:
@@ -228,51 +241,49 @@ class RobotNode(Node if ROS_AVAILABLE else object):
                     f"압축 이미지 디코딩 실패: {e}"
                 )
 
-    def _detect_and_draw(self, frame):
-        """YOLO 추론 및 바운딩 박스 그리기"""
+    def _draw_detections(self, frame, detections: list):
+        """
+        YOLO 감지 결과를 프레임에 그리기
+        yolo_detector의 결과를 사용하며, 클래스 이름을 매핑
+        """
         try:
-            # YOLO 추론 (사람 클래스만)
-            results = self.yolo_model(frame, conf=config.YOLO_CONFIDENCE, verbose=False)
+            for det in detections:
+                x1, y1, x2, y2 = det["bbox"]
+                conf = det["confidence"]
+                class_id = det.get("class_id", 0)
 
-            for result in results:
-                boxes = result.boxes
-                for box in boxes:
-                    x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
-                    conf = box.conf[0].cpu().numpy()
-                    class_id = int(box.cls[0].cpu().numpy())
+                # 클래스 이름 결정 (classes.yaml 기반)
+                if class_id == 0:
+                    label = "Person"  # OpenCV는 한글 미지원
+                    color = (128, 128, 128)  # 회색 - 미학습
+                else:
+                    label = self.yolo_classes.get(class_id, f"ID:{class_id}")
+                    color = (0, 255, 0)  # 초록 - 학습된 사람
 
-                    # 클래스 이름 결정
-                    if class_id == 0:
-                        label = "사람"
-                        color = (128, 128, 128)  # 회색 - 미학습
-                    else:
-                        label = self.yolo_classes.get(class_id, f"ID:{class_id}")
-                        color = (0, 255, 0)  # 초록 - 학습된 사람
+                # 바운딩 박스 그리기
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
 
-                    # 바운딩 박스 그리기
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+                # 라벨 배경
+                label_text = f"{label} {conf:.0%}"
+                (text_w, text_h), _ = cv2.getTextSize(
+                    label_text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2
+                )
+                cv2.rectangle(
+                    frame, (x1, y1 - text_h - 10), (x1 + text_w + 4, y1), color, -1
+                )
 
-                    # 라벨 배경
-                    label_text = f"{label} {conf:.0%}"
-                    (text_w, text_h), _ = cv2.getTextSize(
-                        label_text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2
-                    )
-                    cv2.rectangle(
-                        frame, (x1, y1 - text_h - 10), (x1 + text_w + 4, y1), color, -1
-                    )
-
-                    # 라벨 텍스트
-                    cv2.putText(
-                        frame,
-                        label_text,
-                        (x1 + 2, y1 - 5),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.6,
-                        (255, 255, 255),
-                        2,
-                    )
+                # 라벨 텍스트
+                cv2.putText(
+                    frame,
+                    label_text,
+                    (x1 + 2, y1 - 5),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    (255, 255, 255),
+                    2,
+                )
         except Exception as e:
-            print(f"⚠️ YOLO 추론 오류: {e}")
+            print(f"⚠️ YOLO 그리기 오류: {e}")
 
         return frame
 
@@ -408,6 +419,40 @@ class RobotNode(Node if ROS_AVAILABLE else object):
             "battery_percentage": round(self.battery_percentage, 1),
             "battery_voltage": round(self.battery_voltage, 2),
         }
+
+    def send_nav_goal(self, x: float, y: float) -> bool:
+        """
+        Nav2 Goal 전송 - 지정된 좌표로 네비게이션 Goal 발행
+        
+        Args:
+            x: 목표 X 좌표 (m)
+            y: 목표 Y 좌표 (m)
+            
+        Returns:
+            bool: 전송 성공 여부
+        """
+        if not ROS_AVAILABLE:
+            print(f"🚧 [DummyNode] Nav2 Goal: ({x}, {y})")
+            return False
+
+        try:
+            goal = PoseStamped()
+            goal.header.frame_id = "map"
+            goal.header.stamp = self.get_clock().now().to_msg()
+            goal.pose.position.x = x
+            goal.pose.position.y = y
+            goal.pose.position.z = 0.0
+            goal.pose.orientation.x = 0.0
+            goal.pose.orientation.y = 0.0
+            goal.pose.orientation.z = 0.0
+            goal.pose.orientation.w = 1.0
+
+            self.goal_publisher.publish(goal)
+            self.get_logger().info(f"🎯 Nav2 Goal 전송: ({x:.2f}, {y:.2f})")
+            return True
+        except Exception as e:
+            self.get_logger().error(f"❌ Nav2 Goal 전송 실패: {e}")
+            return False
 
 
 # 더미 노드 (ROS2가 없을 때 사용)

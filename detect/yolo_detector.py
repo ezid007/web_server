@@ -79,23 +79,25 @@ class YoloDetector:
             frame: OpenCV BGR 이미지
             
         Returns:
-            감지된 사람 목록 [{"bbox": (x1,y1,x2,y2), "confidence": float}, ...]
+            감지된 사람 목록 [{"bbox": (x1,y1,x2,y2), "confidence": float, "class_id": int}, ...]
         """
         if not self._enabled or self._model is None or frame is None:
             return []
         
         try:
-            # YOLO 추론 (사람 클래스만)
-            results = self._model(frame, conf=self._confidence, classes=[0], verbose=False)
+            # YOLO 추론 (모든 학습된 클래스 감지 - person, owner 등)
+            results = self._model(frame, conf=self._confidence, verbose=False)
             
             persons = []
             for result in results:
                 for box in result.boxes:
                     x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(int)
                     conf = float(box.conf[0].cpu().numpy())
+                    class_id = int(box.cls[0].cpu().numpy())
                     persons.append({
                         "bbox": (int(x1), int(y1), int(x2), int(y2)),
-                        "confidence": conf
+                        "confidence": conf,
+                        "class_id": class_id
                     })
             
             return persons
