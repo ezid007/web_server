@@ -42,7 +42,7 @@
         />
         <link
             rel="stylesheet"
-            href="{{ url_for('static', path='/css/dashboard.css') }}?v=21"
+            href="{{ url_for('static', path='/css/dashboard.css') }}?v=22"
         />
         <noscript>
             <link
@@ -114,34 +114,38 @@
                     <ul class="navigation-menu">
                         <li>
                             <a
-                                class="menu-item anchor hoverable-sm"
+                                class="menu-item anchor hoverable-sm hover-translate"
                                 href="{{ request.base_url }}"
+                                data-hover="스튜디오"
                             >
-                                <span>스튜디오</span>
+                                <span>Studio</span>
                             </a>
                         </li>
                         <li>
                             <a
-                                class="menu-item anchor hoverable-sm active"
+                                class="menu-item anchor hoverable-sm active hover-translate"
                                 href="{{ url_for('read_dashboard') }}"
+                                data-hover="대시보드"
                             >
-                                <span>대시보드</span>
+                                <span>Dashboard</span>
                             </a>
                         </li>
                         <li>
                             <a
-                                class="menu-item anchor hoverable-sm"
+                                class="menu-item anchor hoverable-sm hover-translate"
                                 href="{{ url_for('read_works') }}"
+                                data-hover="작업물"
                             >
-                                <span>작업물</span>
+                                <span>Works</span>
                             </a>
                         </li>
                         <li>
                             <a
-                                class="menu-item anchor hoverable-sm"
+                                class="menu-item anchor hoverable-sm hover-translate"
                                 href="{{ url_for('read_contact') }}"
+                                data-hover="문의"
                             >
-                                <span>문의하기</span>
+                                <span>Contact</span>
                             </a>
                         </li>
                     </ul>

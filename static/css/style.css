@@ -352,6 +352,8 @@ header .navigation-menu .menu-item {
     color: var(--shades01);
     overflow: hidden;
     height: 2rem;
+    min-width: 6rem;
+    text-align: center;
 }
 header .navigation-menu .menu-item span {
     display: inline-block;

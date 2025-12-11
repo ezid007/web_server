@@ -2655,3 +2655,37 @@
         order: -1;
     }
 }
+
+/* ==========================================
+   호버 시 텍스트 변환 효과 (영어 → 한글)
+   ========================================== */
+.hover-translate {
+    position: relative;
+    overflow: hidden;
+}
+
+.hover-translate span {
+    display: inline-block;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.hover-translate::after {
+    content: attr(data-hover);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, 100%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    white-space: nowrap;
+}
+
+.hover-translate:hover span {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+.hover-translate:hover::after {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+}
