@@ -69,9 +69,9 @@ def draw_labels(image, labels, classes, selected_idx=0):
         x2 = int(x_center + box_w / 2)
         y2 = int(y_center + box_h / 2)
         
-        # 선택된 박스는 다른 색상
-        color = (0, 255, 255) if idx == selected_idx else (0, 255, 0)
-        thickness = 3 if idx == selected_idx else 2
+        # 선택된 박스는 초록색, 미선택은 회색
+        color = (0, 255, 0) if idx == selected_idx else (128, 128, 128)
+        thickness = 2
         
         cv2.rectangle(display, (x1, y1), (x2, y2), color, thickness)
         
@@ -112,14 +112,18 @@ def review_labels():
     current_idx = 0
     selected_box_idx = 0
     modified = False
+    prev_idx = -1  # 이전 이미지 인덱스 추적
+    labels = []
     
     while True:
-        # 현재 이미지 및 라벨 로드
+        # 현재 이미지 및 라벨 로드 (이미지가 변경될 때만)
         image_path = image_files[current_idx]
         label_path = LABELS_DIR / image_path.with_suffix('.txt').name
         
-        image = cv2.imread(str(image_path))
-        labels = load_label(label_path)
+        if current_idx != prev_idx:
+            image = cv2.imread(str(image_path))
+            labels = load_label(label_path)
+            prev_idx = current_idx
         
         # 선택 인덱스 범위 조정
         if selected_box_idx >= len(labels):
@@ -150,7 +154,7 @@ def review_labels():
                 print("⚠️ 저장되지 않은 변경사항이 있습니다!")
             break
         
-        elif key == 83 or key == ord('d'):  # 오른쪽 화살표
+        elif key == 83:  # 오른쪽 화살표
             if modified and labels:
                 save_label(label_path, labels)
                 print(f"💾 저장됨: {label_path.name}")
