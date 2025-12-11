@@ -7,6 +7,8 @@ YOLOv11n 파인튜닝 스크립트
 import argparse
 import os
 import shutil
+import yaml
+import tempfile
 from pathlib import Path
 from ultralytics import YOLO
 from dotenv import load_dotenv
@@ -28,13 +30,13 @@ OUTPUT_MODEL_NAME = os.getenv("YOLO_OUTPUT_MODEL", "my_yolo.pt")
 # .env에서 학습 에폭 로드
 DEFAULT_EPOCHS = int(os.getenv("YOLO_EPOCHS", "100"))
 
-# 기본 YOLO 모델 경로 (.env에서 파일명만 적으면 models/ 폴더에서 찾음)
+# 기본 YOLO 모델 경로 (프로젝트 루트에서 찾음 - AMP 체크 시 자동 다운로드되는 위치)
 _base_model_env = os.getenv("YOLO_LABELING_MODEL", "yolo11n.pt")
 _base_model_path = Path(_base_model_env)
 if _base_model_path.is_absolute():
     DEFAULT_BASE_MODEL = str(_base_model_path)
 elif _base_model_path.parent == Path("."):
-    DEFAULT_BASE_MODEL = str(MODELS_DIR / _base_model_path)
+    DEFAULT_BASE_MODEL = str(ROOT_DIR / _base_model_path)  # 루트에서 찾음
 else:
     DEFAULT_BASE_MODEL = str(ROOT_DIR / _base_model_path)
 
@@ -90,53 +92,76 @@ def train_model(
     if len(images) < 10:
         print("⚠️ 경고: 이미지 수가 10개 미만입니다. 더 많은 데이터를 수집하세요!")
     
+    # 동적으로 절대 경로를 포함한 임시 data.yaml 생성
+    # (PC 환경에 독립적으로 동작)
+    with open(CLASSES_FILE, 'r', encoding='utf-8') as f:
+        data_config = yaml.safe_load(f)
+    
+    # path를 절대 경로로 설정
+    data_config['path'] = str(DATASET_DIR.resolve())
+    
+    # 임시 YAML 파일 생성
+    temp_yaml = PROJECT_DIR / "temp_train_config.yaml"
+    with open(temp_yaml, 'w', encoding='utf-8') as f:
+        yaml.dump(data_config, f, default_flow_style=False, allow_unicode=True)
+    
+    print(f"📝 임시 설정 파일 생성: {temp_yaml}")
+    print(f"   - 데이터셋 경로: {data_config['path']}")
+    
     # 모델 로드
     print(f"🔄 기본 모델 로딩: {base_model}")
     model = YOLO(base_model)
     
-    # 학습 시작
-    results = model.train(
-        data=str(CLASSES_FILE),
-        epochs=epochs,
-        imgsz=imgsz,
-        batch=batch,
-        device=device,
-        patience=patience,
-        save=True,
-        project=str(TRAINING_DIR),
-        name="training",
-        exist_ok=True,
-        pretrained=True,
-        verbose=True
-    )
-    
-    # 학습된 best.pt를 지정된 이름으로 복사
-    best_model = TRAINING_DIR / "training" / "weights" / "best.pt"
-    final_model = MODELS_DIR / OUTPUT_MODEL_NAME
-    
-    if best_model.exists():
-        shutil.copy(best_model, final_model)
-        print("\n" + "=" * 50)
-        print("✅ 학습 완료!")
-        print("=" * 50)
-        print(f"📁 최종 모델 저장: {final_model}")
-        print(f"💡 .env에서 YOLO_OUTPUT_MODEL 변경 시 다른 이름으로 저장 가능")
-        print("=" * 50 + "\n")
-    else:
-        print("\n" + "=" * 50)
-        print("❌ 오류: 학습된 모델을 찾을 수 없습니다.")
-        print(f"   - 예상 경로: {best_model}")
-        print("=" * 50 + "\n")
+    try:
+        # 학습 시작
+        results = model.train(
+            data=str(temp_yaml),
+            epochs=epochs,
+            imgsz=imgsz,
+            batch=batch,
+            device=device,
+            patience=patience,
+            save=True,
+            project=str(TRAINING_DIR),
+            name="training",
+            exist_ok=True,
+            pretrained=True,
+            verbose=True
+        )
+        
+        # 학습된 best.pt를 지정된 이름으로 복사
+        best_model = TRAINING_DIR / "training" / "weights" / "best.pt"
+        final_model = MODELS_DIR / OUTPUT_MODEL_NAME
+        
+        if best_model.exists():
+            shutil.copy(best_model, final_model)
+            print("\n" + "=" * 50)
+            print("✅ 학습 완료!")
+            print("=" * 50)
+            print(f"📁 최종 모델 저장: {final_model}")
+            print(f"💡 .env에서 YOLO_OUTPUT_MODEL 변경 시 다른 이름으로 저장 가능")
+            print("=" * 50 + "\n")
+        else:
+            print("\n" + "=" * 50)
+            print("❌ 오류: 학습된 모델을 찾을 수 없습니다.")
+            print(f"   - 예상 경로: {best_model}")
+            print("=" * 50 + "\n")
+            return results
+        
+        # 검증
+        print("🔍 모델 검증 중...")
+        metrics = model.val()
+        print(f"\n📊 검증 결과:")
+        print(f"   - mAP50: {metrics.box.map50:.4f}")
+        print(f"   - mAP50-95: {metrics.box.map:.4f}")
+        
         return results
     
-    # 검증
-    print("🔍 모델 검증 중...")
-    metrics = model.val()
-    print(f"\n📊 검증 결과:")
-    print(f"   - mAP50: {metrics.box.map50:.4f}")
-    print(f"   - mAP50-95: {metrics.box.map:.4f}")
-    
-    return results
+    finally:
+        # 임시 YAML 파일 정리
+        if temp_yaml.exists():
+            temp_yaml.unlink()
+            print(f"🧹 임시 설정 파일 삭제: {temp_yaml}")
 
 
 def main():

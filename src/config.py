@@ -53,9 +53,12 @@ def _resolve_model_path(model_name: str, default: str) -> Path:
 YOLO_MODEL_PATH = _resolve_model_path(
     os.getenv("YOLO_DASHBOARD_MODEL", ""), "auto_labeling/models/user_detection/weights/best.pt"
 )
-YOLO_LABELING_MODEL = _resolve_model_path(
-    os.getenv("YOLO_LABELING_MODEL", ""), "yolo11n.pt"
-)
+# 기본 YOLO 모델(yolo11n.pt)은 프로젝트 루트에서 찾음 (AMP 체크 시 자동 다운로드 위치)
+_labeling_env = os.getenv("YOLO_LABELING_MODEL", "")
+if _labeling_env and Path(_labeling_env).name.startswith("yolo"):
+    YOLO_LABELING_MODEL = _base_dir / Path(_labeling_env).name  # 루트에서
+else:
+    YOLO_LABELING_MODEL = _resolve_model_path(_labeling_env, "yolo11n.pt")
 
 YOLO_CONFIDENCE = float(os.getenv("YOLO_CONFIDENCE", "0.5"))
 

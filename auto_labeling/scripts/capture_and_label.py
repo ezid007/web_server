@@ -38,15 +38,19 @@ WEB_SERVER_PORT = os.getenv("PORT")
 CAMERA_TOPIC = os.getenv("CAMERA_TOPIC", "/camera_node/image_raw")
 DEFAULT_STREAM_URL = f"http://localhost:{WEB_SERVER_PORT}/camera/raw"
 
-# YOLO 모델 경로 (models/ 폴더에서 중앙 관리)
-# .env에서 파일명만 적으면 자동으로 models/ 경로가 붙음
+# YOLO 모델 경로 (기본 모델은 프로젝트 루트, 커스텀 모델은 models/ 폴더)
+# 기본 yolo11n.pt는 AMP 체크 시 자동 다운로드되는 위치인 루트에서 찾음
 _models_dir = WEB_SERVER_DIR / "models"
 _labeling_model_env = os.getenv("YOLO_LABELING_MODEL", "yolo11n.pt")
 _labeling_path = Path(_labeling_model_env)
 if _labeling_path.is_absolute():
     YOLO_LABELING_MODEL = str(_labeling_path)
 elif _labeling_path.parent == Path("."):
-    YOLO_LABELING_MODEL = str(_models_dir / _labeling_path)
+    # 기본 모델(yolo11n.pt)은 루트에서, 커스텀 모델은 models/에서 찾음
+    if _labeling_path.name.startswith("yolo"):
+        YOLO_LABELING_MODEL = str(WEB_SERVER_DIR / _labeling_path)  # 루트에서 찾음
+    else:
+        YOLO_LABELING_MODEL = str(_models_dir / _labeling_path)
 else:
     YOLO_LABELING_MODEL = str(WEB_SERVER_DIR / _labeling_path)
 
