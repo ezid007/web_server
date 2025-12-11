@@ -52,6 +52,7 @@ poetry.lock
 *.ico
 *.tiff
 *.tif
+*.zip
 
 # Videos - exclude all video files
 *.mp4

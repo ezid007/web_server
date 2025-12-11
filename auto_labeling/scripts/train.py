@@ -25,6 +25,9 @@ CLASSES_FILE = PROJECT_DIR / "classes.yaml"
 # .env에서 출력 모델 이름 로드
 OUTPUT_MODEL_NAME = os.getenv("YOLO_OUTPUT_MODEL", "my_yolo.pt")
 
+# .env에서 학습 에폭 로드
+DEFAULT_EPOCHS = int(os.getenv("YOLO_EPOCHS", "100"))
+
 # 기본 YOLO 모델 경로 (.env에서 파일명만 적으면 models/ 폴더에서 찾음)
 _base_model_env = os.getenv("YOLO_LABELING_MODEL", "yolo11n.pt")
 _base_model_path = Path(_base_model_env)
@@ -38,7 +41,7 @@ else:
 
 def train_model(
     base_model: str = None,
-    epochs: int = 100,
+    epochs: int = None,
     imgsz: int = 640,
     batch: int = 16,
     device: str = "0",
@@ -58,6 +61,10 @@ def train_model(
     # 기본 모델 경로 설정
     if base_model is None:
         base_model = DEFAULT_BASE_MODEL
+    
+    # 기본 에폭 설정
+    if epochs is None:
+        epochs = DEFAULT_EPOCHS
     
     # 모델 디렉토리 생성
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
@@ -135,7 +142,7 @@ def train_model(
 def main():
     parser = argparse.ArgumentParser(description="YOLOv11n 파인튜닝")
     parser.add_argument("--model", "-m", default=None, help=f"기본 모델 (기본값: {DEFAULT_BASE_MODEL})")
-    parser.add_argument("--epochs", "-e", type=int, default=100, help="에폭 수")
+    parser.add_argument("--epochs", "-e", type=int, default=DEFAULT_EPOCHS, help=f"에폭 수 (기본값: {DEFAULT_EPOCHS})")
     parser.add_argument("--imgsz", "-s", type=int, default=640, help="이미지 크기")
     parser.add_argument("--batch", "-b", type=int, default=16, help="배치 크기")
     parser.add_argument("--device", "-d", default="0", help="디바이스 (0, 1, cpu)")

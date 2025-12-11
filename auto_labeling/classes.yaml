@@ -2,6 +2,6 @@ names:
 - other
 - owner
 nc: 2
-path: /home/tuf/web_server/auto_labeling/dataset
+path: dataset
 train: images
 val: images
