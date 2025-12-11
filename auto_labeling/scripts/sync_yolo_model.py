@@ -125,8 +125,11 @@ class SyncTool:
             home = stdout.read().decode().strip()
             remote = self.remote_dataset.replace("~", home)
             
-            # 디렉토리 생성
-            ssh.exec_command(f"mkdir -p {remote}/images {remote}/labels")
+            # 기존 데이터 삭제 후 새로 생성
+            self.status = "Deleting old data..."
+            ssh.exec_command(f"rm -rf {remote}/images {remote}/labels")
+            stdin, stdout, stderr = ssh.exec_command(f"mkdir -p {remote}/images {remote}/labels")
+            stdout.read()  # 완료 대기
             
             sftp = ssh.open_sftp()
             
