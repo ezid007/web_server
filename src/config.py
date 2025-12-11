@@ -25,6 +25,9 @@ CPU_USAGE_TOPIC = os.getenv("CPU_USAGE_TOPIC")
 WIFI_SIGNAL_TOPIC = os.getenv("WIFI_SIGNAL_TOPIC")
 BATTERY_TOPIC = os.getenv("BATTERY_TOPIC")
 
+# Lidar topic (for pet mode distance measurement)
+LIDAR_TOPIC = os.getenv("LIDAR_TOPIC", "/scan")
+
 # 텔레옵 속도 설정
 LINEAR_SPEED = float(os.getenv("LINEAR_SPEED"))  # m/s
 ANGULAR_SPEED = float(os.getenv("ANGULAR_SPEED"))  # rad/s

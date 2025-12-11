@@ -2115,6 +2115,12 @@
         min-height: 280px;
     }
 
+    .nav2-map-container {
+        min-height: auto;
+        height: auto;
+        aspect-ratio: 4 / 3;  /* 맵 비율에 맞춤 */
+    }
+
     .camera-view {
         height: 200px;
         margin-bottom: 0.5rem;

@@ -33,6 +33,9 @@ from urllib.parse import quote
 from detect.yolo_detector import yolo_detector
 from detect.surveillance import surveillance_system
 
+# 펫 모드 모듈
+from my_pet.pet_mode import pet_mode_system
+
 # 기상청 API 키
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
@@ -120,6 +123,29 @@ async def startup_event():
         get_cctv_frame=get_cctv_frame
     )
     print("✅ 감시 모드 콜백 설정 완료")
+    
+    # 펫 모드 콜백 설정
+    def get_camera_frame():
+        if robot_node and robot_node.latest_camera_frame is not None:
+            return robot_node.latest_camera_frame.copy()
+        return None
+    
+    def get_lidar_scan():
+        if robot_node and robot_node.latest_scan is not None:
+            return robot_node.latest_scan
+        return None
+    
+    def send_cmd_vel(linear, angular):
+        if robot_node:
+            robot_node.publish_cmd_vel(linear, angular)
+    
+    pet_mode_system.set_callbacks(
+        get_camera_frame=get_camera_frame,
+        get_lidar_scan=get_lidar_scan,
+        send_nav_goal=send_nav_goal,
+        send_cmd_vel=send_cmd_vel
+    )
+    print("✅ 펫 모드 콜백 설정 완료")
     
     # PHi-4 챗봇 모델 로드
     await load_chatbot_model()
@@ -708,7 +734,12 @@ async def get_surveillance_status():
 
 @app.post("/api/surveillance/start")
 async def start_surveillance():
-    """감시 모드 시작"""
+    """감시 모드 시작 (펫 모드와 상호 배제)"""
+    # 펫 모드가 실행 중이면 중지
+    if pet_mode_system.is_running:
+        pet_mode_system.stop()
+        print("🐕 펫 모드 자동 중지 (감시 모드 시작)")
+    
     surveillance_system.start()
     return JSONResponse(content={
         "status": "started",
@@ -743,6 +774,41 @@ async def set_surveillance_schedule(schedule: SurveillanceSchedule):
     return JSONResponse(content={
         "status": "ok",
         "schedule": surveillance_system.schedule
+    })
+
+
+# ============================================
+# 펫 모드 API
+# ============================================
+
+@app.get("/api/pet/status")
+async def get_pet_status():
+    """펫 모드 상태 조회"""
+    return JSONResponse(content=pet_mode_system.get_status())
+
+
+@app.post("/api/pet/start")
+async def start_pet_mode():
+    """펫 모드 시작 (감시 모드와 상호 배제)"""
+    # 감시 모드가 실행 중이면 중지
+    if surveillance_system.is_running:
+        surveillance_system.stop()
+        print("🚨 감시 모드 자동 중지 (펫 모드 시작)")
+    
+    success = pet_mode_system.start()
+    return JSONResponse(content={
+        "status": "started" if success else "already_running",
+        "message": "펫 모드 시작됨" if success else "이미 실행 중"
+    })
+
+
+@app.post("/api/pet/stop")
+async def stop_pet_mode():
+    """펫 모드 중지"""
+    pet_mode_system.stop()
+    return JSONResponse(content={
+        "status": "stopped",
+        "message": "펫 모드 중지됨"
     })
 
 

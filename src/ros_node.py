@@ -6,7 +6,7 @@ try:
     import rclpy
     from rclpy.node import Node
     from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
-    from sensor_msgs.msg import Image, CompressedImage, BatteryState
+    from sensor_msgs.msg import Image, CompressedImage, BatteryState, LaserScan
     from nav_msgs.msg import OccupancyGrid
     from geometry_msgs.msg import Twist, PoseStamped
     from std_msgs.msg import Float32, Int32
@@ -87,6 +87,9 @@ class RobotNode(Node if ROS_AVAILABLE else object):
         self.wifi_signal = 0
         self.battery_percentage = 0.0
         self.battery_voltage = 0.0
+
+        # Lidar data (for pet mode)
+        self.latest_scan = None
 
         # YOLO 비동기 처리를 위한 큐와 스레드
         self.yolo_queue = queue.Queue(maxsize=1)  # 최신 프레임만 유지
@@ -169,6 +172,14 @@ class RobotNode(Node if ROS_AVAILABLE else object):
             self.goal_publisher = self.create_publisher(
                 PoseStamped,
                 "/goal_pose",
+                10,
+            )
+
+            # Lidar 구독 (pet mode 거리 측정용)
+            self.lidar_subscription = self.create_subscription(
+                LaserScan,
+                config.LIDAR_TOPIC,
+                self.lidar_callback,
                 10,
             )
 
@@ -379,6 +390,10 @@ class RobotNode(Node if ROS_AVAILABLE else object):
         """배터리 상태 콜백"""
         self.battery_percentage = msg.percentage  # 이미 0-100% 범위
         self.battery_voltage = msg.voltage
+
+    def lidar_callback(self, msg):
+        """Lidar scan 콜백 (pet mode용)"""
+        self.latest_scan = msg
 
     def publish_cmd_vel(self, linear_x: float, angular_z: float):
         """텔레옵 명령 발행"""

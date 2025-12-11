@@ -42,7 +42,7 @@
         />
         <link
             rel="stylesheet"
-            href="{{ url_for('static', path='/css/dashboard.css') }}?v=20"
+            href="{{ url_for('static', path='/css/dashboard.css') }}?v=21"
         />
         <noscript>
             <link
@@ -813,11 +813,24 @@
 
             async function togglePetMode() {
                 try {
-                    petModeEnabled = !petModeEnabled;
-                    // TODO: 백엔드 API 연동 (추후 구현)
-                    // const response = await fetch("/api/pet/toggle", { method: "POST" });
-                    // const data = await response.json();
-                    // petModeEnabled = data.enabled;
+                    if (petModeEnabled) {
+                        // 펫 모드 중지
+                        const response = await fetch("/api/pet/stop", { method: "POST" });
+                        const data = await response.json();
+                        if (data.status === "stopped") {
+                            petModeEnabled = false;
+                        }
+                    } else {
+                        // 펫 모드 시작 (감시 모드 자동 중지됨)
+                        const response = await fetch("/api/pet/start", { method: "POST" });
+                        const data = await response.json();
+                        if (data.status === "started") {
+                            petModeEnabled = true;
+                            // 감시 모드 UI 업데이트 (자동 중지됨)
+                            surveillanceEnabled = false;
+                            updateSurveillanceStatus();
+                        }
+                    }
                     updatePetModeUI();
                     console.log("Pet mode toggled:", petModeEnabled);
                 } catch (error) {
@@ -839,6 +852,18 @@
                     btn.querySelector("span").textContent = "펫 모드 시작";
                     status.textContent = "OFF";
                     status.className = "panel-status inactive";
+                }
+            }
+
+            // 펫 모드 상태 자동 업데이트
+            async function fetchPetStatus() {
+                try {
+                    const response = await fetch("/api/pet/status");
+                    const data = await response.json();
+                    petModeEnabled = data.is_running;
+                    updatePetModeUI();
+                } catch (error) {
+                    console.error("Pet status fetch error:", error);
                 }
             }
 
@@ -875,8 +900,10 @@
                     const data = await response.json();
                     console.log("Surveillance:", data);
                     
-                    // 시간대 설정 전송
-                    if (!surveillanceRunning) {
+                    // 감시 모드 시작 시 펫 모드 UI 업데이트 (자동 중지됨)
+                    if (!surveillanceRunning && data.status === "started") {
+                        petModeEnabled = false;
+                        updatePetModeUI();
                         await saveSchedule();
                     }
                     
