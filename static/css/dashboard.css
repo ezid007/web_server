@@ -2306,3 +2306,198 @@
     animation: slideUpFadeIn 0.6s ease-out forwards;
     opacity: 0;
 }
+
+/* ==========================================
+   감시 모드 컨트롤 패널
+   ========================================== */
+.surveillance-panel {
+    background: var(--bg-secondary);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-top: 0.75rem;
+    border: 1px solid var(--border-color);
+}
+
+.surveillance-panel .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.surveillance-panel .panel-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--accent-orange);
+}
+
+.surveillance-panel .panel-status {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.surveillance-panel .panel-status.active {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.surveillance-panel .panel-status.inactive {
+    background: rgba(139, 142, 152, 0.2);
+    color: var(--text-secondary);
+}
+
+/* 컨트롤 아이템 */
+.control-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(45, 49, 57, 0.5);
+}
+
+.control-item:last-child {
+    border-bottom: none;
+}
+
+.control-item .control-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+}
+
+/* 토글 스위치 */
+.toggle-switch {
+    width: 44px;
+    height: 24px;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.toggle-switch::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: var(--text-dim);
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: all 0.3s;
+}
+
+.toggle-switch.on {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+}
+
+.toggle-switch.on::after {
+    left: 22px;
+    background: white;
+}
+
+/* 시간 입력 */
+.time-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.time-input {
+    width: 70px;
+    padding: 0.4rem 0.5rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+.time-input:focus {
+    outline: none;
+    border-color: var(--accent-orange);
+}
+
+.time-separator {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+/* 감시 모드 버튼 */
+.surveillance-btn {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.surveillance-btn:hover {
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
+}
+
+.surveillance-btn.active {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+    color: white;
+    box-shadow: 0 0 15px var(--accent-orange-glow);
+}
+
+.surveillance-btn i {
+    font-size: 1rem;
+}
+
+/* 순찰 상태 표시 */
+.patrol-status {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 0.5rem;
+}
+
+.patrol-status .status-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+}
+
+.patrol-status .status-label {
+    color: var(--text-secondary);
+}
+
+.patrol-status .status-value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.patrol-status .status-value.patrolling {
+    color: var(--accent-orange);
+}
+
+.patrol-status .status-value.responding {
+    color: #ff4444;
+}

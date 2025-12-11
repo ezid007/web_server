@@ -29,6 +29,10 @@ import httpx
 from datetime import datetime, timedelta
 from urllib.parse import quote
 
+# 감시 모드 모듈
+from detect.yolo_detector import yolo_detector
+from detect.surveillance import surveillance_system
+
 # 기상청 API 키
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
@@ -629,6 +633,93 @@ async def read_works(request: Request):
 @app.get("/contact", response_class=HTMLResponse)
 async def read_contact(request: Request):
     return templates.TemplateResponse("contact.html", {"request": request})
+
+
+# ============================================
+# YOLO 제어 API
+# ============================================
+
+@app.get("/api/yolo/status")
+async def get_yolo_status():
+    """YOLO 활성화 상태 조회"""
+    return JSONResponse(content={
+        "enabled": yolo_detector.enabled
+    })
+
+
+@app.post("/api/yolo/toggle")
+async def toggle_yolo():
+    """YOLO ON/OFF 토글"""
+    new_state = yolo_detector.toggle()
+    return JSONResponse(content={
+        "enabled": new_state,
+        "message": f"YOLO {'활성화' if new_state else '비활성화'}됨"
+    })
+
+
+@app.post("/api/yolo/set")
+async def set_yolo(enabled: bool):
+    """YOLO 상태 직접 설정"""
+    yolo_detector.enabled = enabled
+    return JSONResponse(content={
+        "enabled": yolo_detector.enabled
+    })
+
+
+# ============================================
+# 감시 모드 API
+# ============================================
+
+class SurveillanceSchedule(BaseModel):
+    """감시 시간대 설정 모델"""
+    start_time: str  # HH:MM 형식
+    end_time: str    # HH:MM 형식
+
+
+@app.get("/api/surveillance/status")
+async def get_surveillance_status():
+    """감시 모드 상태 조회"""
+    return JSONResponse(content=surveillance_system.get_status())
+
+
+@app.post("/api/surveillance/start")
+async def start_surveillance():
+    """감시 모드 시작"""
+    surveillance_system.start()
+    return JSONResponse(content={
+        "status": "started",
+        "message": "감시 모드 시작됨"
+    })
+
+
+@app.post("/api/surveillance/stop")
+async def stop_surveillance():
+    """감시 모드 중지"""
+    surveillance_system.stop()
+    return JSONResponse(content={
+        "status": "stopped",
+        "message": "감시 모드 중지됨"
+    })
+
+
+@app.post("/api/surveillance/force")
+async def force_surveillance(enabled: bool):
+    """감시 모드 강제 활성화 (시간 무시)"""
+    surveillance_system.force_enabled = enabled
+    return JSONResponse(content={
+        "force_enabled": surveillance_system.force_enabled,
+        "message": f"강제 모드 {'활성화' if enabled else '비활성화'}됨"
+    })
+
+
+@app.post("/api/surveillance/schedule")
+async def set_surveillance_schedule(schedule: SurveillanceSchedule):
+    """감시 시간대 설정"""
+    surveillance_system.set_schedule(schedule.start_time, schedule.end_time)
+    return JSONResponse(content={
+        "status": "ok",
+        "schedule": surveillance_system.schedule
+    })
 
 
 if __name__ == "__main__":

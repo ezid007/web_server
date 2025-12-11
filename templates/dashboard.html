@@ -355,6 +355,54 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 감시 모드 컨트롤 패널 -->
+                <div class="surveillance-panel">
+                    <div class="panel-header">
+                        <span class="panel-title">🛡️ SURVEILLANCE</span>
+                        <span class="panel-status inactive" id="surveillanceStatus">OFF</span>
+                    </div>
+
+                    <!-- YOLO 토글 -->
+                    <div class="control-item">
+                        <span class="control-label">YOLO 감지</span>
+                        <div class="toggle-switch" id="yoloToggle" onclick="toggleYolo()"></div>
+                    </div>
+
+                    <!-- 감시 시간대 설정 -->
+                    <div class="control-item">
+                        <span class="control-label">감시 시간</span>
+                        <div class="time-input-group">
+                            <input type="time" class="time-input" id="startTime" value="23:00" />
+                            <span class="time-separator">~</span>
+                            <input type="time" class="time-input" id="endTime" value="07:00" />
+                        </div>
+                    </div>
+
+                    <!-- 강제 활성화 토글 -->
+                    <div class="control-item">
+                        <span class="control-label">강제 활성화</span>
+                        <div class="toggle-switch" id="forceToggle" onclick="toggleForce()"></div>
+                    </div>
+
+                    <!-- 감시 모드 시작/중지 버튼 -->
+                    <button class="surveillance-btn" id="surveillanceBtn" onclick="toggleSurveillance()">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>감시 모드 시작</span>
+                    </button>
+
+                    <!-- 순찰 상태 표시 -->
+                    <div class="patrol-status" id="patrolStatus" style="display: none;">
+                        <div class="status-row">
+                            <span class="status-label">순찰 상태</span>
+                            <span class="status-value" id="patrolState">대기 중</span>
+                        </div>
+                        <div class="status-row">
+                            <span class="status-label">현재 포인트</span>
+                            <span class="status-value" id="currentPoint">-</span>
+                        </div>
+                    </div>
+                </div>
             </section>
         </main>
 
@@ -720,6 +768,158 @@
             // rosbridge 서버 URL (PC IP:9090)
             const rosbridgeUrl = "ws://" + window.location.hostname + ":9090";
             initNav2MapViewer(rosbridgeUrl);
+
+            // ========== 감시 모드 관련 함수 ==========
+            let surveillanceRunning = false;
+            let yoloEnabled = false;
+            let forceEnabled = false;
+
+            // YOLO 토글
+            async function toggleYolo() {
+                try {
+                    const response = await fetch("/api/yolo/toggle", { method: "POST" });
+                    const data = await response.json();
+                    yoloEnabled = data.enabled;
+                    updateYoloUI();
+                    console.log("YOLO toggled:", data);
+                } catch (error) {
+                    console.error("YOLO toggle error:", error);
+                }
+            }
+
+            function updateYoloUI() {
+                const toggle = document.getElementById("yoloToggle");
+                if (yoloEnabled) {
+                    toggle.classList.add("on");
+                } else {
+                    toggle.classList.remove("on");
+                }
+            }
+
+            // 강제 활성화 토글
+            async function toggleForce() {
+                try {
+                    forceEnabled = !forceEnabled;
+                    const response = await fetch(`/api/surveillance/force?enabled=${forceEnabled}`, {
+                        method: "POST"
+                    });
+                    const data = await response.json();
+                    forceEnabled = data.force_enabled;
+                    updateForceUI();
+                    console.log("Force toggled:", data);
+                } catch (error) {
+                    console.error("Force toggle error:", error);
+                }
+            }
+
+            function updateForceUI() {
+                const toggle = document.getElementById("forceToggle");
+                if (forceEnabled) {
+                    toggle.classList.add("on");
+                } else {
+                    toggle.classList.remove("on");
+                }
+            }
+
+            // 감시 모드 시작/중지
+            async function toggleSurveillance() {
+                try {
+                    const endpoint = surveillanceRunning ? "/api/surveillance/stop" : "/api/surveillance/start";
+                    const response = await fetch(endpoint, { method: "POST" });
+                    const data = await response.json();
+                    console.log("Surveillance:", data);
+                    
+                    // 시간대 설정 전송
+                    if (!surveillanceRunning) {
+                        await saveSchedule();
+                    }
+                    
+                    await updateSurveillanceStatus();
+                } catch (error) {
+                    console.error("Surveillance toggle error:", error);
+                }
+            }
+
+            // 시간대 저장
+            async function saveSchedule() {
+                const startTime = document.getElementById("startTime").value;
+                const endTime = document.getElementById("endTime").value;
+                
+                try {
+                    const response = await fetch("/api/surveillance/schedule", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ start_time: startTime, end_time: endTime })
+                    });
+                    const data = await response.json();
+                    console.log("Schedule saved:", data);
+                } catch (error) {
+                    console.error("Schedule save error:", error);
+                }
+            }
+
+            // 상태 업데이트
+            async function updateSurveillanceStatus() {
+                try {
+                    const response = await fetch("/api/surveillance/status");
+                    const data = await response.json();
+                    
+                    surveillanceRunning = data.is_running;
+                    yoloEnabled = data.yolo_enabled;
+                    forceEnabled = data.force_enabled;
+                    
+                    // UI 업데이트
+                    const statusEl = document.getElementById("surveillanceStatus");
+                    const btn = document.getElementById("surveillanceBtn");
+                    const patrolStatus = document.getElementById("patrolStatus");
+                    
+                    if (surveillanceRunning) {
+                        statusEl.textContent = "ON";
+                        statusEl.className = "panel-status active";
+                        btn.classList.add("active");
+                        btn.querySelector("span").textContent = "감시 모드 중지";
+                        patrolStatus.style.display = "flex";
+                        
+                        // 순찰 상태 표시
+                        const patrolState = document.getElementById("patrolState");
+                        const currentPoint = document.getElementById("currentPoint");
+                        
+                        if (data.is_responding_to_cctv) {
+                            patrolState.textContent = "🚨 CCTV 감지 대응 중";
+                            patrolState.className = "status-value responding";
+                        } else if (data.is_patrolling) {
+                            patrolState.textContent = "🚶 순찰 중";
+                            patrolState.className = "status-value patrolling";
+                        } else {
+                            patrolState.textContent = "⏳ 대기 중";
+                            patrolState.className = "status-value";
+                        }
+                        
+                        currentPoint.textContent = `포인트 ${data.current_patrol_index + 1}/3`;
+                    } else {
+                        statusEl.textContent = "OFF";
+                        statusEl.className = "panel-status inactive";
+                        btn.classList.remove("active");
+                        btn.querySelector("span").textContent = "감시 모드 시작";
+                        patrolStatus.style.display = "none";
+                    }
+                    
+                    updateYoloUI();
+                    updateForceUI();
+                    
+                    // 시간대 입력 업데이트
+                    if (data.schedule) {
+                        document.getElementById("startTime").value = data.schedule.start_time;
+                        document.getElementById("endTime").value = data.schedule.end_time;
+                    }
+                } catch (error) {
+                    console.error("Surveillance status error:", error);
+                }
+            }
+
+            // 초기 상태 로드 및 주기적 업데이트
+            updateSurveillanceStatus();
+            setInterval(updateSurveillanceStatus, 2000);
         </script>
         <!-- ********|| 자바스크립트 끝 ||******** -->
         
