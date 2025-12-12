@@ -10,10 +10,10 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    background: #2d3136;
     border: none;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+    box-shadow: 0 4px 15px rgba(45, 49, 54, 0.5);
     transition: all 0.3s ease;
     z-index: 9999;
     display: flex;
@@ -24,7 +24,7 @@
 
 .chatbot-toggle:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.6);
+    box-shadow: 0 6px 20px rgba(45, 49, 54, 0.7);
 }
 
 .chatbot-toggle img {
@@ -46,9 +46,9 @@
     right: 30px;
     width: 400px;
     height: auto;
-    background: #fff;
+    background: #000000ff;
     border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     display: none;
     flex-direction: column;
     overflow: hidden;
@@ -73,7 +73,7 @@
 
 /* 챗봇 헤더 */
 .chatbot-header {
-    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    background: #2d3136;
     color: white;
     padding: 15px 20px;
     display: flex;
@@ -106,7 +106,7 @@
     flex: 1;
     overflow-y: auto;
     padding: 15px;
-    background: #f8f9fa;
+    background: #f1f1f1ff;
 }
 
 .chat-message {
@@ -133,7 +133,7 @@
 }
 
 .chat-message.user .chat-bubble {
-    background: #4a90e2;
+    background: #2d3136;
     color: white;
     border-bottom-right-radius: 4px;
 }
@@ -165,12 +165,12 @@
 }
 
 .chatbot-input input:focus {
-    border-color: #4a90e2;
+    border-color: #2d3136;
 }
 
 .chatbot-input button {
     padding: 12px 20px;
-    background: #4a90e2;
+    background: #2d3136;
     color: white;
     border: none;
     border-radius: 25px;
@@ -180,7 +180,7 @@
 }
 
 .chatbot-input button:hover {
-    background: #357abd;
+    background: #3d4248;
 }
 
 .chatbot-input button:disabled {
@@ -299,10 +299,7 @@
     </div>
     <div class="chatbot-messages" id="chatMessages">
         <div class="chat-message bot">
-            <div class="chat-bubble">
-                안녕하세요! 저는 PHi-4 AI 어시스턴트입니다. 
-                무엇이든 물어보세요. 단계별로 추론하여 답변해드립니다.
-            </div>
+            <div class="chat-bubble">안녕하세요! 저는 PHi-4 AI 챗봇입니다.</div>
         </div>
     </div>
     <div class="chatbot-input">
