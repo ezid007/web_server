@@ -25,6 +25,7 @@ wheels/
 *.egg
 MANIFEST
 .env
+.env.key
 .venv
 env/
 venv/
