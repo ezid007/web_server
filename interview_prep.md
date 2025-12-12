@@ -132,6 +132,46 @@
 
 ---
 
+# Part 2: Technical Deep Dive (Advanced)
+
+## 1. Web Frontend & UI/UX
+
+### Q1. (UI/UX) 영문 텍스트 위에 마우스를 올리면 뒷면의 한글이 손전등처럼 비치는 효과는 어떻게 구현했나요?
+**질문 의도:** Canvas API를 썼는지, CSS Masking을 썼는지, 그리고 DOM 조작 비용을 어떻게 관리했는지 묻는 질문입니다. (웹/프론트엔드 역량 검증)
+
+**모범 답안:**
+"Canvas를 사용하지 않고, **CSS Mask-Image** 속성과 **GSAP(GreenSock)** 라이브러리를 사용해 구현했습니다.
+구체적으로는 똑같은 텍스트를 가진 두 개의 레이어(`layer-front`, `layer-back`)를 겹쳐두고,
+**뒷면 레이어(Layer-Back)**에 `mask-image`로 구멍이 뚫린 커서 이미지를 적용했습니다.
+그리고 자바스크립트로 마우스 좌표(`mouseX`, `mouseY`)를 실시간으로 추적하여 CSS 변수(`--x`, `--y`)만 업데이트하는 방식으로, 렌더링 부하를 최소화하면서 부드러운 '손전등(Flashlight)' 효과를 만들었습니다."
+
+---
+
+## 2. Robotics & Real-time Communication
+
+### Q2. 로봇의 센서 데이터(Camera, TF)가 대용량인데, 웹 대시보드에서 지연(Latency) 없이 어떻게 처리하셨나요?
+**질문 의도:** 대역폭(Bandwidth) 관리와 데이터 압축 경험, 그리고 ROS2의 QoS/Throttle 개념을 아는지 묻는 질문입니다.
+
+**모범 답안:**
+"가장 큰 병목은 역시 **카메라 영상 데이터**였습니다. 초기에 `Raw Image` 그대로 전송하니 640x480 해상도임에도 대역폭을 모두 차지해, 위치 정보(TF) 수신까지 지연되어 맵이 끊기는 현상이 발생했습니다.
+이를 해결하기 위해 두 가지 최적화를 수행했습니다.
+첫째, **이미지 압축(Compression)**입니다. `Raw` 대신 `CompressedImage` (JPEG) 포맷을 사용하여 데이터 크기를 **90% 이상** 줄였습니다.
+둘째, **프로토콜 분리**입니다. 실시간성이 중요한 영상은 **WebRTC/MJPEG 스트리밍**으로 별도 채널을 뚫고, TF나 오동메트리 같은 가벼운 데이터만 **WebSocket(rosbridge)**으로 전송하여 서로 간섭하지 않게 만들었습니다."
+
+## 3. On-device AI & Optimization
+
+### Q3. VRAM 8GB 노트북에서 어떻게 3B LLM을 학습(Fine-tuning)까지 시켰나요? (OOM 해결 전략)
+**질문 의도:** 단순 추론이 아닌 '학습' 과정에서의 메모리 최적화 기술(QLoRA, Gradient Accumulation, CPU Offloading)을 구체적으로 아는지 묻는 질문입니다.
+
+**모범 답안:**
+"학습 시 메모리 부족(OOM)이 가장 큰 문제였습니다. 이를 해결하기 위해 **4단계 최적화 전략**을 사용했습니다.
+첫째, **QLoRA (Quantized LoRA)**를 적용해 모델을 **4-bit(NF4)**로 양자화하여 VRAM 사용량을 1/4로 줄였습니다.
+둘째, **CPU Offloading**(`llm_int8_enable_fp32_cpu_offload=True`)을 켜서 VRAM이 부족할 때 시스템 RAM(64GB)을 빌려 쓰도록 설정했습니다.
+셋째, **배치 크기(Batch Size)를 1로 줄이는 대신, Gradient Accumulation을 8로 설정**하여 메모리는 적게 쓰면서도 학습 안정성을 확보했습니다.
+마지막으로, **Paged AdamW 8-bit 옵티마이저**를 사용하여 옵티마이저가 차지하는 메모리까지 극한으로 줄였습니다."
+
+---
+
 ---
 
 

@@ -318,12 +318,16 @@ function initializeReinoPage() {
     const timeline = gsap.timeline();
 
     if (!reinoGlobalEventsBound) {
-        // GSAP 커서
+        // [면접 설명 포인트] 마우스 움직임 추적 및 CSS 마스킹 효과 (Flashlight Effect)
+        // DOM을 직접 조작하면 느려지므로, CSS 변수(--x, --y)만 업데이트하고
+        // 실제 렌더링은 GPU 가속이 되는 CSS mask-image가 처리하도록 최적화했습니다.
         window.addEventListener("mousemove", function (e) {
             mouseX = e.pageX;
             mouseY = e.pageY;
             currentMouseX = e.clientX;
             currentMouseY = e.clientY;
+            
+            // GSAP를 사용하여 부드러운 애니메이션 처리 (Layer-Back의 마스크 위치 이동)
             if (layerBack) {
                 gsap.to(layerBack, {
                     "--x": `${mouseX}px`,
