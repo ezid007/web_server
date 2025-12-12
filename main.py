@@ -85,10 +85,12 @@ def init_ros():
         rclpy.init()
         robot_node = RobotNode()
 
-        # 별도 스레드에서 ROS2 spin 실행
+        # ROS2의 spin 함수는 블로킹 함수이므로, 메인 스레드(FastAPI)와 별도로 실행해야 합니다.
+        # 데몬 스레드를 사용하여 웹 서버와 로봇 제어 노드가 동시에 동작하도록 설정합니다.
         def spin_node():
             rclpy.spin(robot_node)
 
+        # daemon=True: 메인 프로세스 종료 시 스레드도 자동 종료
         thread = threading.Thread(target=spin_node, daemon=True)
         thread.start()
         print("ROS2 노드 초기화 완료")
