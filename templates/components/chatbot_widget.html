@@ -390,6 +390,11 @@ async function sendChatMessage() {
         // 로딩 제거
         chatMessages.removeChild(loadingDiv);
         
+        // 웹 검색을 수행한 경우 알림 메시지 표시
+        if (data.searched_web) {
+            appendMessage('bot', '🔍 웹 정보를 통해 찾아보겠습니다.', false);
+        }
+        
         // AI 응답 추가 (타이핑 효과 적용)
         appendMessage('bot', data.response, true);
         

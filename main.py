@@ -20,6 +20,7 @@ except ImportError:
 # src 모듈에서 RobotNode import
 from src.ros_node import RobotNode, DummyRobotNode
 from src.chatbot import router as chatbot_router, load_chatbot_model, unload_chatbot_model
+from src.location import get_location_from_ip_async
 
 import cv2
 import asyncio
@@ -324,65 +325,13 @@ def latlon_to_grid(lat: float, lon: float) -> dict:
     return {"nx": nx, "ny": ny}
 
 
-async def get_location_from_ip() -> dict:
-    """IP 주소 기반 위치 정보 조회"""
-    # 영어 → 한글 도시명 매핑
-    city_korean = {
-        "Seoul": "서울",
-        "Busan": "부산",
-        "Incheon": "인천",
-        "Daegu": "대구",
-        "Daejeon": "대전",
-        "Gwangju": "광주",
-        "Ulsan": "울산",
-        "Sejong": "세종",
-        "Suwon": "수원",
-        "Suwon-si": "수원",
-        "Seongnam-si": "성남",
-        "Seongnam": "성남",
-        "Yongin-si": "용인",
-        "Yongin": "용인",
-        "Goyang-si": "고양",
-        "Bucheon-si": "부천",
-        "Ansan-si": "안산",
-        "Anyang-si": "안양",
-        "Cheongju-si": "청주",
-        "Jeonju": "전주",
-        "Cheonan": "천안",
-        "Gimhae-si": "김해",
-        "Changwon-si": "창원",
-        "Pohang-si": "포항",
-        "Jeju City": "제주",
-        "Jeju-si": "제주",
-    }
-    
-    try:
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            response = await client.get("http://ip-api.com/json/?lang=ko")
-            data = response.json()
-            
-            if data.get("status") == "success":
-                city_en = data.get("city", "Seoul")
-                city_kr = city_korean.get(city_en, city_en)  # 매핑 없으면 영문 그대로
-                return {
-                    "city": city_kr,
-                    "lat": data.get("lat", 37.5665),
-                    "lon": data.get("lon", 126.9780),
-                    "region": data.get("regionName", ""),
-                }
-    except Exception as e:
-        print(f"IP 위치 조회 실패: {e}")
-    
-    # 기본값: 서울
-    return {"city": "서울", "lat": 37.5665, "lon": 126.9780, "region": "서울특별시"}
-
 
 @app.get("/api/weather")
 async def get_weather():
     """기상청 API를 통해 현재 날씨 정보 조회 (IP 기반 위치 + 상세 정보)"""
     
-    # IP 기반 위치 조회
-    location_info = await get_location_from_ip()
+    # IP 기반 위치 조회 (src/location.py의 함수 사용)
+    location_info = await get_location_from_ip_async()
     location = location_info["city"]
     
     # 위경도 → 격자 좌표 변환

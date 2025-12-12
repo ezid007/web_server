@@ -1,6 +1,7 @@
 """
 PHi-4 챗봇 모듈
 한국어 추론 AI 모델을 로드하고 채팅 API를 제공합니다.
+웹 검색 기능을 통해 최신 정보를 제공할 수 있습니다.
 """
 
 import os
@@ -8,6 +9,10 @@ import torch
 from pathlib import Path
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+
+# 웹 검색 및 위치 감지 모듈 import
+from src.web_search import search_web
+from src.location import get_location_from_ip_sync, needs_location_context
 
 # 환경 변수에서 모델 경로 로드
 _base_dir = Path(__file__).parent.parent
@@ -33,6 +38,18 @@ chatbot_loaded = False
 
 # 라우터 생성
 router = APIRouter(prefix="/api", tags=["chatbot"])
+
+# 웹 검색이 필요한 키워드 목록
+SEARCH_KEYWORDS = [
+    "날씨", "오늘", "뉴스", "최신", "현재", "지금", "주가", "환율",
+    "검색", "찾아", "알려줘", "몇시", "몇도", "어디", "누가", "언제",
+    "실시간", "속보", "경기", "결과", "스코어", "순위"
+]
+
+
+def needs_web_search(query: str) -> bool:
+    """질문이 웹 검색을 필요로 하는지 판단합니다."""
+    return any(keyword in query for keyword in SEARCH_KEYWORDS)
 
 
 async def load_chatbot_model():
@@ -103,6 +120,7 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     prompt: str
     history: Optional[List[ChatMessage]] = None
+    client_ip: Optional[str] = None
 
 @router.post("/chat")
 async def chat(request: ChatRequest):
@@ -116,13 +134,52 @@ async def chat(request: ChatRequest):
         )
     
     try:
-        # 시스템 프롬프트
-        system_prompt = (
-            "<|im_start|>system\n"
-            "당신은 의약학 지식을 갖춘 유능한 한국어 AI 비서입니다. "
-            "사용자의 질문에 대해 정확하고 상세하게 한국어로 답변하세요. "
-            "이전 대화 내용을 참고하여 맥락에 맞게 답변하세요.<|im_end|>\n"
-        )
+        # 웹 검색 필요 여부 확인 및 검색 수행
+        search_context = ""
+        searched_web = False
+        user_location = ""
+        
+        if needs_web_search(request.prompt):
+            # 위치 정보가 필요한 경우 IP로 위치 감지
+            if needs_location_context(request.prompt):
+                user_location = get_location_from_ip_sync(request.client_ip)
+            
+            print(f"🔍 웹 검색 수행: {request.prompt}" + (f" (위치: {user_location})" if user_location else ""))
+            search_results = search_web(request.prompt, user_location=user_location)
+            
+            if search_results and "오류" not in search_results:
+                searched_web = True
+                search_context = (
+                    f"\n\n[웹 검색 결과]\n{search_results}\n"
+                    "위 검색 결과를 참고하여 사용자의 질문에 정확하게 답변하세요."
+                )
+                print(f"✅ 검색 결과 획득")
+        
+        # 시스템 프롬프트 (검색 결과 포함)
+        # Hallucination 방지를 위해 검색 결과 기반 답변 강제
+        if searched_web:
+            system_prompt = (
+                "<|im_start|>system\n"
+                "당신은 정확한 정보를 전달하는 한국어 AI 비서입니다.\n"
+                "중요: 아래 [웹 검색 결과]에 있는 정보만 사용하여 답변하세요.\n"
+                "규칙:\n"
+                "1. 검색 결과에 없는 내용은 절대 만들어내지 마세요.\n"
+                "2. 검색 결과를 쉽고 간단한 일상 언어로 요약해서 전달하세요.\n"
+                "3. 확실하지 않은 정보는 '~로 보입니다', '~라고 합니다'처럼 표현하세요.\n"
+                "4. URL, 출처, 이모지는 사용하지 마세요.\n"
+                "5. 핵심 정보만 2-3문장으로 간결하게 답변하세요."
+                f"{search_context}<|im_end|>\n"
+            )
+        else:
+            system_prompt = (
+                "<|im_start|>system\n"
+                "당신은 친근하고 도움이 되는 한국어 AI 비서입니다.\n"
+                "규칙:\n"
+                "1. 쉽고 간단한 일상 언어로 답변하세요.\n"
+                "2. 확실히 아는 정보만 답변하고, 모르면 솔직히 '잘 모르겠습니다'라고 하세요.\n"
+                "3. 사실이 아닌 정보를 만들어내지 마세요.\n"
+                "4. 이모지는 사용하지 마세요.<|im_end|>\n"
+            )
         
         # 대화 내역을 프롬프트에 추가
         history_prompt = ""
@@ -156,19 +213,46 @@ async def chat(request: ChatRequest):
         # 결과 디코딩
         generated_text = chatbot_tokenizer.decode(outputs[0], skip_special_tokens=True)
         
-        # 어시스턴트 답변만 추출
-        # 1. 사용자 질문 이후 부분 추출
-        if request.prompt in generated_text:
-            answer_start = generated_text.find(request.prompt) + len(request.prompt)
-            final_answer = generated_text[answer_start:].strip()
-        else:
-            final_answer = generated_text
+        # 어시스턴트 답변만 추출 (더 강력한 파싱)
+        final_answer = generated_text
         
-        # 2. "assistant\n" 접두어 제거
-        if final_answer.startswith("assistant"):
-            final_answer = final_answer[len("assistant"):].strip()
+        # 1. 마지막 "assistant" 이후 부분만 추출
+        if "assistant" in final_answer:
+            final_answer = final_answer.split("assistant")[-1].strip()
         
-        return JSONResponse(content={"response": final_answer})
+        # 2. "user" 마커가 남아있으면 그 앞부분만 사용 (다음 대화 시작 제거)
+        if "\nuser" in final_answer:
+            final_answer = final_answer.split("\nuser")[0].strip()
+        if final_answer.startswith("user"):
+            # 첫 줄이 user로 시작하면 제거
+            lines = final_answer.split("\n")
+            final_answer = "\n".join(lines[1:]).strip()
+        
+        # 3. 사용자 질문이 반복되면 제거
+        if request.prompt in final_answer:
+            final_answer = final_answer.replace(request.prompt, "").strip()
+        
+        # 4. 🔍 이모지로 시작하는 줄 제거 (검색 알림과 중복 방지)
+        lines = final_answer.split("\n")
+        filtered_lines = [line for line in lines if not line.strip().startswith("🔍")]
+        final_answer = "\n".join(filtered_lines).strip()
+        
+        # 5. URL 포함 문장 제거 및 정리
+        import re
+        # URL 제거
+        final_answer = re.sub(r'https?://\S+', '', final_answer)
+        # "~에 가면", "~에서" 같은 불완전 시작 제거
+        final_answer = re.sub(r'^[\s]*에\s+(가면|보면|확인)', '', final_answer)
+        # 여러 공백을 하나로
+        final_answer = re.sub(r'\s+', ' ', final_answer).strip()
+        # 빈 응답이면 기본 메시지
+        if not final_answer or len(final_answer) < 10:
+            final_answer = "죄송합니다, 해당 정보를 찾지 못했습니다. 다른 질문을 해주세요."
+        
+        return JSONResponse(content={
+            "response": final_answer,
+            "searched_web": searched_web
+        })
         
     except Exception as e:
         print(f"⚠️ 챗봇 추론 오류: {e}")
