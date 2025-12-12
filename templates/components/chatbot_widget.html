@@ -318,6 +318,31 @@ const chatInput = document.getElementById('chatInput');
 const chatSendBtn = document.getElementById('chatSendBtn');
 const chatMessages = document.getElementById('chatMessages');
 
+// 대화 내역 저장 배열
+let chatHistory = [];
+
+// 페이지 로드 시 저장된 대화 내역 복원
+function loadChatHistory() {
+    const saved = sessionStorage.getItem('chatHistory');
+    if (saved) {
+        chatHistory = JSON.parse(saved);
+        // 기존 환영 메시지 제거
+        chatMessages.innerHTML = '';
+        // 저장된 메시지 복원
+        chatHistory.forEach(msg => {
+            appendMessage(msg.sender, msg.text, false);
+        });
+    }
+}
+
+// 대화 내역 저장
+function saveChatHistory() {
+    sessionStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+}
+
+// 페이지 로드 시 대화 복원
+loadChatHistory();
+
 chatbotToggle.addEventListener('click', () => {
     chatbotWindow.classList.toggle('active');
     if (chatbotWindow.classList.contains('active')) {
@@ -348,12 +373,16 @@ async function sendChatMessage() {
     chatMessages.scrollTop = chatMessages.scrollHeight;
     
     try {
-        const formData = new FormData();
-        formData.append('prompt', message);
-        
+        // 대화 맥락을 포함하여 전송
         const response = await fetch('/api/chat', {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                prompt: message,
+                history: chatHistory.slice(-10)  // 최근 10개 메시지만 전송 (토큰 제한)
+            })
         });
         
         const data = await response.json();
@@ -361,8 +390,8 @@ async function sendChatMessage() {
         // 로딩 제거
         chatMessages.removeChild(loadingDiv);
         
-        // AI 응답 추가
-        appendMessage('bot', data.response);
+        // AI 응답 추가 (타이핑 효과 적용)
+        appendMessage('bot', data.response, true);
         
     } catch (error) {
         console.error('Chat error:', error);
@@ -375,16 +404,40 @@ async function sendChatMessage() {
     }
 }
 
-function appendMessage(sender, text) {
+function appendMessage(sender, text, useTypingEffect = false) {
     const msgDiv = document.createElement('div');
     msgDiv.className = `chat-message ${sender}`;
     
     const bubble = document.createElement('div');
     bubble.className = 'chat-bubble';
-    bubble.innerHTML = text.replace(/\n/g, '<br>');
     
     msgDiv.appendChild(bubble);
     chatMessages.appendChild(msgDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // 대화 내역에 추가 및 저장
+    chatHistory.push({ sender, text });
+    saveChatHistory();
+    
+    if (useTypingEffect && sender === 'bot') {
+        // 타이핑 효과
+        typeWriter(bubble, text, 0);
+    } else {
+        bubble.innerHTML = text.replace(/\n/g, '<br>');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+}
+
+// 타이핑 효과 함수
+function typeWriter(element, text, index) {
+    if (index < text.length) {
+        const char = text.charAt(index);
+        if (char === '\n') {
+            element.innerHTML += '<br>';
+        } else {
+            element.innerHTML += char;
+        }
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        setTimeout(() => typeWriter(element, text, index + 1), 20);  // 20ms 간격
+    }
 }
 </script>

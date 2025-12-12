@@ -6,7 +6,7 @@ PHi-4 챗봇 모듈
 import os
 import torch
 from pathlib import Path
-from fastapi import APIRouter, Form
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 # 환경 변수에서 모델 경로 로드
@@ -93,8 +93,19 @@ async def unload_chatbot_model():
     torch.cuda.empty_cache()
 
 
+from pydantic import BaseModel
+from typing import List, Optional
+
+class ChatMessage(BaseModel):
+    sender: str
+    text: str
+
+class ChatRequest(BaseModel):
+    prompt: str
+    history: Optional[List[ChatMessage]] = None
+
 @router.post("/chat")
-async def chat(prompt: str = Form(...)):
+async def chat(request: ChatRequest):
     """사용자의 질문을 받아 모델이 추론하고 답변을 반환합니다."""
     global chatbot_model, chatbot_tokenizer, chatbot_loaded
     
@@ -105,16 +116,28 @@ async def chat(prompt: str = Form(...)):
         )
     
     try:
-        # Qwen2.5-Instruct 형식의 프롬프트
+        # 시스템 프롬프트
         system_prompt = (
             "<|im_start|>system\n"
             "당신은 의약학 지식을 갖춘 유능한 한국어 AI 비서입니다. "
-            "사용자의 질문에 대해 정확하고 상세하게 한국어로 답변하세요.<|im_end|>\n"
+            "사용자의 질문에 대해 정확하고 상세하게 한국어로 답변하세요. "
+            "이전 대화 내용을 참고하여 맥락에 맞게 답변하세요.<|im_end|>\n"
         )
-        user_prompt = f"<|im_start|>user\n{prompt}<|im_end|>\n"
+        
+        # 대화 내역을 프롬프트에 추가
+        history_prompt = ""
+        if request.history:
+            for msg in request.history:
+                if msg.sender == "user":
+                    history_prompt += f"<|im_start|>user\n{msg.text}<|im_end|>\n"
+                elif msg.sender == "bot":
+                    history_prompt += f"<|im_start|>assistant\n{msg.text}<|im_end|>\n"
+        
+        # 현재 사용자 질문
+        user_prompt = f"<|im_start|>user\n{request.prompt}<|im_end|>\n"
         assistant_start = "<|im_start|>assistant\n"
         
-        full_prompt = system_prompt + user_prompt + assistant_start
+        full_prompt = system_prompt + history_prompt + user_prompt + assistant_start
         
         inputs = chatbot_tokenizer(full_prompt, return_tensors="pt").to("cuda")
         
@@ -135,8 +158,8 @@ async def chat(prompt: str = Form(...)):
         
         # 어시스턴트 답변만 추출
         # 1. 사용자 질문 이후 부분 추출
-        if prompt in generated_text:
-            answer_start = generated_text.find(prompt) + len(prompt)
+        if request.prompt in generated_text:
+            answer_start = generated_text.find(request.prompt) + len(request.prompt)
             final_answer = generated_text[answer_start:].strip()
         else:
             final_answer = generated_text
