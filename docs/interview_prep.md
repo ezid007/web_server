@@ -178,13 +178,7 @@
 
 ---
 
----
-
-
-
----
-
-## 3. Technology Deep Dive (기술 심층 분석)
+## 4. Technology Deep Dive (기술 심층 분석)
 
 ### 왜 WebSocket(Rosbridge)인가?
 *   **기존 기술의 한계:** HTTP(REST API)는 클라이언트가 요청을 보내야만 응답을 주는 단방향 통신입니다. 로봇의 위치나 센서 데이터처럼 초당 수십 번 변하는 데이터를 HTTP로 요청(Polling)하면 서버 부하가 심하고 딜레이가 발생합니다.
