@@ -47,10 +47,29 @@ class SyncTool:
         self.is_running = False
         self.running = True
         
+        # 버튼 영역 정의 (x1, y1, x2, y2)
+        self.upload_btn_area = (50, 120, 230, 180)
+        self.download_btn_area = (270, 120, 450, 180)
+        
         # 파일 개수
         imgs = list((self.local_dataset / "images").glob("*.jpg")) if (self.local_dataset / "images").exists() else []
         lbls = list((self.local_dataset / "labels").glob("*.txt")) if (self.local_dataset / "labels").exists() else []
         self.file_count = f"Local: {len(imgs)} images, {len(lbls)} labels"
+    
+    def mouse_callback(self, event, x, y, flags, param):
+        """마우스 클릭 이벤트 처리"""
+        if event == cv2.EVENT_LBUTTONDOWN:
+            # Upload 버튼 클릭 확인
+            ux1, uy1, ux2, uy2 = self.upload_btn_area
+            if ux1 <= x <= ux2 and uy1 <= y <= uy2:
+                if not self.is_running:
+                    threading.Thread(target=self.upload_dataset, daemon=True).start()
+            
+            # Download 버튼 클릭 확인
+            dx1, dy1, dx2, dy2 = self.download_btn_area
+            if dx1 <= x <= dx2 and dy1 <= y <= dy2:
+                if not self.is_running:
+                    threading.Thread(target=self.download_model, daemon=True).start()
     
     def draw_ui(self):
         """UI 그리기"""
@@ -221,6 +240,7 @@ class SyncTool:
     def run(self):
         """메인 루프"""
         cv2.namedWindow("YOLO Sync Tool", cv2.WINDOW_AUTOSIZE)
+        cv2.setMouseCallback("YOLO Sync Tool", self.mouse_callback)
         
         while self.running:
             img = self.draw_ui()
