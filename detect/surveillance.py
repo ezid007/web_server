@@ -49,6 +49,7 @@ class SurveillanceSystem:
         
         # 현재 순찰 상태
         self._current_point_index = 0
+        self._patrol_direction = 1  # 1: 정방향(1→2→3), -1: 역방향(3→2→1)
         self._is_patrolling = False
         self._is_responding_to_cctv = False
         
@@ -164,19 +165,53 @@ class SurveillanceSystem:
     
     def _patrol_loop(self):
         """순찰 루프 (별도 스레드)"""
+        print("🔄 순찰 루프 시작됨")
+        patrol_log_shown = False
+        
         while self.is_running:
             # 시간대 확인
             if not self.is_within_schedule():
-                time.sleep(60)  # 1분마다 확인
+                if patrol_log_shown:
+                    print("⏰ 감시 시간대 종료 - 대기 모드")
+                    patrol_log_shown = False
+                # 1초 단위로 체크하여 force_enabled 변경 즉시 감지 (60초 동안)
+                for _ in range(60):
+                    if not self.is_running or self.is_within_schedule():
+                        break
+                    time.sleep(1)
                 continue
+            
+            if not patrol_log_shown:
+                print(f"✅ 감시 시간대 내 - 순찰 시작!")
+                patrol_log_shown = True
             
             # 현재 순찰 포인트로 이동
             if not self._is_responding_to_cctv:
                 self._move_to_next_patrol_point()
             
-            # CCTV 감시 (1초마다)
+            # 터틀봇 카메라 및 CCTV 감시 (1초마다)
             time.sleep(1)
+            self._check_robot_camera()  # 터틀봇 카메라로 사람 감지
             self._check_cctv()
+    
+    def _check_robot_camera(self):
+        """터틀봇 카메라에서 사람 감지 확인"""
+        if not self._get_robot_frame:
+            return
+        
+        frame = self._get_robot_frame()
+        if frame is None:
+            return
+        
+        # YOLO로 사람 감지
+        persons = yolo_detector.detect_persons(frame)
+        
+        if len(persons) > 0:
+            print(f"🚨 터틀봇 카메라에서 사람 감지! ({len(persons)}명)")
+            self._capture_photo(frame, persons)
+    
+    # 순찰 포인트 이동 대기 시간 (초)
+    PATROL_WAIT_TIME = 30
     
     def _move_to_next_patrol_point(self):
         """다음 순찰 포인트로 이동"""
@@ -186,17 +221,33 @@ class SurveillanceSystem:
         point = self.PATROL_POINTS[self._current_point_index]
         x, y = point
         
-        print(f"🚶 순찰 포인트 {self._current_point_index + 1} 이동: ({x}, {y})")
+        print(f"🚶 순찰 포인트 {self._current_point_index + 1}/{len(self.PATROL_POINTS)} 이동: ({x:.2f}, {y:.2f})")
         
         self._is_patrolling = True
         success = self._send_nav_goal(x, y)
         
-        if success:
-            # 다음 포인트로 인덱스 이동
-            self._current_point_index = (self._current_point_index + 1) % len(self.PATROL_POINTS)
+        # 이동 중에도 카메라 감시 (PATROL_WAIT_TIME 동안)
+        for _ in range(self.PATROL_WAIT_TIME):
+            if not self.is_running:
+                break
+            time.sleep(1)
+            self._check_robot_camera()  # 이동 중 사람 감지
         
-        # 도착 대기 (간단한 시뮬레이션 - 실제로는 Nav2 피드백 사용)
-        time.sleep(10)
+        if success:
+            # 왕복 순찰: 끝에 도달하면 방향 반전
+            next_index = self._current_point_index + self._patrol_direction
+            
+            if next_index >= len(self.PATROL_POINTS):
+                # 끝에 도달 → 역방향으로 전환
+                self._patrol_direction = -1
+                self._current_point_index = len(self.PATROL_POINTS) - 2
+            elif next_index < 0:
+                # 처음에 도달 → 정방향으로 전환
+                self._patrol_direction = 1
+                self._current_point_index = 1
+            else:
+                self._current_point_index = next_index
+        
         self._is_patrolling = False
     
     def _check_cctv(self):
@@ -249,13 +300,18 @@ class SurveillanceSystem:
             display = yolo_detector.draw_detections(frame, detections)
             
             # 타임스탬프 추가
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            now = datetime.now()
+            timestamp = now.strftime("%Y%m%d_%H%M%S")
             cv2.putText(display, timestamp, (10, 30),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
             
+            # 날짜별 폴더 생성
+            date_folder = self.PHOTO_DIR / now.strftime("%Y-%m-%d")
+            date_folder.mkdir(parents=True, exist_ok=True)
+            
             # 파일 저장
             filename = f"detected_{timestamp}.jpg"
-            filepath = self.PHOTO_DIR / filename
+            filepath = date_folder / filename
             cv2.imwrite(str(filepath), display)
             
             print(f"💾 사진 저장: {filepath}")

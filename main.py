@@ -116,9 +116,47 @@ async def startup_event():
         return None
     
     def get_cctv_frame():
-        # CCTV 프레임 가져오기 (외부 서버에서)
-        # TODO: CCTV 서버에서 프레임 가져오기 구현
-        return None
+        """CCTV 서버에서 현재 프레임 가져오기"""
+        try:
+            import requests
+            # CCTV 서버의 snapshot 엔드포인트 사용 (단일 프레임)
+            # 만약 snapshot 엔드포인트가 없으면 video_feed에서 첫 프레임 캡처
+            cctv_url = os.getenv("CCTV_SERVER_URL")
+            if not cctv_url:
+                return None
+            
+            # 먼저 /snapshot 엔드포인트 시도
+            try:
+                response = requests.get(f"{cctv_url}/snapshot", timeout=2)
+                if response.status_code == 200:
+                    img_array = np.frombuffer(response.content, np.uint8)
+                    frame = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+                    return frame
+            except:
+                pass
+            
+            # /snapshot이 없으면 /video_feed에서 첫 프레임 캡처
+            response = requests.get(f"{cctv_url}/video_feed", stream=True, timeout=2)
+            if response.status_code == 200:
+                buffer = b''
+                for chunk in response.iter_content(chunk_size=1024):
+                    buffer += chunk
+                    # JPEG 이미지 끝(FFD9) 찾기
+                    end_idx = buffer.find(b'\xff\xd9')
+                    if end_idx != -1:
+                        # JPEG 이미지 시작(FFD8) 찾기
+                        start_idx = buffer.find(b'\xff\xd8')
+                        if start_idx != -1:
+                            jpg_data = buffer[start_idx:end_idx + 2]
+                            img_array = np.frombuffer(jpg_data, np.uint8)
+                            frame = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+                            response.close()
+                            return frame
+                response.close()
+            return None
+        except Exception as e:
+            print(f"⚠️ CCTV 프레임 가져오기 실패: {e}")
+            return None
     
     surveillance_system.set_callbacks(
         send_nav_goal=send_nav_goal,

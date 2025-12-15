@@ -522,3 +522,12 @@ class DummyRobotNode:
             "battery_percentage": 0.0,
             "battery_voltage": 0.0,
         }
+
+    def send_nav_goal(self, x: float, y: float) -> bool:
+        """더미 Nav2 Goal 전송 (ROS2 없을 때)"""
+        print(f"🚧 [DummyNode] Nav2 Goal: ({x:.2f}, {y:.2f})")
+        return True  # 테스트용으로 성공 반환
+
+    def publish_cmd_vel(self, linear_x: float, angular_z: float):
+        """더미 cmd_vel 발행"""
+        pass

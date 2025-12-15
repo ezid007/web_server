@@ -12,7 +12,11 @@ from fastapi.responses import JSONResponse
 
 # 웹 검색 및 위치 감지 모듈 import
 from src.web_search import search_web
-from src.location import get_location_from_ip_sync, needs_location_context
+from src.location import get_location_from_ip_sync, get_location_from_ip_async, needs_location_context
+
+# 날씨 API용 import
+import httpx
+from datetime import datetime, timedelta
 
 # 환경 변수에서 모델 경로 로드
 _base_dir = Path(__file__).parent.parent
@@ -41,15 +45,172 @@ router = APIRouter(prefix="/api", tags=["chatbot"])
 
 # 웹 검색이 필요한 키워드 목록
 SEARCH_KEYWORDS = [
-    "날씨", "오늘", "뉴스", "최신", "현재", "지금", "주가", "환율",
-    "검색", "찾아", "알려줘", "몇시", "몇도", "어디", "누가", "언제",
+    "뉴스", "최신", "주가", "환율",
+    "검색", "찾아", "알려줘", "몇시", "누가", "언제",
     "실시간", "속보", "경기", "결과", "스코어", "순위"
 ]
+
+# 날씨 API가 필요한 키워드 목록
+WEATHER_KEYWORDS = ["날씨", "기온", "온도", "습도", "비", "눈", "맑음", "흐림", "몇도"]
+
+
+def needs_weather_api(query: str) -> bool:
+    """질문이 날씨 API를 필요로 하는지 판단합니다."""
+    return any(keyword in query for keyword in WEATHER_KEYWORDS)
 
 
 def needs_web_search(query: str) -> bool:
     """질문이 웹 검색을 필요로 하는지 판단합니다."""
+    # 날씨 관련 질문은 웹 검색 대신 날씨 API 사용
+    if needs_weather_api(query):
+        return False
     return any(keyword in query for keyword in SEARCH_KEYWORDS)
+
+
+# 기상청 API 키
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
+
+# 하늘 상태 코드
+SKY_STATUS = {
+    "1": "맑음", "3": "구름많음", "4": "흐림"
+}
+
+# 강수 형태 코드
+PTY_STATUS = {
+    "0": "없음", "1": "비", "2": "비/눈", "3": "눈", 
+    "4": "소나기", "5": "빗방울", "6": "빗방울눈날림", "7": "눈날림"
+}
+
+
+def _latlon_to_grid(lat: float, lon: float) -> dict:
+    """위도/경도를 기상청 격자 좌표로 변환"""
+    import math
+    
+    RE = 6371.00877
+    GRID = 5.0
+    SLAT1 = 30.0
+    SLAT2 = 60.0
+    OLON = 126.0
+    OLAT = 38.0
+    XO = 43
+    YO = 136
+    
+    DEGRAD = math.pi / 180.0
+    
+    re = RE / GRID
+    slat1 = SLAT1 * DEGRAD
+    slat2 = SLAT2 * DEGRAD
+    olon = OLON * DEGRAD
+    olat = OLAT * DEGRAD
+    
+    sn = math.tan(math.pi * 0.25 + slat2 * 0.5) / math.tan(math.pi * 0.25 + slat1 * 0.5)
+    sn = math.log(math.cos(slat1) / math.cos(slat2)) / math.log(sn)
+    sf = math.tan(math.pi * 0.25 + slat1 * 0.5)
+    sf = math.pow(sf, sn) * math.cos(slat1) / sn
+    ro = math.tan(math.pi * 0.25 + olat * 0.5)
+    ro = re * sf / math.pow(ro, sn)
+    
+    ra = math.tan(math.pi * 0.25 + lat * DEGRAD * 0.5)
+    ra = re * sf / math.pow(ra, sn)
+    theta = lon * DEGRAD - olon
+    if theta > math.pi:
+        theta -= 2.0 * math.pi
+    if theta < -math.pi:
+        theta += 2.0 * math.pi
+    theta *= sn
+    
+    nx = int(ra * math.sin(theta) + XO + 0.5)
+    ny = int(ro - ra * math.cos(theta) + YO + 0.5)
+    
+    return {"nx": nx, "ny": ny}
+
+
+async def get_weather_info(client_ip: str = None) -> str:
+    """기상청 API를 통해 현재 날씨 정보를 문자열로 반환합니다."""
+    try:
+        # IP 기반 위치 조회
+        location_info = await get_location_from_ip_async(client_ip)
+        location = location_info["city"]
+        
+        # 위경도 → 격자 좌표 변환
+        grid = _latlon_to_grid(location_info["lat"], location_info["lon"])
+        
+        # 기상청 API 시간 계산
+        now = datetime.now()
+        base_time = now.strftime("%H") + "00"
+        base_date = now.strftime("%Y%m%d")
+        
+        if now.minute < 40:
+            prev_hour = now.hour - 1
+            if prev_hour < 0:
+                prev_hour = 23
+                base_date = (now - timedelta(days=1)).strftime("%Y%m%d")
+            base_time = f"{prev_hour:02d}00"
+        
+        url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst"
+        params = {
+            "serviceKey": WEATHER_API_KEY,
+            "numOfRows": "10",
+            "pageNo": "1",
+            "dataType": "JSON",
+            "base_date": base_date,
+            "base_time": base_time,
+            "nx": grid["nx"],
+            "ny": grid["ny"],
+        }
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, params=params)
+            data = response.json()
+        
+        weather_data = {
+            "temperature": None,
+            "pty": "0",
+            "wind_speed": None,
+            "humidity": None,
+        }
+        
+        if "response" in data and "body" in data["response"]:
+            items = data["response"]["body"].get("items", {}).get("item", [])
+            for item in items:
+                category = item.get("category")
+                value = item.get("obsrValue")
+                
+                if category == "T1H":
+                    weather_data["temperature"] = float(value)
+                elif category == "PTY":
+                    weather_data["pty"] = str(int(float(value)))
+                elif category == "WSD":
+                    weather_data["wind_speed"] = float(value)
+                elif category == "REH":
+                    weather_data["humidity"] = float(value)
+        
+        # 날씨 상태 결정
+        pty = weather_data["pty"]
+        if pty != "0" and pty in PTY_STATUS:
+            sky_name = PTY_STATUS[pty]
+        else:
+            sky_name = "맑음"
+        
+        # 결과 문자열 생성
+        temp = weather_data["temperature"] if weather_data["temperature"] else "측정 불가"
+        humidity = weather_data["humidity"] if weather_data["humidity"] else "측정 불가"
+        wind = weather_data["wind_speed"] if weather_data["wind_speed"] else "측정 불가"
+        
+        result = (
+            f"[{location} 현재 날씨]\n"
+            f"- 기온: {temp}°C\n"
+            f"- 날씨: {sky_name}\n"
+            f"- 습도: {humidity}%\n"
+            f"- 풍속: {wind}m/s\n"
+            f"- 측정 시간: {now.strftime('%Y-%m-%d %H:%M')}"
+        )
+        
+        return result
+        
+    except Exception as e:
+        print(f"⚠️ 날씨 API 오류: {e}")
+        return f"날씨 정보를 가져오는 중 오류가 발생했습니다: {str(e)}"
 
 
 async def load_chatbot_model():
@@ -134,12 +295,27 @@ async def chat(request: ChatRequest):
         )
     
     try:
-        # 웹 검색 필요 여부 확인 및 검색 수행
+        # 날씨 API 또는 웹 검색 수행
         search_context = ""
         searched_web = False
+        used_weather_api = False
         user_location = ""
         
-        if needs_web_search(request.prompt):
+        # 날씨 관련 질문인 경우 기상청 API 사용
+        if needs_weather_api(request.prompt):
+            print(f"🌤️ 날씨 API 호출: {request.prompt}")
+            weather_result = await get_weather_info(request.client_ip)
+            
+            if weather_result and "오류" not in weather_result:
+                used_weather_api = True
+                search_context = (
+                    f"\n\n[날씨 정보]\n{weather_result}\n"
+                    "위 날씨 정보를 바탕으로 사용자의 질문에 자연스럽게 답변하세요."
+                )
+                print(f"✅ 날씨 정보 획득")
+        
+        # 날씨 외 질문은 웹 검색 수행
+        elif needs_web_search(request.prompt):
             # 위치 정보가 필요한 경우 IP로 위치 감지
             if needs_location_context(request.prompt):
                 user_location = get_location_from_ip_sync(request.client_ip)
@@ -155,9 +331,20 @@ async def chat(request: ChatRequest):
                 )
                 print(f"✅ 검색 결과 획득")
         
-        # 시스템 프롬프트 (검색 결과 포함)
-        # Hallucination 방지를 위해 검색 결과 기반 답변 강제
-        if searched_web:
+        # 시스템 프롬프트 (날씨 정보 또는 검색 결과 포함)
+        if used_weather_api:
+            system_prompt = (
+                "<|im_start|>system\n"
+                "당신은 친근한 한국어 AI 날씨 비서입니다.\n"
+                "중요: 아래 [날씨 정보]를 바탕으로 답변하세요.\n"
+                "규칙:\n"
+                "1. 날씨 정보를 자연스러운 대화체로 전달하세요.\n"
+                "2. 온도, 날씨 상태, 습도 정보를 포함해서 답변하세요.\n"
+                "3. 필요시 옷차림이나 우산 등 간단한 조언을 덧붙여도 좋습니다.\n"
+                "4. 이모지는 사용하지 마세요."
+                f"{search_context}<|im_end|>\n"
+            )
+        elif searched_web:
             system_prompt = (
                 "<|im_start|>system\n"
                 "당신은 정확한 정보를 전달하는 한국어 AI 비서입니다.\n"
@@ -251,7 +438,8 @@ async def chat(request: ChatRequest):
         
         return JSONResponse(content={
             "response": final_answer,
-            "searched_web": searched_web
+            "searched_web": searched_web,
+            "used_weather_api": used_weather_api
         })
         
     except Exception as e:
