@@ -321,9 +321,19 @@ const chatMessages = document.getElementById('chatMessages');
 // 대화 내역 저장 배열
 let chatHistory = [];
 
-// 페이지 로드 시 저장된 대화 내역 복원
+// 탭별 고유 세션 ID 생성 (탭 간 대화 복사 방지)
+let tabSessionId = sessionStorage.getItem('tabSessionId');
+if (!tabSessionId) {
+    // 새 탭이 열릴 때마다 고유 ID 생성
+    tabSessionId = 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    sessionStorage.setItem('tabSessionId', tabSessionId);
+    // 새 탭은 기존 대화 내역을 상속하지 않음 (빈 상태로 시작)
+    sessionStorage.removeItem('chatHistory_' + tabSessionId);
+}
+
+// 페이지 로드 시 저장된 대화 내역 복원 (현재 탭의 것만)
 function loadChatHistory() {
-    const saved = sessionStorage.getItem('chatHistory');
+    const saved = sessionStorage.getItem('chatHistory_' + tabSessionId);
     if (saved) {
         chatHistory = JSON.parse(saved);
         // 기존 환영 메시지 제거
@@ -335,9 +345,9 @@ function loadChatHistory() {
     }
 }
 
-// 대화 내역 저장
+// 대화 내역 저장 (현재 탭 전용)
 function saveChatHistory() {
-    sessionStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+    sessionStorage.setItem('chatHistory_' + tabSessionId, JSON.stringify(chatHistory));
 }
 
 // 페이지 로드 시 대화 복원
@@ -390,9 +400,14 @@ async function sendChatMessage() {
         // 로딩 제거
         chatMessages.removeChild(loadingDiv);
         
-        // 웹 검색을 수행한 경우 알림 메시지 표시
+        // 웹 검색을 사용한 경우 안내 메시지 표시
         if (data.searched_web) {
-            appendMessage('bot', '🔍 웹 정보를 통해 찾아보겠습니다.', false);
+            appendMessage('bot', '🔍 웹을 통해 검색을 시작하겠습니다.', false);
+        }
+        
+        // 날씨 API를 사용한 경우 안내 메시지 표시
+        if (data.used_weather_api) {
+            appendMessage('bot', '🌤️ 기상청 정보를 통한 날씨 정보를 제공하겠습니다.', false);
         }
         
         // AI 응답 추가 (타이핑 효과 적용)
