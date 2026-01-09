@@ -47,11 +47,12 @@
    body{opacity: 0; transition:all 0.3s ease-in-out;}
   </style>
 <!-- 로컬 폰트 사용 -->
-  <link as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'" rel="stylesheet"/>
+  <link href="{{ url_for('static', path='/css/local-fonts.css') }}" rel="stylesheet"/>
+  <link as="style" href="{{ url_for('static', path='/lib/FontAwesome_v6.5.1/css/all.css') }}" onload="this.onload=null;this.rel='stylesheet'" rel="stylesheet"/>
   <link as="style" href="{{ url_for('static', path='/lib/SwiperJs/swiper-bundle.min.css') }}" onload="this.onload=null;this.rel='stylesheet'" rel="stylesheet"/>
   <link as="style" href="{{ url_for('static', path='/css/style.css') }}?v=4" onload="this.onload=null;this.rel='stylesheet'" rel="stylesheet"/>
   <noscript>
-   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+   <link href="{{ url_for('static', path='/lib/FontAwesome_v6.5.1/css/all.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', path='/lib/SwiperJs/swiper-bundle.min.css') }}" rel="stylesheet">
      <link href="{{ url_for('static', path='/css/style.css') }}?v=4" rel="stylesheet">
      </link>
@@ -365,26 +366,7 @@
           <a class="link anchor hoverable-sm" href="{{ url_for('read_contact') }}" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);">문의하기</a>
          </li>
         </ul>
-        <ul class="social-links">
-         <li>
-          <a class="link" href="https://www.instagram.com/reinostudio/" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);" target="_blank">
-           <i class="fa-brands fa-fw fa-instagram">
-           </i>
-          </a>
-         </li>
-         <li>
-          <a class="link" href="https://www.linkedin.com/company/reino-studio" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);" target="_blank">
-           <i class="fa-brands fa-fw fa-linkedin-in">
-           </i>
-          </a>
-         </li>
-         <li>
-          <a class="link" href="https://wa.me/5521984796999" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);" target="_blank">
-           <i class="fa-brands fa-fw fa-whatsapp">
-           </i>
-          </a>
-         </li>
-        </ul>
+
        </div>
       </div>
      </footer>
@@ -516,26 +498,7 @@
           <a class="link anchor hoverable-sm" href="{{ url_for('read_contact') }}" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);">문의하기</a>
          </li>
         </ul>
-        <ul class="social-links">
-         <li>
-          <a class="link" href="https://www.instagram.com/reinostudio/" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);" target="_blank">
-           <i class="fa-brands fa-fw fa-instagram">
-           </i>
-          </a>
-         </li>
-         <li>
-          <a class="link" href="https://www.linkedin.com/company/reino-studio" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);" target="_blank">
-           <i class="fa-brands fa-fw fa-linkedin-in">
-           </i>
-          </a>
-         </li>
-         <li>
-          <a class="link" href="https://wa.me/5521984796999" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);" target="_blank">
-           <i class="fa-brands fa-fw fa-whatsapp">
-           </i>
-          </a>
-         </li>
-        </ul>
+
        </div>
       </div>
      </footer>

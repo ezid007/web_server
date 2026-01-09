@@ -7,11 +7,11 @@
   <meta content="Reino Studio" property="og:site_name"/>
   <meta content="Crafted in Rio, Celebrated Worldwide." name="description"/>
   <meta content="Reino Studio" property="og:title"/>
-  <meta content="https://reinostudio.com.br/" property="og:url"/>
+  <meta content="{{ request.base_url }}" property="og:url"/>
   <meta content="We blend technology and art to create innovative designs that open up new possibilities. From planning to development, we cover everything from visual identity to interactive installations" property="og:description"/>
-  <meta content="https://reinostudio.com.br/wp-content/uploads/2024/02/image.png" property="og:image"/>
+  <meta content="{{ url_for('static', path='/images/image.png') }}" property="og:image"/>
   <meta content="article" property="og:type"/>
-  <meta content="https://reinostudio.com.br/wp-content/uploads/2024/02/image.png" name="sso_image"/>
+  <meta content="{{ url_for('static', path='/images/image.png') }}" name="sso_image"/>
   <meta content="" property="og:image:width"/>
   <meta content="" property="og:image:height"/>
   <meta content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" name="robots"/>
@@ -28,37 +28,30 @@
   <meta content="website" property="og:type"/>
   <meta content="Home | Reino Studio" property="og:title"/>
   <meta content="Home Reino Studio |" property="og:description"/>
-  <meta content="https://reinostudio.com.br/" property="og:url"/>
+  <meta content="{{ request.base_url }}" property="og:url"/>
   <meta content="Reino Studio" property="og:site_name"/>
   <meta content="2025-10-29T17:12:55+00:00" property="article:modified_time"/>
   <meta content="summary_large_image" name="twitter:card"/>
-  <script class="yoast-schema-graph" type="application/ld+json">
-   {"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://reinostudio.com.br/","url":"https://reinostudio.com.br/","name":"Home | Reino Studio","isPartOf":{"@id":"https://reinostudio.com.br/#website"},"about":{"@id":"https://reinostudio.com.br/#organization"},"datePublished":"2024-01-17T12:14:35+00:00","dateModified":"2025-10-29T17:12:55+00:00","description":"Home Reino Studio |","breadcrumb":{"@id":"https://reinostudio.com.br/#breadcrumb"},"inLanguage":"en-US","potentialAction":[{"@type":"ReadAction","target":["https://reinostudio.com.br/"]}]},{"@type":"BreadcrumbList","@id":"https://reinostudio.com.br/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home"}]},{"@type":"WebSite","@id":"https://reinostudio.com.br/#website","url":"https://reinostudio.com.br/","name":"Reino Studio","description":"Crafted in Rio,\u2028Celebrated Worldwide.","publisher":{"@id":"https://reinostudio.com.br/#organization"},"potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://reinostudio.com.br/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"en-US"},{"@type":"Organization","@id":"https://reinostudio.com.br/#organization","name":"Reino Studio","url":"https://reinostudio.com.br/","logo":{"@type":"ImageObject","inLanguage":"en-US","@id":"https://reinostudio.com.br/#/schema/logo/image/","url":"https://reinostudio.com.br/wp-content/uploads/2024/02/reino-black.jpg","contentUrl":"https://reinostudio.com.br/wp-content/uploads/2024/02/reino-black.jpg","width":300,"height":200,"caption":"Reino Studio"},"image":{"@id":"https://reinostudio.com.br/#/schema/logo/image/"}}]}
-  </script>
+  <!-- SEO 스키마 데이터 - 로컬 호스팅을 위해 비활성화 -->
 
-  <link href="https://reinostudio.com.br/wp-content/cache/wpo-minify/1762179517/assets/wpo-minify-header-contact-form-71759816380.min.css" id="wpo_min-header-0-css" media="all" rel="stylesheet" type="text/css"/>
-  <link href="https://reinostudio.com.br/wp-json/" rel="https://api.w.org/"/>
-  <link href="https://reinostudio.com.br/wp-json/wp/v2/pages/10" rel="alternate" title="JSON" type="application/json"/>
-  <link href="https://reinostudio.com.br/xmlrpc.php?rsd" rel="EditURI" title="RSD" type="application/rsd+xml"/>
-  <meta content="WordPress 6.8.3" name="generator"/>
+  <link href="{{ url_for('static', path='/css/wpo-minify-header-contact-form-71759816380.min.css') }}" id="wpo_min-header-0-css" media="all" rel="stylesheet" type="text/css"/>
   <link href="{{ url_for('read_root') }}" rel="shortlink"/>
-  <link href="https://reinostudio.com.br/wp-content/uploads/2024/02/logo-inverse.svg" rel="icon" sizes="32x32"/>
-  <link href="https://reinostudio.com.br/wp-content/uploads/2024/02/logo-inverse.svg" rel="icon" sizes="192x192"/>
-  <link href="https://reinostudio.com.br/wp-content/uploads/2024/02/logo-inverse.svg" rel="apple-touch-icon"/>
-  <meta content="https://reinostudio.com.br/wp-content/uploads/2024/02/logo-inverse.svg" name="msapplication-TileImage"/>
+  <link href="{{ url_for('static', path='/images/logo-inverse.svg') }}" rel="icon" sizes="32x32"/>
+  <link href="{{ url_for('static', path='/images/logo-inverse.svg') }}" rel="icon" sizes="192x192"/>
+  <link href="{{ url_for('static', path='/images/logo-inverse.svg') }}" rel="apple-touch-icon"/>
+  <meta content="{{ url_for('static', path='/images/logo-inverse.svg') }}" name="msapplication-TileImage"/>
   <!-- 스타일시트 시작 -->
 
   <style>
    body{opacity: 0; transition:all 0.3s ease-in-out;}
   </style>
-  <link href="https://fonts.googleapis.com" rel="preconnect"/>
-  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;family=Poppins:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
-  <link as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'" rel="stylesheet"/>
+  <!-- 로컬 폰트 사용 -->
+  <link href="{{ url_for('static', path='/css/local-fonts.css') }}" rel="stylesheet"/>
+  <link as="style" href="{{ url_for('static', path='/lib/FontAwesome_v6.5.1/css/all.css') }}" onload="this.onload=null;this.rel='stylesheet'" rel="stylesheet"/>
   <link as="style" href="{{ url_for('static', path='/lib/SwiperJs/swiper-bundle.min.css') }}" onload="this.onload=null;this.rel='stylesheet'" rel="stylesheet"/>
   <link as="style" href="{{ url_for('static', path='/css/style.css') }}" onload="this.onload=null;this.rel='stylesheet'" rel="stylesheet"/>
   <noscript>
-   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+   <link href="{{ url_for('static', path='/lib/FontAwesome_v6.5.1/css/all.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', path='/lib/SwiperJs/swiper-bundle.min.css') }}" rel="stylesheet">
      <link href="{{ url_for('static', path='/css/style.css') }}" rel="stylesheet">
      </link>
@@ -70,15 +63,7 @@
   <!--[if gte IE 9]
   <style type="text/css"> .gradient{filter: none;}</style>
   <![endif]-->
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-N08MSB3QZB">
-  </script>
-  <script>
-   window.dataLayer = window.dataLayer || [];
-	function gtag(){dataLayer.push(arguments);}
-	gtag('js', new Date());
-	gtag('config', 'G-N08MSB3QZB');
-  </script>
+  <!-- 자체 호스팅을 위해 Google Analytics 제거됨 -->
   <script>
    document.addEventListener("DOMContentLoaded", function () {
       "use strict";
@@ -249,9 +234,9 @@
             <div aria-live="polite" class="swiper-wrapper" id="swiper-wrapper-d8d5f68e64ab2027" style="cursor: grab;">
              <div aria-label="1 / 5" class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-active" role="group" style="width: 732px; margin-right: 1px;">
               <div class="project-primary-media" data-swiper-parallax="50%" style="transform: translate3d(0%, 0px, 0px);">
-               <a class="project-link anchor" href="https://reinostudio.com.br/works/gen/">
+               <a class="project-link anchor" href="{{ url_for('read_works') }}">
                 <div class="project-image image-hover">
-                 <img alt="GEN" class="swiper-lazy" src="https://reinostudio.com.br/wp-content/uploads/2025/06/Gen-01-scaled.jpg.webp"/>
+                 <img alt="GEN" class="swiper-lazy" src="{{ url_for('static', path='/images/Gen-01-scaled.jpg.webp') }}"/>
                 </div>
                 <div class="project-details">
                  <h2 class="title">
@@ -269,9 +254,9 @@
              </div>
              <div aria-label="2 / 5" class="swiper-slide swiper-slide-next" role="group" style="width: 732px; margin-right: 1px;">
               <div class="project-primary-media" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
-               <a class="project-link anchor" href="https://reinostudio.com.br/works/berrics/">
+               <a class="project-link anchor" href="{{ url_for('read_works') }}">
                 <div class="project-image image-hover">
-                 <img alt="Berrics" class="swiper-lazy" src="https://reinostudio.com.br/wp-content/uploads/2025/10/Berrics-1-scaled.jpg.webp"/>
+                 <img alt="Berrics" class="swiper-lazy" src="{{ url_for('static', path='/images/Berrics-1-scaled.jpg.webp') }}"/>
                 </div>
                 <div class="project-details">
                  <h2 class="title">
@@ -289,9 +274,9 @@
              </div>
              <div aria-label="3 / 5" class="swiper-slide" role="group" style="width: 732px; margin-right: 1px;">
               <div class="project-primary-media" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
-               <a class="project-link anchor" href="https://reinostudio.com.br/works/cariuma/">
+               <a class="project-link anchor" href="{{ url_for('read_works') }}">
                 <div class="project-image image-hover">
-                 <img alt="Cariuma" class="swiper-lazy" src="https://reinostudio.com.br/wp-content/uploads/2024/01/Cariuma-1-1-scaled.jpg.webp"/>
+                 <img alt="Cariuma" class="swiper-lazy" src="{{ url_for('static', path='/images/Cariuma-1-1-scaled.jpg.webp') }}"/>
                 </div>
                 <div class="project-details">
                  <h2 class="title">
@@ -309,10 +294,10 @@
              </div>
              <div aria-label="4 / 5" class="swiper-slide" role="group" style="width: 732px; margin-right: 1px;">
               <div class="project-primary-media" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
-               <a class="project-link anchor" href="https://reinostudio.com.br/works/zuso/">
+               <a class="project-link anchor" href="{{ url_for('read_works') }}">
                 <div class="project-video non-hoverable">
                  <video autoplay="" loop="" muted="" playsinline="">
-                  <source src="https://reinostudio.com.br/wp-content/uploads/2025/11/Zuso-Video-3.mp4" type="video/mp4"/>
+                  <source src="{{ url_for('static', path='/videos/Zuso-Video-3.mp4') }}" type="video/mp4"/>
                  </video>
                 </div>
                 <div class="project-details">
@@ -331,9 +316,9 @@
              </div>
              <div aria-label="5 / 5" class="swiper-slide" role="group" style="width: 732px; margin-right: 1px;">
               <div class="project-primary-media" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
-               <a class="project-link anchor" href="https://reinostudio.com.br/works/superela/">
+               <a class="project-link anchor" href="{{ url_for('read_works') }}">
                 <div class="project-image image-hover">
-                 <img alt="Superela" class="swiper-lazy" src="https://reinostudio.com.br/wp-content/uploads/2025/10/Superela-1-scaled.jpg.webp"/>
+                 <img alt="Superela" class="swiper-lazy" src="{{ url_for('static', path='/images/Superela-1-scaled.jpg.webp') }}"/>
                 </div>
                 <div class="project-details">
                  <h2 class="title">
@@ -358,20 +343,6 @@
            <div class="action" style="opacity: 1;">
            </div>
            <div class="options" style="opacity: 1;">
-            <div class="social non-hoverable">
-             <a class="social-link" href="https://www.instagram.com/reinostudio/" target="_blank">
-              <i class="fa-brands fa-fw fa-instagram">
-              </i>
-             </a>
-             <a class="social-link" href="https://www.linkedin.com/company/reino-studio" target="_blank">
-              <i class="fa-brands fa-fw fa-linkedin-in">
-              </i>
-             </a>
-             <a class="social-link" href="https://wa.me/5521984796999" target="_blank">
-              <i class="fa-brands fa-fw fa-whatsapp">
-              </i>
-             </a>
-            </div>
             <div class="scroll-action non-hoverable">
              <button class="scroll-down-button" type="button">
               <span>
@@ -390,45 +361,45 @@
              <div aria-live="polite" class="swiper-wrapper" id="swiper-wrapper-1f4d91ef5ec8f589" style="cursor: grab;">
               <div aria-label="1 / 5" class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-active" role="group" style="width: 342px; margin-right: 1px;">
                <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(0%, 0px, 0px);">
-                <a class="anchor" href="https://reinostudio.com.br/works/gen/">
+                <a class="anchor" href="{{ url_for('read_works') }}">
                  <div class="image image-hover">
-                  <img alt="GEN" class="swiper-lazy" src="https://reinostudio.com.br/wp-content/uploads/2025/06/Gen-32-1.png.webp"/>
+                  <img alt="GEN" class="swiper-lazy" src="{{ url_for('static', path='/images/Gen-32-1.png.webp') }}"/>
                  </div>
                 </a>
                </div>
               </div>
               <div aria-label="2 / 5" class="swiper-slide swiper-slide-next" role="group" style="width: 342px; margin-right: 1px;">
                <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
-                <a class="anchor" href="https://reinostudio.com.br/works/berrics/">
+                <a class="anchor" href="{{ url_for('read_works') }}">
                  <div class="image image-hover">
-                  <img alt="Berrics" class="swiper-lazy" src="https://reinostudio.com.br/wp-content/uploads/2025/10/Berrics-23.jpg.webp"/>
+                  <img alt="Berrics" class="swiper-lazy" src="{{ url_for('static', path='/images/Berrics-23.jpg.webp') }}"/>
                  </div>
                 </a>
                </div>
               </div>
               <div aria-label="3 / 5" class="swiper-slide" role="group" style="width: 342px; margin-right: 1px;">
                <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
-                <a class="anchor" href="https://reinostudio.com.br/works/cariuma/">
+                <a class="anchor" href="{{ url_for('read_works') }}">
                  <div class="image image-hover">
-                  <img alt="Cariuma" class="swiper-lazy" src="https://reinostudio.com.br/wp-content/uploads/2025/10/Cariuma-12.jpg.webp"/>
+                  <img alt="Cariuma" class="swiper-lazy" src="{{ url_for('static', path='/images/Cariuma-12.jpg.webp') }}"/>
                  </div>
                 </a>
                </div>
               </div>
               <div aria-label="4 / 5" class="swiper-slide" role="group" style="width: 342px; margin-right: 1px;">
                <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
-                <a class="anchor" href="https://reinostudio.com.br/works/zuso/">
+                <a class="anchor" href="{{ url_for('read_works') }}">
                  <div class="image image-hover">
-                  <img alt="Zuso" class="swiper-lazy" src="https://reinostudio.com.br/wp-content/uploads/2025/11/Zuso-11.jpg.webp"/>
+                  <img alt="Zuso" class="swiper-lazy" src="{{ url_for('static', path='/images/Zuso-11.jpg.webp') }}"/>
                  </div>
                 </a>
                </div>
               </div>
               <div aria-label="5 / 5" class="swiper-slide" role="group" style="width: 342px; margin-right: 1px;">
                <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
-                <a class="anchor" href="https://reinostudio.com.br/works/superela/">
+                <a class="anchor" href="{{ url_for('read_works') }}">
                  <div class="image image-hover">
-                  <img alt="Superela" class="swiper-lazy" src="https://reinostudio.com.br/wp-content/uploads/2025/10/Superela-8.jpg.webp"/>
+                  <img alt="Superela" class="swiper-lazy" src="{{ url_for('static', path='/images/Superela-8.jpg.webp') }}"/>
                  </div>
                 </a>
                </div>
@@ -443,37 +414,37 @@
              <div aria-live="polite" class="swiper-wrapper" id="swiper-wrapper-bf30becd102da396e" style="cursor: grab;">
               <div aria-label="1 / 5" class="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-active" role="group" style="width: 342px; margin-right: 1px;">
                <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(0%, 0px, 0px);">
-                <a class="anchor" href="https://reinostudio.com.br/works/gen/">
+                <a class="anchor" href="{{ url_for('read_works') }}">
                  <div class="image image-hover">
-                  <img alt="GEN" class="swiper-lazy" src="https://reinostudio.com.br/wp-content/uploads/2025/06/Gen-21-1.png.webp"/>
+                  <img alt="GEN" class="swiper-lazy" src="{{ url_for('static', path='/images/Gen-21-1.png.webp') }}"/>
                  </div>
                 </a>
                </div>
               </div>
               <div aria-label="2 / 5" class="swiper-slide swiper-slide-next" role="group" style="width: 342px; margin-right: 1px;">
                <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
-                <a class="anchor" href="https://reinostudio.com.br/works/berrics/">
+                <a class="anchor" href="{{ url_for('read_works') }}">
                  <div class="image image-hover">
-                  <img alt="Berrics" class="swiper-lazy" src="https://reinostudio.com.br/wp-content/uploads/2025/10/Berrics-22.jpg.webp"/>
+                  <img alt="Berrics" class="swiper-lazy" src="{{ url_for('static', path='/images/Berrics-22.jpg.webp') }}"/>
                  </div>
                 </a>
                </div>
               </div>
               <div aria-label="3 / 5" class="swiper-slide" role="group" style="width: 342px; margin-right: 1px;">
                <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
-                <a class="anchor" href="https://reinostudio.com.br/works/cariuma/">
+                <a class="anchor" href="{{ url_for('read_works') }}">
                  <div class="image image-hover">
-                  <img alt="Cariuma" class="swiper-lazy" src="https://reinostudio.com.br/wp-content/uploads/2025/10/Cariuma-11.jpg.webp"/>
+                  <img alt="Cariuma" class="swiper-lazy" src="{{ url_for('static', path='/images/Cariuma-11.jpg.webp') }}"/>
                  </div>
                 </a>
                </div>
               </div>
               <div aria-label="4 / 5" class="swiper-slide" role="group" style="width: 342px; margin-right: 1px;">
                <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
-                <a class="anchor" href="https://reinostudio.com.br/works/zuso/">
+                <a class="anchor" href="{{ url_for('read_works') }}">
                  <div class="video non-hoverable">
                   <video autoplay="" loop="" muted="" playsinline="">
-                   <source src="https://reinostudio.com.br/wp-content/uploads/2024/01/Weekly_Planner.mp4" type="video/mp4"/>
+                   <source src="{{ url_for('static', path='/videos/Weekly_Planner.mp4') }}" type="video/mp4"/>
                   </video>
                  </div>
                 </a>
@@ -481,9 +452,9 @@
               </div>
               <div aria-label="5 / 5" class="swiper-slide" role="group" style="width: 342px; margin-right: 1px;">
                <div class="project-secondary" data-swiper-parallax="50%" style="transform: translate3d(-50%, 0px, 0px);">
-                <a class="anchor" href="https://reinostudio.com.br/works/superela/">
+                <a class="anchor" href="{{ url_for('read_works') }}">
                  <div class="image image-hover">
-                  <img alt="Superela" class="swiper-lazy" src="https://reinostudio.com.br/wp-content/uploads/2025/10/Superela-23.jpg.webp"/>
+                  <img alt="Superela" class="swiper-lazy" src="{{ url_for('static', path='/images/Superela-23.jpg.webp') }}"/>
                  </div>
                 </a>
                </div>
@@ -687,26 +658,7 @@
           </a>
          </li>
         </ul>
-        <ul class="social-links">
-         <li>
-          <a class="link" href="https://www.instagram.com/reinostudio/" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);" target="_blank">
-           <i class="fa-brands fa-fw fa-instagram">
-           </i>
-          </a>
-         </li>
-         <li>
-          <a class="link" href="https://www.linkedin.com/company/reino-studio" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);" target="_blank">
-           <i class="fa-brands fa-fw fa-linkedin-in">
-           </i>
-          </a>
-         </li>
-         <li>
-          <a class="link" href="https://wa.me/5521984796999" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(0px, 60px);" target="_blank">
-           <i class="fa-brands fa-fw fa-whatsapp">
-           </i>
-          </a>
-         </li>
-        </ul>
+
        </div>
       </div>
      </footer>
