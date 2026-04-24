@@ -18,8 +18,7 @@ web_server/
 ├── docs/                          # 📚 문서 모음
 │   ├── 01_DEPLOYMENT_GUIDE.md     # 서버 배포 및 실행 가이드
 │   ├── 02_ROS2_NETWORK_CONFIGURATION.md  # ROS2 네트워크 설정 가이드
-│   ├── interview_prep.md          # 면접 준비 자료
-│   └── self_introduction.md       # 자기소개서
+│
 ├── Phi-4/                         # 🧠 PHi-4 LLM 파인튜닝
 │   └── src/train/train.py         # QLoRA 학습 스크립트
 ├── auto_labeling/                 # 🏷️ YOLO 데이터 수집 및 라벨링
