@@ -41,20 +41,6 @@ web_server/
 └── yolo11n.pt                     # YOLO v11 Nano 기본 모델
 ```
 
-## 🚀 빠른 시작
-
-### 1. 환경 설정
-```bash
-cd /home/tuf/web_server
-cp .env.example .env  # 필요 시 수정
-poetry install
-```
-
-### 2. 서버 실행
-```bash
-poetry run python main.py
-```
-서버: `http://0.0.0.0:8000`
 
 ## 🛠 기술 스택
 
